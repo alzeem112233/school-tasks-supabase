@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.npm-cache/
+.deploy-worktree/
+.codex-remote-attachments/
+supabase/.temp/
+.env
+.env.*
+!.env.example

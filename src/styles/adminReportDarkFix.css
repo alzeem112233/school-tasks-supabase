@@ -1,0 +1,203 @@
+/* Loaded after main.css to finish dark-mode coverage for administrative reports. */
+:root[data-theme="dark"] .admin-report-modal,
+:root[data-theme="dark"] .admin-report-modal .modal-head,
+:root[data-theme="dark"] .admin-report-modal-body,
+:root[data-theme="dark"] .admin-report-owner-grid,
+:root[data-theme="dark"] .admin-report-section,
+:root[data-theme="dark"] .admin-report-section:not([open]),
+:root[data-theme="dark"] .admin-report-section summary {
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-default) !important;
+}
+
+:root[data-theme="dark"] .admin-report-modal .modal-head h3,
+:root[data-theme="dark"] .admin-report-modal .eyebrow {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .admin-modal-close {
+  width: 44px !important;
+  height: 44px !important;
+  background: var(--bg-surface-elevated) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-default) !important;
+}
+
+:root[data-theme="dark"] .admin-report-entry,
+:root[data-theme="dark"] .admin-report-section > label {
+  background: var(--bg-surface-elevated) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme="dark"] .admin-report-fields input,
+:root[data-theme="dark"] .admin-report-section textarea,
+:root[data-theme="dark"] .admin-report-owner-grid select,
+:root[data-theme="dark"] .admin-report-modal .field input,
+:root[data-theme="dark"] .admin-report-modal .field select {
+  background: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-default) !important;
+}
+
+:root[data-theme="dark"] .admin-report-fields input::placeholder,
+:root[data-theme="dark"] .admin-report-section textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+:root[data-theme="dark"] .admin-report-fields label,
+:root[data-theme="dark"] .admin-report-modal .field {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .admin-report-fields label span,
+:root[data-theme="dark"] .admin-report-section > label span,
+:root[data-theme="dark"] .admin-report-modal .field span {
+  color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .admin-report-entry > strong,
+:root[data-theme="dark"] .admin-report-section summary span {
+  background: var(--primary-soft) !important;
+  color: var(--primary-hover) !important;
+  border: 1px solid rgba(79, 140, 255, 0.26) !important;
+}
+
+:root[data-theme="dark"] .admin-report-section summary::before {
+  background: var(--success-soft) !important;
+  color: var(--success) !important;
+}
+
+:root[data-theme="dark"] .admin-report-section[open] summary::before {
+  background: var(--primary-soft) !important;
+  color: var(--primary-hover) !important;
+}
+
+:root[data-theme="dark"] .admin-stage-toggle {
+  background: var(--bg-input) !important;
+  border-color: var(--border-default) !important;
+}
+
+:root[data-theme="dark"] .admin-stage-toggle button {
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .admin-stage-toggle button.active {
+  background: var(--primary) !important;
+  color: #f8fafc !important;
+  border-color: rgba(79, 140, 255, 0.34) !important;
+}
+
+:root[data-theme="dark"] .admin-parent-contact-toggle {
+  background: var(--bg-input) !important;
+  border-color: var(--border-default) !important;
+}
+
+:root[data-theme="dark"] .admin-parent-contact-toggle button {
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .admin-parent-contact-toggle button.active {
+  background: var(--primary) !important;
+  color: #f8fafc !important;
+  border-color: rgba(79, 140, 255, 0.34) !important;
+  box-shadow: 0 8px 18px rgba(79, 140, 255, 0.2) !important;
+}
+
+:root[data-theme="dark"] .admin-field-reinforcement input,
+:root[data-theme="dark"] .admin-add-row-btn {
+  background: var(--primary-soft) !important;
+  color: var(--primary-hover) !important;
+  border-color: rgba(79, 140, 255, 0.38) !important;
+}
+
+:root[data-theme="dark"] .admin-report-sticky-actions {
+  background: linear-gradient(to top, var(--bg-surface) 80%, rgba(16, 26, 43, 0)) !important;
+  border-top: 1px solid var(--border-default) !important;
+}
+
+:root[data-theme="dark"] .admin-report-card {
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-default) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+:root[data-theme="dark"] .admin-report-card-head h3,
+:root[data-theme="dark"] .admin-report-card-head strong {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .admin-report-card-head p,
+:root[data-theme="dark"] .admin-report-card-head small {
+  color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .admin-report-metric {
+  background: var(--bg-surface-elevated) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-subtle) !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme="dark"] .admin-report-metric span {
+  color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .admin-report-metric strong {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .admin-report-group-row {
+  align-items: stretch !important;
+}
+
+:root[data-theme="dark"] .admin-report-group-link {
+  background: var(--bg-surface-elevated) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-subtle) !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme="dark"] .admin-report-group-link:hover,
+:root[data-theme="dark"] .admin-report-group-link:focus-visible {
+  background: var(--bg-hover) !important;
+  border-color: var(--primary) !important;
+  box-shadow: var(--focus-ring) !important;
+}
+
+:root[data-theme="dark"] .admin-report-group-link span {
+  color: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .admin-report-group-link small {
+  color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .admin-report-delete-mini {
+  background: var(--danger-soft) !important;
+  color: var(--danger) !important;
+  border-color: rgba(255, 107, 120, 0.28) !important;
+}
+
+:root[data-theme="dark"] .admin-report-delete-mini:hover,
+:root[data-theme="dark"] .admin-report-delete-mini:focus-visible {
+  background: rgba(255, 107, 120, 0.2) !important;
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 120, 0.18) !important;
+}
+
+:root[data-theme="dark"] .admin-report-card-pending-sync {
+  background: var(--bg-surface) !important;
+  border-color: var(--border-default) !important;
+  filter: none !important;
+}
+
+:root[data-theme="dark"] .admin-report-card-pending-sync .admin-report-metric {
+  background: var(--bg-surface-elevated) !important;
+  border-color: var(--border-subtle) !important;
+}

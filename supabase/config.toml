@@ -1,0 +1,34 @@
+project_id = "school-tasks"
+
+[functions.manage-user]
+verify_jwt = true
+
+[functions.create-admin-user]
+verify_jwt = true
+
+[functions.change-user-role]
+verify_jwt = true
+
+[functions.create-backup]
+verify_jwt = true
+
+[functions.restore-backup]
+verify_jwt = true
+
+[functions.send-notification]
+verify_jwt = true
+
+[functions.overdue-task-check]
+verify_jwt = true
+
+[functions.deadline-reminder]
+verify_jwt = true
+
+[functions.log-login]
+verify_jwt = true
+
+[functions.export-backup]
+verify_jwt = true
+
+[functions.import-backup]
+verify_jwt = true
