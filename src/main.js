@@ -820,6 +820,7 @@ window.actions = {
   removeGradeAdjustmentSubject: modules.gradeAdjustments.removeSubject,
   openStaffEvaluation: modules.staffEvaluations.openEvaluation,
   changeStaffEvaluationSequence: modules.staffEvaluations.changeSequence,
+  toggleStaffEvaluationTeacher: modules.staffEvaluations.toggleTeacherVisibility,
   saveStaffEvaluation: modules.staffEvaluations.saveEvaluation,
   deleteStaffEvaluation: modules.staffEvaluations.deleteEvaluation,
   setStaffEvaluationFilter: modules.staffEvaluations.setFilter,
