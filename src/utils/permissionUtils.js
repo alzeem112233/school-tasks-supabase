@@ -316,11 +316,11 @@ export function canManageGradeAdjustments(user) {
 }
 
 export function canViewStaffEvaluations(user) {
-  return ["general_manager", "school_principal", "deputy_principal", "school_secretary", "computer_unit", "printing_unit"].includes(normalizeRole(user?.role, ""));
+  return isActiveUser(user);
 }
 
 export function canManageStaffEvaluations(user) {
-  return canViewStaffEvaluations(user);
+  return ["general_manager", "school_principal", "deputy_principal", "school_secretary", "computer_unit", "printing_unit"].includes(normalizeRole(user?.role, ""));
 }
 
 export function canReadSchoolTasks(user) {
