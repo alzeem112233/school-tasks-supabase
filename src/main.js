@@ -85,7 +85,7 @@ let reloadingForServiceWorkerUpdate = false;
 let capacitorPlatform = { native: false, hideSplash: async () => {} };
 let systemThemeQuery = null;
 const OFFLINE_QUEUE_KEY = "schoolTaskOfflineQueueV1";
-const APP_RELEASE = "20260929-grade-subjects-01";
+const APP_RELEASE = "20260930-logo-layout-fix-01";
 
 let state = {
   currentUser: null,

@@ -1,4 +1,4 @@
-const CACHE_NAME = "school-tasks-supabase-v144";
+const CACHE_NAME = "school-tasks-supabase-v145";
 const APP_SHELL = [
   "/",
   "/index.html",
