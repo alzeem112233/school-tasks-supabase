@@ -33,6 +33,8 @@ import {
   canManageFinanceDiscounts as permissionCanManageFinanceDiscounts,
   canViewGradeAdjustments as permissionCanViewGradeAdjustments,
   canManageGradeAdjustments as permissionCanManageGradeAdjustments,
+  canViewStaffEvaluations as permissionCanViewStaffEvaluations,
+  canManageStaffEvaluations as permissionCanManageStaffEvaluations,
   hasRole as permissionHasRole,
   accessFlag as permissionAccessFlag,
   isGeneralManager as permissionIsGeneralManager,
@@ -51,6 +53,7 @@ import { createAttachmentsModule } from "./services/attachmentService.js";
 import { createBackupModule } from "./services/backupService.js";
 import { createFinanceModule } from "./services/financeService.js";
 import { createGradeAdjustmentsModule } from "./services/gradeAdjustmentService.js";
+import { createStaffEvaluationsModule } from "./services/staffEvaluationService.js";
 import { createAdministrativeReportsModule } from "./services/administrativeReportService.js";
 import { createExamScheduleModule } from "./services/examScheduleService.js";
 import { createCircularsModule } from "./services/circularService.js";
@@ -96,6 +99,10 @@ let state = {
   gradeAdjustments: [],
   gradeAdjustmentBusy: {},
   gradeAdjustmentFilters: { search: "", status: "all", month: "", from: "", to: "" },
+  teacherDirectory: [],
+  staffEvaluations: [],
+  staffEvaluationFilters: { search: "", roleKey: "all", from: "", to: "", sort: "total_desc" },
+  staffEvaluationBusy: {},
   financeBusy: {},
   financeFilters: { search: "", status: "all", assigneeId: "all", from: "", to: "" },
   taskActionBusy: {},
@@ -509,6 +516,8 @@ function canManageFinanceDiscounts(user = state.currentUser) {
 
 function canViewGradeAdjustments(user = state.currentUser) { return permissionCanViewGradeAdjustments(user); }
 function canManageGradeAdjustments(user = state.currentUser) { return permissionCanManageGradeAdjustments(user); }
+function canViewStaffEvaluations(user = state.currentUser) { return permissionCanViewStaffEvaluations(user); }
+function canManageStaffEvaluations(user = state.currentUser) { return permissionCanManageStaffEvaluations(user); }
 
 function canSendNotifications(user = state.currentUser) {
   return permissionCanSendNotifications(user);
@@ -608,6 +617,8 @@ function getContext() {
     canManageFinanceDiscounts,
     canViewGradeAdjustments,
     canManageGradeAdjustments,
+    canViewStaffEvaluations,
+    canManageStaffEvaluations,
     canSendNotifications,
     canReadSchoolTasks,
     canReadTask,
@@ -634,6 +645,7 @@ modules.audit = createAuditService(getContext);
 modules.backup = createBackupModule(getContext);
 modules.finance = createFinanceModule(getContext);
 modules.gradeAdjustments = createGradeAdjustmentsModule(getContext);
+modules.staffEvaluations = createStaffEvaluationsModule(getContext);
 modules.administrativeReports = createAdministrativeReportsModule(getContext);
 modules.examSchedules = createExamScheduleModule(getContext);
 modules.circulars = createCircularsModule(getContext);
@@ -805,6 +817,13 @@ window.actions = {
   validateGradeAdjustmentInput: modules.gradeAdjustments.validateGradeInput,
   addGradeAdjustmentSubject: modules.gradeAdjustments.addSubject,
   removeGradeAdjustmentSubject: modules.gradeAdjustments.removeSubject,
+  openStaffEvaluation: modules.staffEvaluations.openEvaluation,
+  saveStaffEvaluation: modules.staffEvaluations.saveEvaluation,
+  deleteStaffEvaluation: modules.staffEvaluations.deleteEvaluation,
+  setStaffEvaluationFilter: modules.staffEvaluations.setFilter,
+  printStaffEvaluationReport: modules.staffEvaluations.printReport,
+  importTeacherDirectory: modules.staffEvaluations.importTeachers,
+  exportTeacherTemplate: modules.staffEvaluations.exportTeacherTemplate,
   filterFinanceAssignees: modules.finance.filterFinanceAssignees,
   openAdministrativeReport: modules.administrativeReports.openReport,
   openAdministrativeReportMerged: modules.administrativeReports.openMergedReport,

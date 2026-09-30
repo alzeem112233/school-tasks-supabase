@@ -16,6 +16,8 @@ const TABLES = {
   backups: "backups",
   financeDiscounts: "finance_discounts",
   gradeAdjustments: "grade_adjustments",
+  teacherDirectory: "teacher_directory",
+  staffEvaluations: "staff_evaluations",
   administrativeReports: "administrative_reports",
   chatMessages: "chat_messages",
 };
@@ -112,6 +114,12 @@ const COLUMN_MAPS = {
     sectionName: "section_name", previousGrade: "previous_grade", newGrade: "new_grade",
     assignedTo: "assigned_to", receivedBy: "received_by", createdBy: "created_by",
     receivedAt: "received_at", completedAt: "completed_at", createdAt: "created_at", updatedAt: "updated_at",
+  },
+  teacherDirectory: {
+    schoolId: "school_id", teacherName: "teacher_name", subjectName: "subject_name", active: "active", createdBy: "created_by", createdAt: "created_at", updatedAt: "updated_at",
+  },
+  staffEvaluations: {
+    schoolId: "school_id", teacherId: "teacher_id", teacherName: "teacher_name", subjectName: "subject_name", sequenceKey: "sequence_key", evaluatedAt: "evaluated_at", scores: "scores", total: "total", maxTotal: "max_total", notes: "notes", evaluatedBy: "evaluated_by", createdAt: "created_at", updatedAt: "updated_at",
   },
   administrativeReports: {
     date: "report_date",
@@ -598,6 +606,10 @@ export function createSupabaseModule(getContext) {
         console.warn("Chat messages table is not ready yet", error);
         return [name, []];
       }
+      if (error && ["teacherDirectory", "staffEvaluations"].includes(name) && (String(error.message || "").includes("schema cache") || String(error.message || "").includes(TABLES[name]))) {
+        console.warn(`${name} table is not ready yet`, error);
+        return [name, []];
+      }
       if (error) throw error;
       return [name, (data || []).map((row) => fromDatabaseRow(name, row))];
     }));
@@ -702,7 +714,7 @@ export function createSupabaseModule(getContext) {
     let core = null;
     let cachedSnapshot = null;
     try {
-      core = await fetchScopedCollections(["schools", "users", "tasks", "notifications", "financeDiscounts", "gradeAdjustments", "administrativeReports", "chatMessages"], profile);
+      core = await fetchScopedCollections(["schools", "users", "tasks", "notifications", "financeDiscounts", "gradeAdjustments", "teacherDirectory", "staffEvaluations", "administrativeReports", "chatMessages"], profile);
     } catch (error) {
       cachedSnapshot = readScopedDataCache(profile);
       if (!cachedSnapshot?.data?.core) throw error;
@@ -723,6 +735,8 @@ export function createSupabaseModule(getContext) {
     state.tasks = tasks.generateRecurringInstances(coreTasks);
     state.financeDiscounts = core.financeDiscounts.map(finance.normalizeDiscount);
     state.gradeAdjustments = core.gradeAdjustments.map(getContext().gradeAdjustments.normalizeAdjustment);
+    state.teacherDirectory = (core.teacherDirectory || []).map((item) => ({ ...item, active: item.active !== false }));
+    state.staffEvaluations = (core.staffEvaluations || []).map(getContext().staffEvaluations.normalizeEvaluation);
     state.administrativeReports = (core.administrativeReports || []).map((report) => getContext().administrativeReports.normalizeReport(report));
     state.chatMessages = (core.chatMessages || []).map(chat.normalizeChatMessage).sort((a, b) => getContext().compareTimestamp(a.createdAt, b.createdAt));
     const activeAssigneeIds = new Set([
