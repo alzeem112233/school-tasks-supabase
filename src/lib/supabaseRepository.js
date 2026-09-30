@@ -18,6 +18,7 @@ const TABLES = {
   gradeAdjustments: "grade_adjustments",
   teacherDirectory: "teacher_directory",
   staffEvaluations: "staff_evaluations",
+  staffEvaluationSettings: "staff_evaluation_settings",
   administrativeReports: "administrative_reports",
   chatMessages: "chat_messages",
 };
@@ -120,6 +121,9 @@ const COLUMN_MAPS = {
   },
   staffEvaluations: {
     schoolId: "school_id", teacherId: "teacher_id", teacherName: "teacher_name", subjectName: "subject_name", sequenceKey: "sequence_key", evaluatedAt: "evaluated_at", scores: "scores", total: "total", maxTotal: "max_total", notes: "notes", evaluatedBy: "evaluated_by", createdAt: "created_at", updatedAt: "updated_at",
+  },
+  staffEvaluationSettings: {
+    schoolId: "school_id", openToAll: "open_to_all", updatedBy: "updated_by", createdAt: "created_at", updatedAt: "updated_at",
   },
   administrativeReports: {
     date: "report_date",
@@ -519,6 +523,11 @@ export function createSupabaseModule(getContext) {
     state.gradeAdjustments = [];
     state.gradeAdjustmentBusy = {};
     state.gradeAdjustmentFilters = { search: "", status: "all", month: "", from: "", to: "" };
+    state.teacherDirectory = [];
+    state.staffEvaluations = [];
+    state.staffEvaluationSettings = [];
+    state.staffEvaluationDraftSequence = "";
+    state.staffEvaluationDraftTeacherId = "";
     state.financeBusy = {};
     state.financeFilters = { search: "", status: "all", assigneeId: "all", from: "", to: "" };
     state.backupBusy = false;
@@ -606,7 +615,7 @@ export function createSupabaseModule(getContext) {
         console.warn("Chat messages table is not ready yet", error);
         return [name, []];
       }
-      if (error && ["teacherDirectory", "staffEvaluations"].includes(name) && (String(error.message || "").includes("schema cache") || String(error.message || "").includes(TABLES[name]))) {
+      if (error && ["teacherDirectory", "staffEvaluations", "staffEvaluationSettings"].includes(name) && (String(error.message || "").includes("schema cache") || String(error.message || "").includes(TABLES[name]))) {
         console.warn(`${name} table is not ready yet`, error);
         return [name, []];
       }
@@ -714,7 +723,7 @@ export function createSupabaseModule(getContext) {
     let core = null;
     let cachedSnapshot = null;
     try {
-      core = await fetchScopedCollections(["schools", "users", "tasks", "notifications", "financeDiscounts", "gradeAdjustments", "teacherDirectory", "staffEvaluations", "administrativeReports", "chatMessages"], profile);
+      core = await fetchScopedCollections(["schools", "users", "tasks", "notifications", "financeDiscounts", "gradeAdjustments", "teacherDirectory", "staffEvaluations", "staffEvaluationSettings", "administrativeReports", "chatMessages"], profile);
     } catch (error) {
       cachedSnapshot = readScopedDataCache(profile);
       if (!cachedSnapshot?.data?.core) throw error;
@@ -737,6 +746,7 @@ export function createSupabaseModule(getContext) {
     state.gradeAdjustments = core.gradeAdjustments.map(getContext().gradeAdjustments.normalizeAdjustment);
     state.teacherDirectory = (core.teacherDirectory || []).map((item) => ({ ...item, active: item.active !== false }));
     state.staffEvaluations = (core.staffEvaluations || []).map(getContext().staffEvaluations.normalizeEvaluation);
+    state.staffEvaluationSettings = core.staffEvaluationSettings || [];
     state.administrativeReports = (core.administrativeReports || []).map((report) => getContext().administrativeReports.normalizeReport(report));
     state.chatMessages = (core.chatMessages || []).map(chat.normalizeChatMessage).sort((a, b) => getContext().compareTimestamp(a.createdAt, b.createdAt));
     const activeAssigneeIds = new Set([

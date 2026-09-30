@@ -35,6 +35,8 @@ import {
   canManageGradeAdjustments as permissionCanManageGradeAdjustments,
   canViewStaffEvaluations as permissionCanViewStaffEvaluations,
   canManageStaffEvaluations as permissionCanManageStaffEvaluations,
+  canViewStaffEvaluationReports as permissionCanViewStaffEvaluationReports,
+  canControlStaffEvaluationAccess as permissionCanControlStaffEvaluationAccess,
   hasRole as permissionHasRole,
   accessFlag as permissionAccessFlag,
   isGeneralManager as permissionIsGeneralManager,
@@ -104,6 +106,8 @@ let state = {
   staffEvaluationFilters: { search: "", roleKey: "all", from: "", to: "", sort: "total_desc" },
   staffEvaluationBusy: {},
   staffEvaluationDraftSequence: "",
+  staffEvaluationDraftTeacherId: "",
+  staffEvaluationSettings: [],
   financeBusy: {},
   financeFilters: { search: "", status: "all", assigneeId: "all", from: "", to: "" },
   taskActionBusy: {},
@@ -519,6 +523,8 @@ function canViewGradeAdjustments(user = state.currentUser) { return permissionCa
 function canManageGradeAdjustments(user = state.currentUser) { return permissionCanManageGradeAdjustments(user); }
 function canViewStaffEvaluations(user = state.currentUser) { return permissionCanViewStaffEvaluations(user); }
 function canManageStaffEvaluations(user = state.currentUser) { return permissionCanManageStaffEvaluations(user); }
+function canViewStaffEvaluationReports(user = state.currentUser) { return permissionCanViewStaffEvaluationReports(user); }
+function canControlStaffEvaluationAccess(user = state.currentUser) { return permissionCanControlStaffEvaluationAccess(user); }
 
 function canSendNotifications(user = state.currentUser) {
   return permissionCanSendNotifications(user);
@@ -620,6 +626,8 @@ function getContext() {
     canManageGradeAdjustments,
     canViewStaffEvaluations,
     canManageStaffEvaluations,
+    canViewStaffEvaluationReports,
+    canControlStaffEvaluationAccess,
     canSendNotifications,
     canReadSchoolTasks,
     canReadTask,
@@ -820,6 +828,8 @@ window.actions = {
   removeGradeAdjustmentSubject: modules.gradeAdjustments.removeSubject,
   openStaffEvaluation: modules.staffEvaluations.openEvaluation,
   changeStaffEvaluationSequence: modules.staffEvaluations.changeSequence,
+  selectStaffEvaluationTeacher: modules.staffEvaluations.selectTeacher,
+  toggleStaffEvaluationAccess: modules.staffEvaluations.toggleAccess,
   toggleStaffEvaluationTeacher: modules.staffEvaluations.toggleTeacherVisibility,
   saveStaffEvaluation: modules.staffEvaluations.saveEvaluation,
   deleteStaffEvaluation: modules.staffEvaluations.deleteEvaluation,

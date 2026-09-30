@@ -323,6 +323,14 @@ export function canManageStaffEvaluations(user) {
   return ["general_manager", "school_principal", "deputy_principal", "school_secretary", "computer_unit", "printing_unit"].includes(normalizeRole(user?.role, ""));
 }
 
+export function canViewStaffEvaluationReports(user) {
+  return ["general_manager", "school_principal", "deputy_principal"].includes(normalizeRole(user?.role, ""));
+}
+
+export function canControlStaffEvaluationAccess(user) {
+  return canViewStaffEvaluationReports(user);
+}
+
 export function canReadSchoolTasks(user) {
   return hasRole(user, roleGroups.schoolWideTaskRead);
 }
