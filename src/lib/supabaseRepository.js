@@ -747,6 +747,11 @@ export function createSupabaseModule(getContext) {
     state.teacherDirectory = (core.teacherDirectory || []).map((item) => ({ ...item, active: item.active !== false }));
     state.staffEvaluations = (core.staffEvaluations || []).map(getContext().staffEvaluations.normalizeEvaluation);
     state.staffEvaluationSettings = core.staffEvaluationSettings || [];
+    if (state.modal?.type === "staff_evaluation") {
+      const evaluationSchoolId = isGeneralManager(profile) ? state.activeSchoolId : profile.schoolId;
+      const evaluationOpen = state.staffEvaluationSettings.some((item) => item.schoolId === evaluationSchoolId && item.openToAll === true);
+      if (!evaluationOpen) state.modal = null;
+    }
     state.administrativeReports = (core.administrativeReports || []).map((report) => getContext().administrativeReports.normalizeReport(report));
     state.chatMessages = (core.chatMessages || []).map(chat.normalizeChatMessage).sort((a, b) => getContext().compareTimestamp(a.createdAt, b.createdAt));
     const activeAssigneeIds = new Set([
