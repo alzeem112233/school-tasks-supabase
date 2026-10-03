@@ -153,7 +153,8 @@ export function createStaffEvaluationsModule(getContext) {
     const titles = { ranked: "تقرير ترتيب نتائج تقييم الموظفين", summary: "ملخص نتائج تقييم الموظفين", full: "التقرير التفصيلي لتقييم الموظفين" };
     const reportTitle = titles[mode] || titles.ranked; const average = rows.length ? Math.round(rows.reduce((sum, item) => sum + percentage(item), 0) / rows.length) : 0; const highest = rows.length ? percentage(rows[0]) : 0;
     const school = schoolName(branchId()) || state.schoolProfile?.name || "الفرع الحالي"; const issuedBy = state.currentUser?.name || "الإدارة"; const issuedRole = roleLabel(state.currentUser?.role || ""); const printedAt = new Intl.DateTimeFormat("ar-YE", { dateStyle: "long", timeStyle: "short" }).format(new Date());
-    const scoreCell = (item) => `<div class="score"><strong>${safe(item.total)} / ${safe(item.maxTotal)}</strong><span>${percentage(item)}% · ${rating(percentage(item))}</span><em>${safe(item.evaluations.length)} تقييم</em></div>`;
+    const finalScore = (item) => percentage(item);
+    const scoreCell = (item) => `<div class="score"><strong>${safe(finalScore(item))} / 100</strong><span>${rating(finalScore(item))}</span><em>${safe(item.total)} / ${safe(item.maxTotal)} · ${safe(item.evaluations.length)} تقييم</em></div>`;
     const sequenceSummary = (item) => [...new Set(item.evaluations.map((entry) => definition(entry.sequenceKey).label))].map((label) => `<span class="sequence">${safe(label)}</span>`).join(" ");
     const detailCell = (item) => `<div class="criteria">${item.evaluations.map((entry) => {
       const evaluator = getUser?.(entry.evaluatedBy);
