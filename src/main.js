@@ -103,7 +103,7 @@ let state = {
   gradeAdjustmentFilters: { search: "", status: "all", month: "", from: "", to: "" },
   teacherDirectory: [],
   staffEvaluations: [],
-  staffEvaluationFilters: { search: "", roleKey: "all", from: "", to: "", sort: "total_desc" },
+  staffEvaluationFilters: { search: "", roleKey: "all", assessmentPeriod: "first_term", from: "", to: "", sort: "total_desc" },
   staffEvaluationBusy: {},
   staffEvaluationDraftSequence: "",
   staffEvaluationDraftTeacherId: "",
