@@ -66,6 +66,22 @@ export function createGradeAdjustmentsModule(getContext) {
     };
   }
 
+  function teacherDirectoryForSchool(schoolId = "") {
+    const { state } = getContext();
+    return (state.teacherDirectory || [])
+      .filter((teacher) => teacher.active !== false && teacher.schoolId === schoolId)
+      .sort((a, b) => String(a.teacherName || "").localeCompare(String(b.teacherName || ""), "ar"));
+  }
+
+  function gradeTeacherOptions(schoolId = "") {
+    return teacherDirectoryForSchool(schoolId).map((teacher) => `${teacher.teacherName} - ${teacher.subjectName}`);
+  }
+
+  function splitTeacherOption(value = "") {
+    const [teacherName, ...subjectParts] = String(value || "").split(" - ");
+    return { teacherName: String(teacherName || "").trim(), subjectName: subjectParts.join(" - ").trim() };
+  }
+
   function renderSubjectBlock(subjectIndex, sourceItem = {}, removable = false, previousHint = () => "") {
     const { safe, icons } = getContext();
     const field = (name, label, hint, attrs = "", value = "") => `<label class="field"><span>${label}</span><input name="${name}" value="${safe(value)}" placeholder="${safe(hint)}" title="${safe(hint)}" ${attrs}></label>`;
@@ -81,8 +97,8 @@ export function createGradeAdjustmentsModule(getContext) {
     return `<section class="wide grade-subject-entry" data-subject-index="${safe(subjectIndex)}">
       <div class="grade-subject-head"><strong>المادة ${safe(subjectIndex + 1)}</strong>${removable ? `<button class="icon-btn danger-icon" type="button" title="حذف المادة" onclick="actions.removeGradeAdjustmentSubject(this)">${icons.trash}</button>` : ""}</div>
       <div class="grade-subject-fields">
-        ${field(`subjectName_${subjectIndex}`,'المادة','اختر أو اكتب اسم المادة','minlength="2" maxlength="120" list="grade-subject-options"',sourceItem.subjectName)}
-        ${field(`teacherName_${subjectIndex}`,'اسم الأستاذ','اكتب اسم الأستاذ','minlength="2" maxlength="200"',sourceItem.teacherName)}
+        ${field(`teacherName_${subjectIndex}`,'اسم الأستاذ','اختر الأستاذ من فرع الطالب','minlength="2" maxlength="200" list="grade-teacher-options" onchange="actions.selectGradeAdjustmentTeacher(this)" oninput="actions.selectGradeAdjustmentTeacher(this)"',sourceItem.teacherName)}
+        ${field(`subjectName_${subjectIndex}`,'المادة','تظهر تلقائيًا بعد اختيار الأستاذ','minlength="2" maxlength="120" list="grade-subject-options"',sourceItem.subjectName)}
       </div>
       <section class="grade-score-board" aria-label="درجات المادة">
         <div class="grade-score-board-head"><strong>${safe(sourceItem.subjectName || "درجات المادة")}</strong><span>املأ الدرجة الجديدة للقسم المطلوب</span></div>
@@ -182,18 +198,20 @@ export function createGradeAdjustmentsModule(getContext) {
     const catalogs = catalogOptions();
     const previousHint = (label, value) => id && String(value ?? "").trim() !== "" ? `<small class="previous-value">${safe(label)} سابقًا: <b>${safe(value)}</b></small>` : "";
     const field = (name, label, hint, attrs = "", value = "") => `<label class="field"><span>${label}</span><input name="${name}" value="${safe(value)}" placeholder="${safe(hint)}" title="${safe(hint)}" ${attrs}>${previousHint('القيمة', value)}</label>`;
-    const datalist = (listId, values) => `<datalist id="${listId}">${values.map(value=>`<option value="${safe(value)}"></option>`).join("")}</datalist>`;
+    const teacherOptions = gradeTeacherOptions(schoolId);
+    const directorySubjects = teacherDirectoryForSchool(schoolId).map((teacher) => teacher.subjectName);
+    const datalist = (listId, values) => `<datalist id="${listId}">${uniqueList(values).map(value=>`<option value="${safe(value)}"></option>`).join("")}</datalist>`;
     return `<div class="modal grade-adjustment-overlay"><form class="modal-box grade-adjustment-modal" onsubmit="actions.saveGradeAdjustment(event)" novalidate><header class="modal-head grade-modal-header"><div><h3>${id?'تعديل':'إضافة'} طلب تعديل درجة</h3><p class="muted">اختر بيانات الطالب ثم املأ الأقسام التي تريد تعديلها فقط.</p></div><button class="icon-btn" type="button" aria-label="إغلاق النافذة" onclick="actions.closeModal()">${icons.close}</button></header><input type="hidden" name="id" value="${safe(id)}"><div class="grade-modal-body"><div class="grade-form-grid grade-mobile-form">
       <label class="field"><span>الشهر</span><select name="month" required title="اختر الشهر أو نهاية الفصل"><option value="" disabled ${item.month?'':'selected'}>اختر الشهر أو نهاية الفصل</option>${monthOptions.map(value=>`<option value="${safe(value)}" ${item.month===value?'selected':''}>${safe(value)}</option>`).join('')}</select>${previousHint('الشهر',item.month)}</label>
       ${field('studentName','اسم الطالب','اكتب اسم الطالب كاملاً','required minlength="2" maxlength="200" autocomplete="name"',item.studentName)}
       ${field('studentNumber','رقم الطالب إن وجد','مثال: 1025','maxlength="80" inputmode="numeric"',item.studentNumber)}
       ${field('className','الصف','اختر أو اكتب الصف','required maxlength="100" list="grade-class-options"',item.className)}
       ${field('sectionName','الشعبة إن وجدت','مثال: أ أو 1','maxlength="50" list="grade-section-options"',item.sectionName)}
-      <label class="field"><span>الفرع</span><select name="schoolId" required title="اختر فرع الطالب">${options.map(s=>`<option value="${safe(s.id)}" ${schoolId===s.id?'selected':''}>${safe(s.name)}</option>`).join('')}</select>${previousHint('الفرع', options.find(s=>s.id===item.schoolId)?.name||'')}</label>
+      <label class="field"><span>الفرع</span><select name="schoolId" required title="اختر فرع الطالب" onchange="actions.refreshGradeAdjustmentTeacherCatalog(this)">${options.map(s=>`<option value="${safe(s.id)}" ${schoolId===s.id?'selected':''}>${safe(s.name)}</option>`).join('')}</select>${previousHint('الفرع', options.find(s=>s.id===item.schoolId)?.name||'')}</label>
       <div class="wide grade-subject-list" data-grade-subject-list>${renderSubjectBlock(0, item, false, previousHint)}</div>
       <button class="btn secondary wide grade-add-subject-btn" type="button" onclick="actions.addGradeAdjustmentSubject(this)">${icons.plus} إضافة مادة أخرى</button>
       <label class="field wide"><span>سبب التعديل</span><textarea name="reason" required minlength="5" maxlength="2000" placeholder="اشرح سبب تعديل الدرجة بوضوح" title="اكتب سبب التعديل بوضوح">${safe(item.reason||'')}</textarea>${previousHint('السبب',item.reason)}</label>
-      ${datalist("grade-class-options", catalogs.classes)}${datalist("grade-subject-options", catalogs.subjects)}${datalist("grade-section-options", catalogs.sections)}
+      ${datalist("grade-class-options", catalogs.classes)}${datalist("grade-teacher-options", teacherOptions)}${datalist("grade-subject-options", [...directorySubjects, ...catalogs.subjects])}${datalist("grade-section-options", catalogs.sections)}
       </div></div><footer class="modal-actions grade-modal-footer"><button class="btn secondary" type="button" onclick="actions.closeModal()">إلغاء</button><button class="btn" type="submit">${icons.save} ${id?'حفظ التعديل':'إرسال الطلب'}</button></footer></form></div>`;
   }
 
@@ -214,6 +232,37 @@ export function createGradeAdjustmentsModule(getContext) {
     const list = entry?.parentElement;
     if (!entry || !list || list.querySelectorAll(".grade-subject-entry").length <= 1) return;
     entry.remove();
+  }
+
+  function selectTeacher(input) {
+    const entry = input?.closest(".grade-subject-entry");
+    const schoolId = input?.form?.elements?.schoolId?.value || "";
+    const selected = splitTeacherOption(input?.value);
+    const teacher = teacherDirectoryForSchool(schoolId).find((item) =>
+      item.teacherName === selected.teacherName && (!selected.subjectName || item.subjectName === selected.subjectName)
+    );
+    if (!entry || !teacher) return;
+    input.value = teacher.teacherName;
+    const subjectInput = entry.querySelector(`[name="subjectName_${entry.dataset.subjectIndex}"]`);
+    if (subjectInput) {
+      subjectInput.value = teacher.subjectName;
+      subjectInput.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    const boardTitle = entry.querySelector(".grade-score-board-head strong");
+    if (boardTitle) boardTitle.textContent = teacher.subjectName || "درجات المادة";
+  }
+
+  function refreshTeacherCatalog(select) {
+    const form = select?.form;
+    const datalist = form?.querySelector("#grade-teacher-options");
+    if (!form || !datalist) return;
+    datalist.innerHTML = gradeTeacherOptions(select.value).map((value) => `<option value="${getContext().safe(value)}"></option>`).join("");
+    form.querySelectorAll(".grade-subject-entry").forEach((entry) => {
+      const teacherInput = entry.querySelector(`[name="teacherName_${entry.dataset.subjectIndex}"]`);
+      const subjectInput = entry.querySelector(`[name="subjectName_${entry.dataset.subjectIndex}"]`);
+      if (teacherInput) teacherInput.value = "";
+      if (subjectInput) subjectInput.value = "";
+    });
   }
 
   async function saveAdjustment(event) {
@@ -281,5 +330,5 @@ export function createGradeAdjustmentsModule(getContext) {
   function setFilter(key,value){const {state,render}=getContext();if(!['search','status','month','from','to'].includes(key))return;state.gradeAdjustmentFilters={...state.gradeAdjustmentFilters,[key]:value};state.pagination.gradeAdjustmentsPage=1;if(key==='search'){clearTimeout(searchTimer);searchTimer=setTimeout(render,180);}else render();}
   function printReport(){const {safe,schoolName,formatDate}=getContext();const rows=visible().map(x=>`<tr><td>${safe(x.studentName)}</td><td>${safe(x.studentNumber || "-")}</td><td>${safe(x.month)}</td><td>${safe(x.gradeSection)}</td><td>${safe(x.subjectName)}</td><td>${safe(x.teacherName)}</td><td>${safe(x.className)}</td><td>${safe(x.sectionName)}</td><td>${safe(x.newGrade)}</td><td>${safe(x.reason)}</td><td>${safe(statusLabels[x.status])}</td><td>${safe(schoolName(x.schoolId))}</td><td>${safe(formatDate(x.createdAt))}</td></tr>`).join('');const win=window.open('','_blank');if(!win)return;win.document.write(`<html dir="rtl"><head><title>تقرير تعديل الدرجات</title><style>body{font-family:Tahoma;padding:24px}h1{text-align:center}table{width:100%;border-collapse:collapse;font-size:10px}th,td{border:1px solid #999;padding:5px;text-align:right}th{background:#eee}@page{size:landscape;margin:8mm}</style></head><body><h1>تقرير طلبات تعديل الدرجات</h1><table><thead><tr>${['الطالب','رقم الطالب','الشهر','قسم الدرجة','المادة','الأستاذ','الصف','الشعبة','الدرجة','السبب','الحالة','الفرع','التاريخ'].map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows||'<tr><td colspan="13">لا توجد بيانات</td></tr>'}</tbody></table></body></html>`);win.document.close();win.focus();setTimeout(()=>win.print(),250);}
 
-  return { normalizeAdjustment, renderPage, renderModal, openAdjustment, saveAdjustment, updateStatus, deleteAdjustment, setFilter, printReport, applyGradeSectionLimits, validateGradeInput, addSubject, removeSubject };
+  return { normalizeAdjustment, renderPage, renderModal, openAdjustment, saveAdjustment, updateStatus, deleteAdjustment, setFilter, printReport, applyGradeSectionLimits, validateGradeInput, addSubject, removeSubject, selectTeacher, refreshTeacherCatalog };
 }

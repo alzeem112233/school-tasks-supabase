@@ -826,6 +826,8 @@ window.actions = {
   validateGradeAdjustmentInput: modules.gradeAdjustments.validateGradeInput,
   addGradeAdjustmentSubject: modules.gradeAdjustments.addSubject,
   removeGradeAdjustmentSubject: modules.gradeAdjustments.removeSubject,
+  selectGradeAdjustmentTeacher: modules.gradeAdjustments.selectTeacher,
+  refreshGradeAdjustmentTeacherCatalog: modules.gradeAdjustments.refreshTeacherCatalog,
   openStaffEvaluation: modules.staffEvaluations.openEvaluation,
   changeStaffEvaluationSequence: modules.staffEvaluations.changeSequence,
   selectStaffEvaluationTeacher: modules.staffEvaluations.selectTeacher,
