@@ -143,6 +143,7 @@ const summaryNameFields = {
   followupNotebooks: [["teacher", "أسماء المعلمين في دفاتر المتابعة"]],
   parentNotes: [["learnerName", "أسماء الطلاب في ملاحظات أولياء الأمور"]],
 };
+const teacherNameFields = new Set(["teacherPositives.name", "teacherNotes.teacher", "correctionFollowup.teacher", "followupNotebooks.teacher"]);
 
 function readJson(key, fallback) {
   try {
@@ -172,6 +173,10 @@ function safeNumberText(value) {
 
 function reportFieldName(sectionId, field) {
   return `${sectionId}.${field}`;
+}
+
+function isTeacherNameField(sectionId, field) {
+  return teacherNameFields.has(reportFieldName(sectionId, field));
 }
 
 function isNumericReportField(sectionId, field) {
@@ -596,6 +601,19 @@ export function createAdministrativeReportsModule(getContext) {
     return `admin-suggestions-${sectionId}-${field}`;
   }
 
+  function teacherDirectoryForSchool(schoolId = "") {
+    const { state } = getContext();
+    return (state.teacherDirectory || [])
+      .filter((teacher) => teacher.active !== false && teacher.schoolId === schoolId)
+      .sort((a, b) => String(a.teacherName || "").localeCompare(String(b.teacherName || ""), "ar"));
+  }
+
+  function teacherSuggestionValues(schoolId = "") {
+    return teacherDirectoryForSchool(schoolId)
+      .map((teacher) => [teacher.teacherName, teacher.subjectName].filter(Boolean).join(" - "))
+      .filter(Boolean);
+  }
+
   function suggestionValues(sectionId, field) {
     const values = new Set();
     reports().forEach((report) => {
@@ -606,12 +624,12 @@ export function createAdministrativeReportsModule(getContext) {
     return [...values].sort((a, b) => a.localeCompare(b, "ar")).slice(0, 80);
   }
 
-  function renderSuggestionLists(section) {
+  function renderSuggestionLists(section, report) {
     const { safe } = getContext();
     return section.fields
       .filter(([field]) => suggestionFields.has(field))
       .map(([field]) => {
-        const values = suggestionValues(section.id, field);
+        const values = isTeacherNameField(section.id, field) ? teacherSuggestionValues(report?.schoolId) : suggestionValues(section.id, field);
         if (!values.length) return "";
         return `<datalist id="${safe(suggestionListId(section.id, field))}">${values.map((value) => `<option value="${safe(value)}"></option>`).join("")}</datalist>`;
       })
@@ -1369,6 +1387,23 @@ export function createAdministrativeReportsModule(getContext) {
     restoreReportModalPosition(scrollTop, sectionId);
   }
 
+  function selectTeacherField(input) {
+    if (!input) return;
+    const sectionId = input.dataset.sectionId || "";
+    const schoolId = input.dataset.schoolId || "";
+    const value = safeText(input.value);
+    if (!isTeacherNameField(sectionId, input.dataset.field || "teacher")) return;
+    const teacher = teacherDirectoryForSchool(schoolId).find((item) => {
+      const fullValue = [item.teacherName, item.subjectName].filter(Boolean).join(" - ");
+      return value === fullValue || value === item.teacherName;
+    });
+    if (!teacher) return;
+    input.value = teacher.teacherName || "";
+    const entry = input.closest(".admin-report-entry");
+    const subjectInput = entry?.querySelector(`input[name="${sectionId}.subject"]`);
+    if (subjectInput && !subjectInput.readOnly) subjectInput.value = teacher.subjectName || "";
+  }
+
   function renderRows(section, report, editable) {
     const { safe } = getContext();
     const rows = report.sections?.[section.id] || [{}];
@@ -1428,6 +1463,7 @@ export function createAdministrativeReportsModule(getContext) {
                     value="${safe(numericField ? safeNumberText(row[field]) : row[field])}"
                     ${numericField ? `inputmode="numeric" pattern="[0-9]*" min="0" step="1" oninput="this.value=this.value.replace(/[^0-9]/g,'')"` : ""}
                     ${suggestionFields.has(field) ? `list="${safe(suggestionListId(section.id, field))}" autocomplete="off"` : ""}
+                    ${isTeacherNameField(section.id, field) ? `data-section-id="${safe(section.id)}" data-field="${safe(field)}" data-school-id="${safe(report.schoolId)}" oninput="actions.selectAdministrativeReportTeacher(this)" onchange="actions.selectAdministrativeReportTeacher(this)"` : ""}
                     ${editable ? "" : "readonly"}
                   />
                 </label>
@@ -1436,7 +1472,7 @@ export function createAdministrativeReportsModule(getContext) {
             </div>
           </div>
         `).join("")}
-        ${renderSuggestionLists(section)}
+        ${renderSuggestionLists(section, report)}
         ${editable ? `<button type="button" class="admin-add-row-btn" onclick="actions.addAdministrativeReportSectionRow(event,'${safe(section.id)}')">+ إضافة جزء جديد</button>` : ""}
       </div>
     `;
@@ -1808,6 +1844,7 @@ export function createAdministrativeReportsModule(getContext) {
     saveAndApproveByDeputy,
     deleteAdministrativeReportGroup,
     addSectionRow,
+    selectTeacherField,
     approveByPrincipal,
     setFilter,
     setTab,

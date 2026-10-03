@@ -851,6 +851,7 @@ window.actions = {
   setAdministrativeReportTab: modules.administrativeReports.setTab,
   setStageSupervisorColor: modules.administrativeReports.setSupervisorColor,
   addAdministrativeReportSectionRow: modules.administrativeReports.addSectionRow,
+  selectAdministrativeReportTeacher: modules.administrativeReports.selectTeacherField,
   printAdministrativeReports: modules.administrativeReports.printAdministrativeReports,
   setExamScheduleFilter: modules.examSchedules.setFilter,
   resetExamScheduleFilters: modules.examSchedules.resetFilters,
