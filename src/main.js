@@ -837,6 +837,7 @@ window.actions = {
   deleteStaffEvaluation: modules.staffEvaluations.deleteEvaluation,
   setStaffEvaluationFilter: modules.staffEvaluations.setFilter,
   printStaffEvaluationReport: modules.staffEvaluations.printReport,
+  printStaffEvaluationUsersReport: modules.staffEvaluations.printUsersReport,
   importTeacherDirectory: modules.staffEvaluations.importTeachers,
   exportTeacherTemplate: modules.staffEvaluations.exportTeacherTemplate,
   filterFinanceAssignees: modules.finance.filterFinanceAssignees,
