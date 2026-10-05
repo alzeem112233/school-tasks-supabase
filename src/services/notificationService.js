@@ -497,7 +497,7 @@ export function createNotificationsModule(getContext) {
 
     if (cloud.enabled) {
       try {
-        const managementRoles = ["general_manager", "school_principal", "deputy_principal"];
+        const managementRoles = ["superadmin", "general_manager", "branch_manager", "development_supervision_manager", "general_secretary", "school_principal", "deputy_principal"];
         if (managementRoles.includes(state.currentUser.role)) {
           const scope = scopedSchoolId();
           const schoolIds = scope === "all" ? [...new Set(state.tasks.map((task) => task.schoolId).filter(Boolean))] : [scope];

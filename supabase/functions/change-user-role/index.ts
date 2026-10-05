@@ -2,11 +2,13 @@ import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import { requireRequester } from "../_shared/auth.ts";
 import { isKnownRole } from "../_shared/roles.ts";
 
+const roleChangeRequesters = ["superadmin", "school_principal"];
+
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (request.method !== "POST") return jsonResponse({ error: "الطريقة غير مدعومة." }, 405);
   try {
-    const auth = await requireRequester(request, ["general_manager", "school_principal"]);
+    const auth = await requireRequester(request, roleChangeRequesters);
     if ("error" in auth) return jsonResponse({ error: auth.error }, auth.status);
     const body = await request.json();
     const userId = String(body.id || "").trim();

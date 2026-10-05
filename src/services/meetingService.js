@@ -1,8 +1,9 @@
 import { nowTimestamp, today } from "../utils/dateUtils.js";
 import { createUuid } from "../utils/idUtils.js";
-import { canOverrideManagerApprovalLock, isGeneralManager, isTracker, linkedSchoolIds, normalizeRole } from "../utils/permissionUtils.js";
+import { canOverrideManagerApprovalLock, isGeneralManager, normalizeRole } from "../utils/permissionUtils.js";
 
-const meetingRoles = ["general_manager", "school_principal", "deputy_principal", "school_secretary", "printing_unit", "computer_unit"];
+const centralMeetingRoles = ["superadmin", "general_manager", "branch_manager", "development_supervision_manager", "general_secretary"];
+const meetingRoles = [...centralMeetingRoles, "school_principal", "deputy_principal", "school_secretary", "printing_unit", "computer_unit"];
 const statusLabels = {
   draft: "مسودة",
   scheduled: "مجدول",
@@ -33,11 +34,6 @@ export function createMeetingsModule(getContext) {
   function schoolScopeId() {
     const { state } = getContext();
     if (isGeneralManager(state.currentUser)) return state.activeSchoolId || "all";
-    if (isTracker(state.currentUser)) {
-      const ids = linkedSchoolIds(state.currentUser);
-      if (state.activeSchoolId !== "all" && ids.includes(state.activeSchoolId)) return state.activeSchoolId;
-      return "all";
-    }
     return state.currentUser?.schoolId || "";
   }
 

@@ -2,11 +2,13 @@ import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import { canAccessSchool, requireRequester } from "../_shared/auth.ts";
 import { snapshotBackupFiles } from "../_shared/backupStorage.ts";
 
+const backupRoles = ["superadmin", "general_manager", "branch_manager", "school_principal"];
+
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (request.method !== "POST") return jsonResponse({ error: "الطريقة غير مدعومة." }, 405);
   try {
-    const auth = await requireRequester(request, ["general_manager", "school_principal"]);
+    const auth = await requireRequester(request, backupRoles);
     if ("error" in auth) return jsonResponse({ error: auth.error }, auth.status);
     const body = await request.json().catch(() => ({}));
     const requestedSchoolId = String(body.schoolId || auth.requester.school_id || "").trim();
@@ -14,7 +16,7 @@ Deno.serve(async (request) => {
     const schoolId = includeAll ? auth.requester.school_id || null : requestedSchoolId;
     const settings = typeof body.settings === "object" && body.settings !== null ? body.settings : {};
     if (!includeAll && !schoolId) return jsonResponse({ error: "اختر نطاق النسخة الاحتياطية." }, 400);
-    if (includeAll && auth.requester.role !== "general_manager") return jsonResponse({ error: "النسخة الكاملة للموقع متاحة للمدير العام فقط." }, 403);
+    if (includeAll && auth.requester.role !== "superadmin") return jsonResponse({ error: "النسخة الكاملة للموقع متاحة لحساب SUPERADMIN فقط." }, 403);
     if (!includeAll && !canAccessSchool(auth.requester, String(schoolId))) return jsonResponse({ error: "لا يمكن نسخ بيانات مدرسة أخرى." }, 403);
     if (JSON.stringify(settings).length > 200000) return jsonResponse({ error: "حجم إعدادات النسخة الاحتياطية أكبر من المسموح." }, 400);
 

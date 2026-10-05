@@ -1,16 +1,17 @@
 import { formatArabicDate, nowTimestamp, today } from "../utils/dateUtils.js";
 import { createUuid } from "../utils/idUtils.js";
-import { isGeneralManager, isTracker, linkedSchoolIds, normalizeRole } from "../utils/permissionUtils.js";
+import { isGeneralManager, normalizeRole } from "../utils/permissionUtils.js";
 
 const STORAGE_KEY = "schoolTasksExamSchedulesLocalV1";
 const SETTINGS_KEY = "schoolTasksExamScheduleSettingsLocalV1";
 const LOGS_KEY = "schoolTasksExamScheduleLogsLocalV1";
 const SUBJECT_COLORS = ["#0f766e", "#2563eb", "#7c3aed", "#0891b2", "#d97706", "#059669", "#be185d", "#475569"];
 const defaultSubjects = ["لغة عربية", "رياضيات", "قرآن كريم", "علوم", "لغة إنجليزية", "اجتماعيات", "فيزياء", "كيمياء", "أحياء"];
-const examAccessRoles = ["general_manager", "school_principal", "deputy_principal", "educational_supervisor", "computer_unit", "printing_unit", "tracker"];
-const examScheduleManagerRoles = ["general_manager", "school_principal", "deputy_principal", "educational_supervisor", "printing_unit"];
-const examScheduleFinalEditorRoles = ["general_manager", "school_principal"];
-const examReportRoles = ["general_manager", "school_principal", "deputy_principal", "tracker"];
+const centralExamRoles = ["superadmin", "general_manager", "branch_manager", "development_supervision_manager", "general_secretary"];
+const examAccessRoles = [...centralExamRoles, "school_principal", "deputy_principal", "educational_supervisor", "computer_unit", "printing_unit"];
+const examScheduleManagerRoles = [...centralExamRoles, "school_principal", "deputy_principal", "educational_supervisor", "printing_unit"];
+const examScheduleFinalEditorRoles = ["superadmin", "general_manager", "branch_manager", "school_principal"];
+const examReportRoles = [...centralExamRoles, "school_principal", "deputy_principal"];
 const trackingSteps = [
   { key: "gradeReceived", label: "استلام كشف الدرجات", role: "deputy_principal", color: "#0f766e" },
   { key: "gradesEntered", label: "إدخال كشف الدرجات", role: "computer_unit", color: "#2563eb" },
@@ -236,11 +237,6 @@ export function createExamScheduleModule(getContext) {
   function schoolScopeId() {
     const { state } = getContext();
     if (isGeneralManager(state.currentUser)) return state.activeSchoolId || "all";
-    if (isTracker(state.currentUser)) {
-      const ids = linkedSchoolIds(state.currentUser);
-      if (state.activeSchoolId !== "all" && ids.includes(state.activeSchoolId)) return state.activeSchoolId;
-      return "all";
-    }
     return state.currentUser?.schoolId || "";
   }
 
@@ -467,7 +463,7 @@ export function createExamScheduleModule(getContext) {
   function canDeleteExamPeriod(period, user = getContext().state.currentUser) {
     const role = normalizeRole(user?.role, "");
     if (!period || !user || user.active === false) return false;
-    if (role === "general_manager") return true;
+    if (isGeneralManager(user)) return true;
     return role === "school_principal" && period.schoolId === user.schoolId;
   }
 
@@ -489,15 +485,15 @@ export function createExamScheduleModule(getContext) {
 
   function canApproveExamSchedules(user = getContext().state.currentUser) {
     const role = normalizeRole(user?.role, "");
-    return !!user && user.active !== false && ["general_manager", "school_principal", "deputy_principal"].includes(role);
+    return !!user && user.active !== false && [...centralExamRoles, "school_principal", "deputy_principal"].includes(role);
   }
 
   function canApproveExamPeriodKind(kind, user = getContext().state.currentUser, period = currentPeriod()) {
     const role = normalizeRole(user?.role, "");
     if (!canApproveExamSchedules(user)) return false;
     if (isExamScheduleLocked(period) && !canEditFinalExamSchedule(user)) return false;
-    if (kind === "deputy") return ["deputy_principal", "school_principal", "general_manager"].includes(role);
-    if (kind === "principal") return ["school_principal", "general_manager"].includes(role);
+    if (kind === "deputy") return ["deputy_principal", "school_principal", ...centralExamRoles].includes(role);
+    if (kind === "principal") return ["school_principal", ...centralExamRoles].includes(role);
     return false;
   }
 
@@ -508,18 +504,13 @@ export function createExamScheduleModule(getContext) {
 
   function canActOnTracking(step, user = getContext().state.currentUser) {
     const role = normalizeRole(user?.role, "");
-    return !!user && user.active !== false && (role === step.role || ["general_manager", "school_principal"].includes(role));
+    return !!user && user.active !== false && (role === step.role || ["school_principal", ...centralExamRoles].includes(role));
   }
 
   function schoolScoped(period) {
     const { state } = getContext();
     if (isGeneralManager(state.currentUser)) {
       return state.activeSchoolId === "all" || !state.activeSchoolId || period.schoolId === state.activeSchoolId;
-    }
-    if (isTracker(state.currentUser)) {
-      const ids = linkedSchoolIds(state.currentUser);
-      if (state.activeSchoolId !== "all" && ids.includes(state.activeSchoolId)) return period.schoolId === state.activeSchoolId;
-      return ids.includes(period.schoolId);
     }
     return period.schoolId === state.currentUser?.schoolId;
   }
@@ -1138,8 +1129,8 @@ export function createExamScheduleModule(getContext) {
     const period = currentPeriod();
     const role = normalizeRole(state.currentUser?.role, "");
     if (!period || !canApproveExamPeriodKind(kind, state.currentUser, period)) return;
-    if (kind === "deputy" && !["deputy_principal", "school_principal", "general_manager"].includes(role)) return;
-    if (kind === "principal" && !["school_principal", "general_manager"].includes(role)) return;
+    if (kind === "deputy" && !["deputy_principal", "school_principal", ...centralExamRoles].includes(role)) return;
+    if (kind === "principal" && !["school_principal", ...centralExamRoles].includes(role)) return;
     period.approvals ||= {};
     period.approvals[kind] = {
       by: state.currentUser?.id || "",

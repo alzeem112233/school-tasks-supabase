@@ -4,6 +4,8 @@ import { canOverrideManagerApprovalLock, isDeputyPrincipal, isGeneralManager, no
 import { createUuid } from "../utils/idUtils.js";
 import { progressClass, taskDateText } from "../components/tasks/taskPresentation.js";
 
+const centralRoles = ["superadmin", "general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary"];
+
 export function createTasksModule(getContext) {
   let permanentRootsCache = { tasksRef: null, cacheKey: "", roots: [] };
 
@@ -170,7 +172,7 @@ export function createTasksModule(getContext) {
     const { state, canReadTask } = getContext();
     const includeSearch = options.includeSearch !== false;
     if (!state.currentUser) return [];
-    const ignoreSchoolScope = state.currentUser.role === "general_manager";
+    const ignoreSchoolScope = centralRoles.includes(normalizeRole(state.currentUser.role, ""));
     return state.tasks
       .filter((task) => canReadTask(task))
       .filter((task) => (ignoreSchoolScope ? true : task.schoolId === getContext().scopedSchoolId()))
@@ -462,7 +464,7 @@ export function createTasksModule(getContext) {
     const { state, canViewUser } = getContext();
     const tasks = permanentTaskRoots();
     const activeEmployeeIds = new Set(tasks.map((task) => task.assigneeId).filter(Boolean));
-    const eligibleEmployees = state.users.filter((user) => user.active && canViewUser(user) && !["general_manager", "school_principal"].includes(user.role));
+    const eligibleEmployees = state.users.filter((user) => user.active && canViewUser(user) && ![...centralRoles, "school_principal"].includes(normalizeRole(user.role, "")));
     const shortcomingEmployeeIds = new Set(eligibleEmployees.filter((user) => !activeEmployeeIds.has(user.id)).map((user) => user.id));
     return {
       activeEmployees: activeEmployeeIds.size,
@@ -492,7 +494,7 @@ export function createTasksModule(getContext) {
   }
 
   function isFullDailyNotebookManager(user) {
-    return ["general_manager", "school_principal"].includes(normalizeRole(user?.role, ""));
+    return ["superadmin", "general_manager", "branch_manager", "school_principal"].includes(normalizeRole(user?.role, ""));
   }
 
   function dailyNotebookTargetUserId(target) {
@@ -1304,7 +1306,7 @@ export function createTasksModule(getContext) {
 
   function renderTasks() {
     const { paginate, state, canCreateTasks, icons, renderPagination, safe } = getContext();
-    const managerView = ["general_manager", "school_principal"].includes(normalizeRole(state.currentUser?.role, ""));
+    const managerView = ["superadmin", "general_manager", "branch_manager", "school_principal"].includes(normalizeRole(state.currentUser?.role, ""));
     const pageInfo = paginate(filteredTasks(standardWorkTasks()), state.pagination.tasksPage, managerView ? 20 : 6);
     const employeeAssignedCount = managerView ? 0 : standardWorkTasks().filter((task) => task.assigneeId === state.currentUser?.id).length;
     return `
@@ -1540,7 +1542,7 @@ export function createTasksModule(getContext) {
     const sourceSchoolId = sourceGroup?.tasks[0]?.schoolId || "";
     const targetUsers = state.users
       .filter((user) => user.active && !activeNotebookEmployeeIds.has(user.id))
-      .filter((user) => !["general_manager", "school_principal"].includes(user.role))
+      .filter((user) => ![...centralRoles, "school_principal"].includes(normalizeRole(user.role, "")))
       .filter((user) => canAssignAcrossBranches || user.schoolId === sourceSchoolId)
       .filter((user) => canCreateTasks({ schoolId: sourceGroup?.tasks[0]?.schoolId || user.schoolId, recurrence: "permanent" }) || canAssignTask({ schoolId: user.schoolId, recurrence: "permanent" }, user))
       .sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "ar", { sensitivity: "base" }));

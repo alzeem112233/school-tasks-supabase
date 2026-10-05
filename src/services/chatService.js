@@ -1,5 +1,7 @@
 import { createUuid } from "../utils/idUtils.js";
-import { normalizeRole } from "../utils/permissionUtils.js";
+import { isGeneralManager, normalizeRole } from "../utils/permissionUtils.js";
+
+const centralChatRoles = ["superadmin", "general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary"];
 
 export function createChatModule(getContext) {
   function normalizeChatMessage(message = {}) {
@@ -17,7 +19,7 @@ export function createChatModule(getContext) {
   function isSameVisibleSchool(user) {
     const { state } = getContext();
     if (!user || user.active === false) return false;
-    if (state.currentUser?.role === "general_manager") {
+    if (isGeneralManager(state.currentUser)) {
       return state.activeSchoolId === "all" || user.schoolId === state.activeSchoolId;
     }
     return user.schoolId === state.currentUser?.schoolId;
@@ -37,8 +39,8 @@ export function createChatModule(getContext) {
       .filter((user) => user.id !== current.id && isSameVisibleSchool(user))
       .filter((user) => {
         const role = normalizeRole(user.role, "");
-        if (currentRole === "general_manager") return role !== "general_manager";
-        return role !== "general_manager";
+        if (centralChatRoles.includes(currentRole)) return !centralChatRoles.includes(role);
+        return !centralChatRoles.includes(role);
       })
       .map((user) => {
         const messages = conversationMessages(user.id);

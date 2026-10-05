@@ -7,7 +7,7 @@ Deno.serve(async (request) => {
   if (request.method !== "POST") return jsonResponse({ error: "الطريقة غير مدعومة." }, 405);
   let createdUserId = "";
   try {
-    const auth = await requireRequester(request, ["general_manager"]);
+    const auth = await requireRequester(request, ["superadmin"]);
     if ("error" in auth) return jsonResponse({ error: auth.error }, auth.status);
     const body = await request.json();
     const email = String(body.email || "").trim().toLowerCase();
@@ -52,7 +52,7 @@ Deno.serve(async (request) => {
   } catch (error) {
     console.error(error);
     if (createdUserId) {
-      const auth = await requireRequester(request, ["general_manager"]);
+      const auth = await requireRequester(request, ["superadmin"]);
       if (!("error" in auth)) await auth.adminClient.auth.admin.deleteUser(createdUserId);
     }
     return jsonResponse({ error: error instanceof Error ? error.message : "تعذر إنشاء المستخدم الإداري." }, 400);

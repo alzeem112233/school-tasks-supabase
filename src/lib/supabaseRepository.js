@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { schools as defaultSchools } from "../config/appConfig.js";
 import { toStorageTimestamp } from "../utils/dateUtils.js";
-import { isGeneralManager, isTracker, linkedSchoolIds } from "../utils/permissionUtils.js";
+import { isGeneralManager } from "../utils/permissionUtils.js";
 import { sortSchools } from "../utils/schoolUtils.js";
 import { supabaseAnonKey, supabaseUrl } from "./supabaseClient.js";
 
@@ -562,22 +562,20 @@ export function createSupabaseModule(getContext) {
 
   function scopedQuery(collectionName, profile) {
     const { cloud, state } = getContext();
-    const trackerSchoolIds = isTracker(profile) ? (linkedSchoolIds(profile).length ? linkedSchoolIds(profile) : [profile.schoolId].filter(Boolean)) : [];
-    const readSchoolIds = () => (isTracker(profile) ? trackerSchoolIds : [profile.schoolId].filter(Boolean));
     let query = collectionName === "backups"
       ? cloud.client.from(tableName(collectionName)).select("id,school_id,created_by,backup_name,created_at,entity_counts")
       : cloud.client.from(tableName(collectionName)).select("*");
     if (collectionName === "schools") {
       if (isGeneralManager(profile)) return query;
-      return isTracker(profile) ? query.in("id", readSchoolIds()) : query.eq("id", profile.schoolId);
+      return query.eq("id", profile.schoolId);
     }
     if (collectionName === "users") {
       if (isGeneralManager(profile)) return query;
-      return isTracker(profile) ? query.in("school_id", readSchoolIds()) : query.eq("school_id", profile.schoolId);
+      return query.eq("school_id", profile.schoolId);
     }
     if (collectionName === "tasks") {
       if (isGeneralManager(profile)) return query;
-      return isTracker(profile) ? query.in("school_id", readSchoolIds()) : query.eq("school_id", profile.schoolId);
+      return query.eq("school_id", profile.schoolId);
     }
     if (collectionName === "notifications") {
       return query.eq("user_id", profile.id).order("created_at", { ascending: false }).limit(200);
@@ -587,13 +585,9 @@ export function createSupabaseModule(getContext) {
     }
     if (collectionName === "administrativeReports") {
       if (isGeneralManager(profile)) return query.order("report_date", { ascending: false }).limit(1200);
-      return isTracker(profile)
-        ? query.in("school_id", readSchoolIds()).order("report_date", { ascending: false }).limit(1200)
-        : query.eq("school_id", profile.schoolId).order("report_date", { ascending: false }).limit(1200);
+      return query.eq("school_id", profile.schoolId).order("report_date", { ascending: false }).limit(1200);
     }
-    if (isTracker(profile)) {
-      query = query.in("school_id", readSchoolIds());
-    } else if (!(isGeneralManager(profile) && state.activeSchoolId === "all")) {
+    if (!(isGeneralManager(profile) && state.activeSchoolId === "all")) {
       const schoolId = isGeneralManager(profile) ? state.activeSchoolId : profile.schoolId;
       query = query.eq("school_id", schoolId);
     }
@@ -692,7 +686,7 @@ export function createSupabaseModule(getContext) {
     state.dashboardError = "";
     if (shouldRender) render();
     const nullableFilter = (value) => (!value || value === "all" ? null : value);
-    const schoolScope = isGeneralManager(profile) ? state.activeSchoolId : isTracker(profile) ? (linkedSchoolIds(profile)[0] || profile.schoolId) : profile.schoolId;
+    const schoolScope = isGeneralManager(profile) ? state.activeSchoolId : profile.schoolId;
     const { data, error } = await cloud.client.rpc("get_dashboard_data", {
       p_school_scope: schoolScope || "all",
       p_status: nullableFilter(state.filters.status),
@@ -829,10 +823,6 @@ export function createSupabaseModule(getContext) {
 
   function realtimeFilter(collectionName, profile) {
     const { state } = getContext();
-    if (isTracker(profile)) {
-      if (collectionName === "notifications") return `user_id=eq.${profile.id}`;
-      return undefined;
-    }
     if (collectionName === "schools") return isGeneralManager(profile) ? undefined : `id=eq.${profile.schoolId}`;
     if (collectionName === "users") return isGeneralManager(profile) ? undefined : `school_id=eq.${profile.schoolId}`;
     if (collectionName === "tasks") {
@@ -849,7 +839,7 @@ export function createSupabaseModule(getContext) {
 
   async function startScopedListeners(profile) {
     const { cloud, state } = getContext();
-    const scopeKey = `${profile.id}:${profile.role}:${profile.schoolId}:${linkedSchoolIds(profile).join(",")}:${state.activeSchoolId}`;
+    const scopeKey = `${profile.id}:${profile.role}:${profile.schoolId}:${state.activeSchoolId}`;
     if (cloud.scopeKey === scopeKey) return;
     await removeChannel(scopedChannel);
     await loadScopedData(profile, true, { deferSecondary: true });
@@ -896,7 +886,7 @@ export function createSupabaseModule(getContext) {
       render();
       return;
     }
-    if (!profile.schoolId || (profile.schoolId === "general" && !isTracker(profile))) {
+    if (!profile.schoolId) {
       await removeChannel(scopedChannel);
       scopedChannel = null;
       cloud.scopeKey = "";

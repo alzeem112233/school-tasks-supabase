@@ -48,7 +48,12 @@ export const icons = {
 };
 
 export const labels = {
+  superadmin: "SUPERADMIN",
   general_manager: "مدير الإدارة العامة",
+  branch_manager: "مدير الفروع",
+  finance_manager: "مدير المالية",
+  development_supervision_manager: "مدير التطوير والإشراف التربوي",
+  general_secretary: "سكرتير الإدارة العامة",
   school_principal: "مدير المدرسة",
   deputy_principal: "وكيل المدرسة",
   school_secretary: "الاسكرتير",
@@ -59,7 +64,6 @@ export const labels = {
   finance: "المالية",
   computer_unit: "وحدة الحاسوب",
   printing_unit: "وحدة الطباعة",
-  tracker: "متعقب",
   high: "عالية", medium: "متوسطة", low: "منخفضة", new: "جديدة", in_progress: "قيد التنفيذ", under_review: "قيد المراجعة", approved: "معتمدة", completed: "مكتملة", overdue: "متأخرة", archived: "مؤرشفة", once: "مرة واحدة", permanent: "دفتر المهام السنوي", daily: "مستمرة",
 };
 

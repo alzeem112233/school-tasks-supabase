@@ -1,5 +1,10 @@
 export const roles = [
+  "superadmin",
   "general_manager",
+  "branch_manager",
+  "finance_manager",
+  "development_supervision_manager",
+  "general_secretary",
   "school_principal",
   "deputy_principal",
   "school_secretary",
@@ -10,15 +15,19 @@ export const roles = [
   "finance",
   "computer_unit",
   "printing_unit",
-  "tracker",
 ];
 
 export const legacyRoleMap = {
-  general_secretary: "school_secretary",
+  general_director: "general_manager",
 };
 
 export const roleHierarchy = {
-  general_manager: 100,
+  superadmin: 120,
+  general_manager: 110,
+  branch_manager: 105,
+  finance_manager: 104,
+  development_supervision_manager: 103,
+  general_secretary: 102,
   school_principal: 90,
   deputy_principal: 80,
   school_secretary: 70,
@@ -29,33 +38,32 @@ export const roleHierarchy = {
   finance: 30,
   computer_unit: 20,
   printing_unit: 10,
-  tracker: 5,
 };
 
-export const generalRoles = ["general_manager"];
-export const fullManagementRoles = ["general_manager", "school_principal"];
-export const userCreatorRoles = ["general_manager", "school_principal", "computer_unit"];
-export const taskCreatorRoles = ["general_manager", "school_principal", "computer_unit"];
+export const generalRoles = ["superadmin", "general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary"];
+export const fullManagementRoles = ["superadmin", "general_manager", "branch_manager", "school_principal"];
+export const userCreatorRoles = ["superadmin", "school_principal", "computer_unit"];
+export const taskCreatorRoles = ["superadmin", "general_manager", "branch_manager", "development_supervision_manager", "general_secretary", "school_principal", "computer_unit"];
 export const workerRoles = ["educational_supervisor", "specialist_supervisor", "stage_supervisor", "activity_supervisor", "finance", "computer_unit", "printing_unit"];
 
 export const roleGroups = {
   createUsers: userCreatorRoles,
-  viewUsers: ["general_manager", "school_principal", "deputy_principal", "computer_unit"],
-  editUsers: [...fullManagementRoles, "computer_unit"],
+  viewUsers: ["superadmin", "general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary", "school_principal", "deputy_principal", "computer_unit"],
+  editUsers: ["superadmin", "school_principal", "computer_unit"],
   createTasks: taskCreatorRoles,
   assignTasks: taskCreatorRoles,
-  deleteTasks: fullManagementRoles,
+  deleteTasks: ["superadmin", "general_manager", "branch_manager", "school_principal"],
   viewDashboard: roles,
-  viewAuditLogs: ["general_manager", "school_principal", "deputy_principal"],
-  createBackups: fullManagementRoles,
-  restoreBackups: fullManagementRoles,
+  viewAuditLogs: ["superadmin", "general_manager", "branch_manager", "school_principal", "deputy_principal"],
+  createBackups: ["superadmin"],
+  restoreBackups: ["superadmin"],
   manageAttachments: [...taskCreatorRoles, ...workerRoles],
-  approveTasks: fullManagementRoles,
-  viewReports: ["general_manager", "school_principal", "deputy_principal", "school_secretary", "tracker"],
-  schoolWideTaskRead: ["general_manager", "school_principal", "deputy_principal", "tracker"],
-  sendNotifications: fullManagementRoles,
-  viewFinance: ["general_manager", "school_principal", "finance", "tracker"],
-  manageFinanceDiscounts: fullManagementRoles,
+  approveTasks: ["superadmin", "general_manager", "branch_manager", "school_principal"],
+  viewReports: ["superadmin", "general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary", "school_principal", "deputy_principal", "school_secretary"],
+  schoolWideTaskRead: ["superadmin", "general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary", "school_principal", "deputy_principal"],
+  sendNotifications: ["superadmin", "general_manager", "branch_manager", "school_principal"],
+  viewFinance: ["superadmin", "general_manager", "finance_manager", "school_principal", "finance"],
+  manageFinanceDiscounts: ["superadmin", "finance_manager", "school_principal"],
 };
 
 export const userAccessFlags = ["createUser", "createTask", "createNotebook"];
@@ -74,7 +82,11 @@ export function isHigherRole(actorRole, targetRole) {
 }
 
 export function isGeneralManager(user) {
-  return normalizeRole(user?.role, "") === "general_manager";
+  return ["superadmin", "general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary"].includes(normalizeRole(user?.role, ""));
+}
+
+export function isSuperAdmin(user) {
+  return normalizeRole(user?.role, "") === "superadmin";
 }
 
 export function isSchoolPrincipal(user) {
@@ -86,7 +98,7 @@ export function isDeputyPrincipal(user) {
 }
 
 export function isTracker(user) {
-  return normalizeRole(user?.role, "") === "tracker";
+  return false;
 }
 
 export function isFullManager(user) {
@@ -149,7 +161,7 @@ export function canAccessSchool(user, resource) {
   const schoolId = resourceSchoolId(resource);
   if (!schoolId) return false;
   if (schoolId === user.schoolId) return true;
-  return isTracker(user) && linkedSchoolIds(user).includes(schoolId);
+  return false;
 }
 
 export function isSameSchool(user, resource) {
@@ -164,8 +176,8 @@ export function canViewUser(user, targetUser) {
   const targetRole = normalizeRole(targetUser.role, "");
   if (isSchoolPrincipal(user)) return targetRole !== "general_manager";
   if (isDeputyPrincipal(user)) return isHigherRole(user.role, targetRole);
-  if (normalizeRole(user.role, "") === "computer_unit") return !["general_manager", "school_principal"].includes(targetRole);
-  if (accessFlag(user, "createUser") === true) return !["general_manager", "school_principal"].includes(targetRole);
+  if (normalizeRole(user.role, "") === "computer_unit") return ![...generalRoles, "school_principal"].includes(targetRole);
+  if (accessFlag(user, "createUser") === true) return ![...generalRoles, "school_principal"].includes(targetRole);
   return false;
 }
 
@@ -180,39 +192,38 @@ export function canCreateUsers(user) {
 export function canEditUser(user, targetUser) {
   if (!hasRole(user, roleGroups.editUsers) || !targetUser) return false;
   if (user.id === targetUser.id) return false;
-  if (isGeneralManager(user)) return true;
+  if (isSuperAdmin(user)) return true;
   if (!isSameSchool(user, targetUser)) return false;
   if (isSchoolPrincipal(user)) return isHigherRole(user.role, targetUser.role);
   if (normalizeRole(user.role, "") === "computer_unit") {
     const targetRole = normalizeRole(targetUser.role, "");
-    if (["general_manager", "school_principal", "tracker"].includes(targetRole)) return false;
+    if ([...generalRoles, "school_principal"].includes(targetRole)) return false;
     return true;
   }
   return false;
 }
 
 export function canChangeUserRole(user) {
-  return hasRole(user, fullManagementRoles);
+  return hasRole(user, ["superadmin", "school_principal"]);
 }
 
 export function canAssignUserRole(user, nextRole, currentRole = null) {
   const role = normalizeRole(nextRole, "");
   if (!canCreateUsers(user) || !roles.includes(role)) return false;
-  if (role === "tracker" && !isGeneralManager(user)) return false;
   const existingRole = normalizeRole(currentRole, "");
   if (existingRole && role === existingRole) return true;
-  if (isGeneralManager(user)) return true;
+  if (isSuperAdmin(user)) return true;
   if (isSchoolPrincipal(user)) {
-    if (role === "general_manager" || role === "school_principal") return false;
+    if (generalRoles.includes(role) || role === "school_principal") return false;
     if (existingRole && !isHigherRole(user.role, existingRole)) return false;
     return isHigherRole(user.role, role);
   }
   if (normalizeRole(user.role, "") === "computer_unit") {
-    if (role === "general_manager" || role === "school_principal" || role === "tracker") return false;
+    if (generalRoles.includes(role) || role === "school_principal") return false;
     if (existingRole && role !== existingRole) return false;
     return true;
   }
-  return accessFlag(user, "createUser") === true && !["general_manager", "school_principal", "tracker"].includes(role);
+  return accessFlag(user, "createUser") === true && ![...generalRoles, "school_principal"].includes(role);
 }
 
 export function canCreateTasks(user, taskOrSchool = null) {
@@ -240,7 +251,7 @@ export function canAssignTask(user, taskOrSchool, assignee = null) {
   if (isGeneralManager(user)) return true;
   if (isSchoolPrincipal(user)) return user.id === assignee.id || isHigherRole(user.role, assignee.role);
   if (normalizeRole(user.role, "") === "computer_unit") {
-    return !["general_manager", "tracker"].includes(normalizeRole(assignee.role, ""));
+    return !generalRoles.includes(normalizeRole(assignee.role, ""));
   }
   if (delegatedAssignment) return user.id === assignee.id || isHigherRole(user.role, assignee.role);
   return user.id === assignee.id;
@@ -308,11 +319,11 @@ export function canManageFinanceDiscounts(user) {
 }
 
 export function canViewGradeAdjustments(user) {
-  return ["general_manager", "school_principal", "deputy_principal", "computer_unit"].includes(normalizeRole(user?.role, ""));
+  return ["superadmin", "general_manager", "branch_manager", "development_supervision_manager", "school_principal", "deputy_principal", "computer_unit"].includes(normalizeRole(user?.role, ""));
 }
 
 export function canManageGradeAdjustments(user) {
-  return ["general_manager", "school_principal", "deputy_principal"].includes(normalizeRole(user?.role, ""));
+  return ["superadmin", "general_manager", "branch_manager", "development_supervision_manager", "school_principal", "deputy_principal"].includes(normalizeRole(user?.role, ""));
 }
 
 export function canViewStaffEvaluations(user) {
@@ -320,11 +331,11 @@ export function canViewStaffEvaluations(user) {
 }
 
 export function canManageStaffEvaluations(user) {
-  return ["general_manager", "school_principal", "deputy_principal", "school_secretary", "computer_unit", "printing_unit"].includes(normalizeRole(user?.role, ""));
+  return ["superadmin", "general_manager", "branch_manager", "development_supervision_manager", "general_secretary", "school_principal", "deputy_principal", "school_secretary", "computer_unit", "printing_unit"].includes(normalizeRole(user?.role, ""));
 }
 
 export function canViewStaffEvaluationReports(user) {
-  return ["general_manager", "school_principal", "deputy_principal"].includes(normalizeRole(user?.role, ""));
+  return ["superadmin", "general_manager", "branch_manager", "development_supervision_manager", "general_secretary", "school_principal", "deputy_principal"].includes(normalizeRole(user?.role, ""));
 }
 
 export function canControlStaffEvaluationAccess(user) {
@@ -341,7 +352,6 @@ export function canManageDepartmentTask(user, task) {
 
 export function canReadTask(user, task, getUserById = null) {
   if (!isActiveUser(user) || !task || !isSameSchool(user, task)) return false;
-  if (isTracker(user)) return true;
   if (task.assigneeId === user.id) return true;
   if (isGeneralManager(user)) return true;
   if (isSchoolPrincipal(user)) return true;

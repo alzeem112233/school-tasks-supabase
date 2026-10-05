@@ -1,5 +1,6 @@
 import { userStatusLabel } from "./userPresentation.js";
 import { isGeneralSchoolId } from "../../utils/schoolUtils.js";
+import { isSuperAdmin } from "../../utils/permissionUtils.js";
 
 export function createUserView(getContext) {
   function linkedSchoolsLabel(user) {
@@ -31,6 +32,7 @@ export function createUserView(getContext) {
 
   function renderUsers() {
     const { state, safe, roleLabel, icons, cloud, schoolName, schools, roles, canCreateUsers, canEditUser, paginate, renderPagination, dashboard } = getContext();
+    const currentIsSuperAdmin = isSuperAdmin(state.currentUser);
     const users = filteredUsers();
     const visibleUsers = state.users.filter((user) => user.active && getContext().canViewUser(user));
     const pageInfo = paginate(users, state.pagination.usersPage, 10);
@@ -42,7 +44,7 @@ export function createUserView(getContext) {
           <p class="muted">إدارة الحسابات النشطة وتعيين الفرع والدور والصلاحيات.</p>
         </div>
         <div class="actions">
-          ${state.currentUser.role === "general_manager" ? `<button class="btn secondary" onclick="actions.openSchool()">${icons.plus} فرع مدرسة جديد</button>` : ""}
+          ${currentIsSuperAdmin ? `<button class="btn secondary" onclick="actions.openSchool()">${icons.plus} فرع مدرسة جديد</button>` : ""}
           ${canCreateUsers() ? `<button class="btn" onclick="actions.openUser()">${icons.plus} مستخدم جديد</button>` : ""}
         </div>
       </div>
@@ -52,7 +54,7 @@ export function createUserView(getContext) {
         ${dashboard.metric("إجمالي الحسابات النشطة", visibleUsers.length)}
       </div>
 
-      ${state.currentUser.role === "general_manager" ? `
+      ${currentIsSuperAdmin ? `
         <div class="panel" style="margin-bottom:16px;">
           <div class="section-title" style="margin-bottom:12px;">
             <h3>الإدارة العامة والفروع</h3>
@@ -84,7 +86,7 @@ export function createUserView(getContext) {
             <label class="field"><span>البحث</span><input name="query" value="${safe(filters.query)}" placeholder="الاسم أو البريد أو الفرع" /></label>
             <button class="btn secondary" type="submit">${icons.search} بحث</button>
           </form>
-          ${state.currentUser.role === "general_manager" ? `<label class="field user-filter-branch"><span>الفرع</span><select onchange="actions.setUserFilter('schoolId', this.value)"><option value="all">كل الفروع</option>${schools.map((school) => `<option value="${safe(school.id)}" ${filters.schoolId === school.id ? "selected" : ""}>${safe(school.name)}</option>`).join("")}</select></label>` : `<label class="field user-filter-branch"><span>الفرع</span><select disabled><option>${safe(schoolName(state.currentUser.schoolId))}</option></select></label>`}
+          ${currentIsSuperAdmin ? `<label class="field user-filter-branch"><span>الفرع</span><select onchange="actions.setUserFilter('schoolId', this.value)"><option value="all">كل الفروع</option>${schools.map((school) => `<option value="${safe(school.id)}" ${filters.schoolId === school.id ? "selected" : ""}>${safe(school.name)}</option>`).join("")}</select></label>` : `<label class="field user-filter-branch"><span>الفرع</span><select disabled><option>${safe(schoolName(state.currentUser.schoolId))}</option></select></label>`}
           <label class="field user-filter-role"><span>المنصب</span><select onchange="actions.setUserFilter('role', this.value)"><option value="all">كل المناصب</option>${roles.map((role) => `<option value="${role}" ${filters.role === role ? "selected" : ""}>${safe(roleLabel(role))}</option>`).join("")}</select></label>
           <button class="btn secondary" type="button" onclick="actions.resetUserFilters()">إعادة الضبط</button>
         </div>
@@ -98,7 +100,7 @@ export function createUserView(getContext) {
               <td data-label="الاسم">${safe(user.name)}</td>
               <td data-label="البريد الإلكتروني">${safe(user.email)}</td>
               <td data-label="الدور"><span class="role-pill">${safe(roleLabel(user.role))}</span></td>
-              <td data-label="الفرع">${safe(user.role === "tracker" ? linkedSchoolsLabel(user) : schoolName(user.schoolId))}</td>
+              <td data-label="الفرع">${safe(schoolName(user.schoolId))}</td>
               <td data-label="الحالة"><span class="status-pill status-completed">${safe(userStatusLabel(user))}</span></td>
               <td data-label="الإجراءات">${canEditUser(user) ? `
                 <button class="icon-btn" title="تعديل المستخدم" aria-label="تعديل المستخدم" onclick="actions.openUser('${safe(user.id)}')">${icons.edit}</button>
@@ -112,23 +114,18 @@ export function createUserView(getContext) {
 
   function renderUserModal(id) {
     const { state, safe, roleLabel, icons, cloud, schools, canChangeUserRole, canAssignUserRole, canEditUser } = getContext();
+    const currentIsSuperAdmin = isSuperAdmin(state.currentUser);
     const user = state.users.find((item) => item.id === id) || {};
     const editing = Boolean(id);
     const mayChangeRole = canChangeUserRole();
     const availableRoles = getContext().roles.filter((role) => canAssignUserRole(role, editing ? user.role : null));
     const selectedRole = user.role || (availableRoles.includes("school_secretary") ? "school_secretary" : availableRoles[0] || "");
     const roleOptions = availableRoles.map((role) => `<option value="${role}" ${selectedRole === role ? "selected" : ""}>${safe(roleLabel(role))}</option>`).join("");
-    const canManageTrackerAccounts = state.currentUser.role === "general_manager";
     const roleField = editing && !mayChangeRole
       ? `<input value="${safe(roleLabel(user.role))}" readonly /><input type="hidden" name="role" value="${safe(user.role)}" />`
       : `<select name="role" required>${roleOptions}</select>`;
     const selectedSchoolId = user.schoolId || (state.activeSchoolId !== "all" ? state.activeSchoolId : "");
     const schoolOptions = `<option value="">اختر الفرع</option>${schools.map((school) => `<option value="${safe(school.id)}" ${selectedSchoolId === school.id ? "selected" : ""}>${safe(school.name)}</option>`).join("")}`;
-    const linkedSchoolIds = new Set(Array.isArray(user.linkedSchoolIds) && user.linkedSchoolIds.length ? user.linkedSchoolIds : [selectedSchoolId].filter(Boolean));
-    const linkedSchoolOptions = schools
-      .filter((school) => !isGeneralSchoolId(school.id))
-      .map((school) => `<label><input type="checkbox" name="linkedSchoolIds" value="${safe(school.id)}" ${linkedSchoolIds.has(school.id) ? "checked" : ""} /><span>${safe(school.name)}</span></label>`)
-      .join("");
     const accessValue = (key) => user.accessFlags?.[key] === true ? "allow" : user.accessFlags?.[key] === false ? "deny" : "inherit";
     const accessSelect = (name, label, key) => `
       <label class="field">
@@ -140,7 +137,7 @@ export function createUserView(getContext) {
         </select>
       </label>`;
     const passwordField = editing
-      ? (state.currentUser.role === "general_manager" || (state.currentUser.role === "computer_unit" && canEditUser(user)))
+      ? (currentIsSuperAdmin || (state.currentUser.role === "computer_unit" && canEditUser(user)))
         ? `<label class="field"><span>كلمة مرور جديدة</span><input name="password" type="password" autocomplete="new-password" minlength="6" placeholder="اتركها فارغة إذا لم ترغب بتغييرها" /></label>`
         : ""
       : `<label class="field"><span>كلمة المرور</span><input name="password" type="password" autocomplete="new-password" minlength="6" required /></label>`;
@@ -153,16 +150,9 @@ export function createUserView(getContext) {
             <label class="field"><span>الاسم الكامل</span><input name="name" value="${safe(user.name || "")}" required /></label>
             <label class="field"><span>البريد الإلكتروني</span><input name="email" type="email" value="${safe(user.email || "")}" ${editing && cloud.enabled ? "readonly" : ""} required /></label>
             <label class="field"><span>الدور</span>${roleField}</label>
-            <label class="field"><span>الفرع / النطاق</span>${state.currentUser.role === "general_manager" ? `<select name="schoolId">${schoolOptions}</select>` : `<input name="schoolId" value="${safe(user.schoolId || state.currentUser.schoolId || "")}" readonly required />`}</label>
+            <label class="field"><span>الفرع / النطاق</span>${currentIsSuperAdmin ? `<select name="schoolId">${schoolOptions}</select>` : `<input name="schoolId" value="${safe(user.schoolId || state.currentUser.schoolId || "")}" readonly required />`}</label>
             ${passwordField}
           </div>
-          ${canManageTrackerAccounts ? `<div class="access-panel tracker-branch-panel">
-            <div class="section-title">
-              <h3>فروع المتعقب</h3>
-              <p class="muted">تستخدم فقط عند اختيار دور متعقب، وتحدد الفروع التي يستطيع الاطلاع عليها دون تعديل.</p>
-            </div>
-            <div class="user-linked-schools">${linkedSchoolOptions || `<p class="muted">لا توجد فروع متاحة للربط.</p>`}</div>
-          </div>` : ""}
           <div class="access-panel">
             <div class="section-title">
               <h3>صلاحيات الإضافة</h3>

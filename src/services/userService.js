@@ -1,6 +1,6 @@
 import { validateUserInput } from "../utils/validationUtils.js";
 import { createUserView } from "../components/users/userView.js";
-import { generalRoles, normalizeRole } from "../utils/permissionUtils.js";
+import { generalRoles, isSuperAdmin, normalizeRole } from "../utils/permissionUtils.js";
 import { GENERAL_SCHOOL_ID, isGeneralSchoolId, sortSchools } from "../utils/schoolUtils.js";
 import { createUuid } from "../utils/idUtils.js";
 
@@ -139,33 +139,26 @@ export function createUsersModule(getContext) {
     const email = String(form.get("email")).trim().toLowerCase();
     const active = true;
     const selectedRole = String(form.get("role") || "");
-    const selectedSchoolId = state.currentUser.role === "general_manager" ? String(form.get("schoolId")).trim() : state.currentUser.schoolId;
+    const currentIsSuperAdmin = isSuperAdmin(state.currentUser);
+    const selectedSchoolId = currentIsSuperAdmin ? String(form.get("schoolId")).trim() : state.currentUser.schoolId;
     const password = String(form.get("password") || "").trim();
     const previousUser = id ? state.users.find((item) => item.id === id) || null : null;
     const effectiveRole = selectedRole || previousUser?.role || "school_secretary";
-    const canChangePassword = state.currentUser.role === "general_manager" || (state.currentUser.role === "computer_unit" && previousUser && canEditUser(previousUser));
+    const canChangePassword = currentIsSuperAdmin || (state.currentUser.role === "computer_unit" && previousUser && canEditUser(previousUser));
     const linkedSchoolIds = [...new Set(form.getAll("linkedSchoolIds").map((item) => String(item || "").trim()).filter(Boolean))];
-    const schoolId = generalRoles.includes(effectiveRole) ? GENERAL_SCHOOL_ID : effectiveRole === "tracker" ? (selectedSchoolId || linkedSchoolIds[0] || "") : selectedSchoolId;
+    const schoolId = generalRoles.includes(effectiveRole) ? GENERAL_SCHOOL_ID : selectedSchoolId;
     const accessFlags = {
       createUser: parseAccessFlag(form.get("accessCreateUser")),
       createTask: parseAccessFlag(form.get("accessCreateTask")),
       createNotebook: parseAccessFlag(form.get("accessCreateNotebook")),
     };
-    const user = normalizeUser({ id: id || createUuid(), name: String(form.get("name")).trim(), email, role: effectiveRole, schoolId, active, linkedSchoolIds: effectiveRole === "tracker" ? linkedSchoolIds : [], accessFlags });
+    const user = normalizeUser({ id: id || createUuid(), name: String(form.get("name")).trim(), email, role: effectiveRole, schoolId, active, linkedSchoolIds: [], accessFlags });
     if (id ? !canEditUser(previousUser) : !canCreateUsers()) {
       showToast("لا توجد صلاحية كافية لتنفيذ هذا الإجراء.");
       return;
     }
     if (!generalRoles.includes(user.role) && isGeneralSchoolId(user.schoolId)) {
       showToast("اختر فرعًا للموظف. الإدارة العامة مخصصة لحسابات الإدارة العامة فقط.");
-      return;
-    }
-    if (user.role === "tracker" && !user.linkedSchoolIds.length) {
-      showToast("اختر فرعًا واحدًا على الأقل لحساب المتعقب.");
-      return;
-    }
-    if (user.role === "tracker" && state.currentUser.role !== "general_manager") {
-      showToast("حساب المتعقب لا يمكن إنشاؤه أو تعديله إلا من المدير العام.");
       return;
     }
     if (!canAssignUserRole(user.role, previousUser?.role || null)) {
@@ -177,8 +170,8 @@ export function createUsersModule(getContext) {
       showToast(validationError);
       return;
     }
-    if (state.currentUser.role !== "general_manager" && user.role === "general_manager") {
-      showToast("فقط مدير الإدارة العامة يمكنه إسناد أدوار الإدارة العامة.");
+    if (!currentIsSuperAdmin && generalRoles.includes(user.role)) {
+      showToast("فقط حساب SUPERADMIN يمكنه إسناد أدوار الإدارة العامة.");
       return;
     }
     const duplicate = state.users.some((item) => item.email === user.email && item.id !== user.id);
@@ -310,8 +303,8 @@ export function createUsersModule(getContext) {
   async function saveSchool(event) {
     event.preventDefault();
     const { state, cloud, showToast, supabase, persistLocal, audit, render } = getContext();
-    if (state.currentUser?.role !== "general_manager") {
-      showToast("فقط مدير الإدارة العامة يمكنه إضافة فروع المدرسة.");
+    if (!isSuperAdmin(state.currentUser)) {
+      showToast("فقط حساب SUPERADMIN يمكنه إضافة فروع المدرسة.");
       return;
     }
     const form = new FormData(event.currentTarget);
@@ -361,7 +354,7 @@ export function createUsersModule(getContext) {
   async function deleteSchool(id) {
     const { state, cloud, showToast, supabase, persistLocal, render } = getContext();
     const school = state.schools.find((item) => item.id === id);
-    if (state.currentUser?.role !== "general_manager" || !school) return;
+    if (!isSuperAdmin(state.currentUser) || !school) return;
     if (isGeneralSchoolId(id)) {
       showToast("لا يمكن حذف حساب الإدارة العامة.");
       return;

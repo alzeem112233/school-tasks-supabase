@@ -8,7 +8,7 @@ create table if not exists public.schools (
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   school_id uuid references public.schools(id), full_name text not null, email text not null,
-  role text not null check (role in ('general_manager','school_principal','deputy_principal','school_secretary','educational_supervisor','specialist_supervisor','stage_supervisor','activity_supervisor','finance','computer_unit','printing_unit','tracker')),
+  role text not null check (role in ('superadmin','general_manager','branch_manager','finance_manager','development_supervision_manager','general_secretary','school_principal','deputy_principal','school_secretary','educational_supervisor','specialist_supervisor','stage_supervisor','activity_supervisor','finance','computer_unit','printing_unit','tracker')),
   status text default 'active', avatar_url text, department_name text, linked_school_ids uuid[] not null default '{}'::uuid[],
   created_at timestamptz default now(), updated_at timestamptz default now()
 );

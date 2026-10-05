@@ -1,5 +1,14 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const generalAccountRoles = new Set([
+  "superadmin",
+  "general_manager",
+  "branch_manager",
+  "finance_manager",
+  "development_supervision_manager",
+  "general_secretary",
+]);
+
 export async function requireRequester(request: Request, allowedRoles: string[]) {
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
@@ -25,5 +34,5 @@ export async function requireRequester(request: Request, allowedRoles: string[])
 }
 
 export function canAccessSchool(requester: { role: string; school_id: string }, schoolId: string) {
-  return requester.role === "general_manager" || requester.school_id === schoolId;
+  return generalAccountRoles.has(requester.role) || requester.school_id === schoolId;
 }

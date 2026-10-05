@@ -1,5 +1,5 @@
 import { createUuid } from "../utils/idUtils.js";
-import { linkedSchoolIds, normalizeRole } from "../utils/permissionUtils.js";
+import { normalizeRole } from "../utils/permissionUtils.js";
 import { today as localToday } from "../utils/dateUtils.js";
 
 const REPORTS_KEY = "schoolTasksAdministrativeReportsV1";
@@ -367,27 +367,27 @@ export function createAdministrativeReportsModule(getContext) {
   }
 
   function canViewAdministrativeReports(user = getContext().state.currentUser) {
-    return ["general_manager", "school_principal", "deputy_principal", "stage_supervisor", "tracker"].includes(roleOf(user));
+    return ["superadmin", "general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary", "school_principal", "deputy_principal", "stage_supervisor"].includes(roleOf(user));
   }
 
   function canCreateDailyReport(user = getContext().state.currentUser) {
-    return ["stage_supervisor", "deputy_principal", "school_principal", "general_manager"].includes(roleOf(user));
+    return ["stage_supervisor", "deputy_principal", "school_principal", "superadmin", "general_manager", "branch_manager", "development_supervision_manager", "general_secretary"].includes(roleOf(user));
   }
 
   function hasFullAdministrativeControl(user = getContext().state.currentUser) {
-    return roleOf(user) === "general_manager";
+    return ["superadmin", "general_manager", "branch_manager"].includes(roleOf(user));
   }
 
   function canChooseReportOwner(user = getContext().state.currentUser) {
-    return ["deputy_principal", "school_principal", "general_manager"].includes(roleOf(user));
+    return ["deputy_principal", "school_principal", "superadmin", "general_manager", "branch_manager", "development_supervision_manager", "general_secretary"].includes(roleOf(user));
   }
 
   function canDeputyApprove(user = getContext().state.currentUser) {
-    return ["deputy_principal", "general_manager"].includes(roleOf(user));
+    return ["deputy_principal", "superadmin", "general_manager", "branch_manager"].includes(roleOf(user));
   }
 
   function canPrincipalApprove(user = getContext().state.currentUser) {
-    return ["school_principal", "general_manager"].includes(roleOf(user));
+    return ["school_principal", "superadmin", "general_manager", "branch_manager"].includes(roleOf(user));
   }
 
   function isPrincipalLockedReport(report) {
@@ -432,15 +432,9 @@ export function createAdministrativeReportsModule(getContext) {
 
   function scopedSchoolIds() {
     const { state } = getContext();
-    if (roleOf() === "general_manager") {
+    if (["superadmin", "general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary"].includes(roleOf())) {
       const schoolId = state.administrativeReportFilters?.schoolId || state.activeSchoolId || "all";
       return schoolId === "all" ? null : [schoolId];
-    }
-    if (roleOf() === "tracker") {
-      const ids = linkedSchoolIds(state.currentUser);
-      const selected = state.administrativeReportFilters?.schoolId || state.activeSchoolId || "all";
-      if (selected !== "all" && ids.includes(selected)) return [selected];
-      return ids.length ? ids : [state.currentUser?.schoolId].filter(Boolean);
     }
     return [state.currentUser?.schoolId].filter(Boolean);
   }
@@ -461,11 +455,7 @@ export function createAdministrativeReportsModule(getContext) {
     const { state } = getContext();
     const filters = state.administrativeReportFilters || {};
     return supervisorUsers().filter((user) => {
-      if (roleOf() === "tracker") {
-        const ids = linkedSchoolIds(state.currentUser);
-        return (ids.length ? ids : [state.currentUser?.schoolId]).includes(user.schoolId);
-      }
-      if (roleOf() !== "general_manager") return user.schoolId === state.currentUser?.schoolId;
+      if (!["superadmin", "general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary"].includes(roleOf())) return user.schoolId === state.currentUser?.schoolId;
       return !filters.schoolId || filters.schoolId === "all" || user.schoolId === filters.schoolId;
     });
   }
@@ -931,7 +921,7 @@ export function createAdministrativeReportsModule(getContext) {
       month: monthIso(currentDay),
       periodMode: "month",
       supervisorId: "all",
-      schoolId: ["general_manager", "tracker"].includes(roleOf()) ? "all" : state.activeSchoolId || "all",
+      schoolId: ["superadmin", "general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary"].includes(roleOf()) ? "all" : state.activeSchoolId || "all",
       tab: "daily",
       printType: "daily",
       printMode: "both",
@@ -961,8 +951,8 @@ export function createAdministrativeReportsModule(getContext) {
 
         <div class="admin-report-filters">
           ${
-            ["general_manager", "tracker"].includes(roleOf())
-              ? `<label><span>الفرع</span><select onchange="actions.setAdministrativeReportFilter('schoolId', this.value)"><option value="all">${roleOf() === "tracker" ? "كل الفروع المرتبطة" : "كل الفروع"}</option>${schools.filter((school) => roleOf() !== "tracker" || linkedSchoolIds(state.currentUser).includes(school.id)).map((school) => `<option value="${safe(school.id)}" ${filters.schoolId === school.id ? "selected" : ""}>${safe(school.name)}</option>`).join("")}</select></label>`
+            ["superadmin", "general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary"].includes(roleOf())
+              ? `<label><span>الفرع</span><select onchange="actions.setAdministrativeReportFilter('schoolId', this.value)"><option value="all">كل الفروع</option>${schools.map((school) => `<option value="${safe(school.id)}" ${filters.schoolId === school.id ? "selected" : ""}>${safe(school.name)}</option>`).join("")}</select></label>`
               : ""
           }
           <label><span>الفترة</span><select onchange="actions.setAdministrativeReportFilter('periodMode', this.value)"><option value="month" ${(filters.periodMode || "month") === "month" ? "selected" : ""}>شهر محدد</option><option value="day" ${filters.periodMode === "day" ? "selected" : ""}>يوم محدد</option><option value="all" ${filters.periodMode === "all" ? "selected" : ""}>كل التقارير</option></select></label>

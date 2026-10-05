@@ -2,6 +2,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import { canAssignUserRole, canCreateUsers, generalAccountRoles, generalSchoolId, isHigherRole, isKnownRole, roleLabels } from "../_shared/roles.ts";
 
+const isSuperAdminRole = (role: string) => role === "superadmin";
+const elevatedRoles = ["superadmin", "general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary"];
+
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (request.method !== "POST") return jsonResponse({ error: "الطريقة غير مدعومة." }, 405);
@@ -39,7 +42,7 @@ Deno.serve(async (request) => {
       const existingResult = await adminClient.from("profiles").select("*").eq("id", id).single();
       if (existingResult.error || !existingResult.data) return jsonResponse({ error: "تعذر العثور على المستخدم المطلوب." }, 404);
       const existing = existingResult.data;
-      if (requester.role !== "general_manager" && (existing.school_id !== requester.school_id || !isHigherRole(requester.role, String(existing.role)))) {
+      if (!isSuperAdminRole(requester.role) && (existing.school_id !== requester.school_id || !isHigherRole(requester.role, String(existing.role)))) {
         return jsonResponse({ error: "لا توجد صلاحية لحذف هذا المستخدم." }, 403);
       }
 
@@ -77,21 +80,15 @@ Deno.serve(async (request) => {
     const linkedSchoolIds = Array.isArray(body.linkedSchoolIds)
       ? [...new Set(body.linkedSchoolIds.map((item) => String(item ?? "").trim()).filter(Boolean))]
       : [];
-    const schoolId = generalAccountRoles.has(role) ? generalSchoolId : role === "tracker" ? (requestedSchoolId || linkedSchoolIds[0] || "") : requestedSchoolId;
+    const schoolId = generalAccountRoles.has(role) ? generalSchoolId : requestedSchoolId;
 
     if (!name || !email || !schoolId || !isKnownRole(role)) return jsonResponse({ error: "بيانات المستخدم غير مكتملة أو غير صالحة." }, 400);
     if (!generalAccountRoles.has(role) && schoolId === generalSchoolId) {
       return jsonResponse({ error: "اختر فرعًا للموظف. الإدارة العامة مخصصة لحسابات الإدارة العامة فقط." }, 400);
     }
-    if (role === "tracker" && !linkedSchoolIds.length) {
-      return jsonResponse({ error: "اختر فرعًا واحدًا على الأقل لحساب المتعقب." }, 400);
-    }
-    if (role === "tracker" && requester.role !== "general_manager") {
-      return jsonResponse({ error: "حساب المتعقب لا يمكن إنشاؤه أو تعديله إلا من المدير العام." }, 403);
-    }
     if (!id && password.length < 6) return jsonResponse({ error: "كلمة المرور يجب ألا تقل عن 6 أحرف." }, 400);
     if (id && password && password.length < 6) return jsonResponse({ error: "كلمة المرور يجب ألا تقل عن 6 أحرف." }, 400);
-    if (requester.role !== "general_manager" && schoolId !== requester.school_id) {
+    if (!isSuperAdminRole(requester.role) && schoolId !== requester.school_id) {
       return jsonResponse({ error: "مدير المدرسة يدير مستخدمي مدرسته فقط." }, 403);
     }
     if (id === requester.id && !active) return jsonResponse({ error: "لا يمكنك تعطيل حسابك الحالي." }, 400);
@@ -104,17 +101,17 @@ Deno.serve(async (request) => {
       const existingRole = String(existing.role);
       const computerUnitCanEditExisting = requester.role === "computer_unit"
         && existing.school_id === requester.school_id
-        && !["general_manager", "school_principal", "tracker"].includes(existingRole);
-      if (requester.role !== "general_manager" && !computerUnitCanEditExisting && (existing.school_id !== requester.school_id || !isHigherRole(requester.role, existingRole))) {
+        && ![...elevatedRoles, "school_principal"].includes(existingRole);
+      if (!isSuperAdminRole(requester.role) && !computerUnitCanEditExisting && (existing.school_id !== requester.school_id || !isHigherRole(requester.role, existingRole))) {
         return jsonResponse({ error: "لا توجد صلاحية لتعديل هذا المستخدم." }, 403);
       }
       const canComputerUnitChangePassword = password && requester.role === "computer_unit"
         && existing.school_id === requester.school_id
-        && !["general_manager", "school_principal", "tracker"].includes(existingRole);
-      if (password && requester.role !== "general_manager" && !canComputerUnitChangePassword) {
+        && ![...elevatedRoles, "school_principal"].includes(existingRole);
+      if (password && !isSuperAdminRole(requester.role) && !canComputerUnitChangePassword) {
         return jsonResponse({ error: "لا توجد صلاحية لتغيير كلمة مرور هذا المستخدم." }, 403);
       }
-      const canAssignRequestedRole = canAssignUserRole(requester.role, role, existingRole) || (requester?.access_flags?.createUser === true && !["general_manager", "school_principal", "tracker"].includes(role));
+      const canAssignRequestedRole = canAssignUserRole(requester.role, role, existingRole) || (requester?.access_flags?.createUser === true && ![...elevatedRoles, "school_principal"].includes(role));
       if (!canAssignRequestedRole) {
         return jsonResponse({ error: "لا توجد صلاحية لتعيين هذا الدور." }, 403);
       }
@@ -128,7 +125,7 @@ Deno.serve(async (request) => {
       }
     }
 
-    const canAssignNewRole = canAssignUserRole(requester.role, role) || (requester?.access_flags?.createUser === true && !["general_manager", "school_principal", "tracker"].includes(role));
+    const canAssignNewRole = canAssignUserRole(requester.role, role) || (requester?.access_flags?.createUser === true && ![...elevatedRoles, "school_principal"].includes(role));
     if (!existing && !canAssignNewRole) {
       return jsonResponse({ error: "لا توجد صلاحية لتعيين هذا الدور." }, 403);
     }
@@ -159,7 +156,7 @@ Deno.serve(async (request) => {
       email,
       role,
       school_id: schoolId,
-      linked_school_ids: role === "tracker" ? linkedSchoolIds : [],
+      linked_school_ids: [],
       department_name: null,
       access_flags: accessFlags,
       status: "active",
@@ -226,7 +223,7 @@ Deno.serve(async (request) => {
       adminClient
         .from("profiles")
         .select("id")
-        .eq("role", "general_manager")
+        .in("role", ["superadmin", "general_manager"])
         .eq("status", "active"),
     ]);
     if (schoolAdminResult.error) console.error("School administrator lookup failed", schoolAdminResult.error);

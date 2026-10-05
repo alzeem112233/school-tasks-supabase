@@ -1,6 +1,8 @@
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import { canAccessSchool, requireRequester } from "../_shared/auth.ts";
 
+const backupRoles = ["superadmin", "general_manager", "branch_manager", "school_principal"];
+
 function objectValue(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
 }
@@ -13,7 +15,7 @@ Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (request.method !== "POST") return jsonResponse({ error: "الطريقة غير مدعومة." }, 405);
   try {
-    const auth = await requireRequester(request, ["general_manager", "school_principal"]);
+    const auth = await requireRequester(request, backupRoles);
     if ("error" in auth) return jsonResponse({ error: auth.error }, auth.status);
     const body = await request.json().catch(() => ({}));
     const source = objectValue(body.backup);
@@ -30,8 +32,8 @@ Deno.serve(async (request) => {
     }
     const scopeType = String(payload.scopeType || source.scopeType || "school") === "site" ? "site" : "school";
     const schoolId = String(payload.schoolId || source.school_id || source.schoolId || "").trim();
-    if (scopeType === "site" && auth.requester.role !== "general_manager") {
-      return jsonResponse({ error: "استيراد نسخة الموقع كاملة متاح للمدير العام فقط." }, 403);
+    if (scopeType === "site" && auth.requester.role !== "superadmin") {
+      return jsonResponse({ error: "استيراد نسخة الموقع كاملة متاح لحساب SUPERADMIN فقط." }, 403);
     }
     if (scopeType === "school") {
       if (!schoolId) return jsonResponse({ error: "معرّف فرع النسخة غير موجود." }, 400);

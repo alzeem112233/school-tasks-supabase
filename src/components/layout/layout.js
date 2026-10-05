@@ -437,10 +437,8 @@ export function createAdminModule(getContext) {
 
   function renderShell() {
     const { app, state, safe, roleLabel, icons, schools, schoolName, scopedSchoolId, notifications } = getContext();
-    const trackerSchoolIds = Array.isArray(state.currentUser.linkedSchoolIds) && state.currentUser.linkedSchoolIds.length ? state.currentUser.linkedSchoolIds : [state.currentUser.schoolId].filter(Boolean);
-    const selectableSchools = state.currentUser.role === "tracker"
-      ? schools.filter((school) => trackerSchoolIds.includes(school.id))
-      : schools;
+    const canSelectSchoolScope = getContext().canReadSchoolTasks?.() && ["superadmin", "general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary"].includes(state.currentUser.role);
+    const selectableSchools = schools;
     const unread = notifications.getUnreadCount();
     const offlineCount = state.offlineQueue?.length || 0;
     const allNavItems = navItems();
@@ -451,7 +449,7 @@ export function createAdminModule(getContext) {
       ? `حسب النظام (${resolvedTheme === "dark" ? "داكن" : "فاتح"})`
       : resolvedTheme === "dark" ? "داكن" : "فاتح";
     const schoolScopeLabel = scopedSchoolId() === "all"
-      ? (state.currentUser.role === "tracker" ? "كل الفروع المرتبطة" : "جميع الفروع")
+      ? "جميع الفروع"
       : schoolName(scopedSchoolId());
     app.innerHTML = `
       <section class="shell ${state.mobileNavOpen ? "nav-open" : ""} ${state.modal ? "has-modal" : ""}">
@@ -494,11 +492,11 @@ export function createAdminModule(getContext) {
           <section class="sidebar-section">
             <h2>إعدادات العرض</h2>
           ${
-            state.currentUser.role === "general_manager" || state.currentUser.role === "tracker"
+            canSelectSchoolScope
               ? `<label class="field sidebar-field">
                   <span>نطاق المدرسة</span>
                   <select onchange="actions.setActiveSchool(this.value)">
-                    <option value="all" ${state.activeSchoolId === "all" ? "selected" : ""}>${state.currentUser.role === "tracker" ? "كل الفروع المرتبطة" : "جميع المدارس"}</option>
+                    <option value="all" ${state.activeSchoolId === "all" ? "selected" : ""}>جميع المدارس</option>
                     ${selectableSchools.map((school) => `<option value="${safe(school.id)}" ${state.activeSchoolId === school.id ? "selected" : ""}>${safe(school.name)}</option>`).join("")}
                   </select>
                 </label>`

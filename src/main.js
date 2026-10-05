@@ -40,8 +40,6 @@ import {
   hasRole as permissionHasRole,
   accessFlag as permissionAccessFlag,
   isGeneralManager as permissionIsGeneralManager,
-  isTracker as permissionIsTracker,
-  linkedSchoolIds as permissionLinkedSchoolIds,
   normalizeRole,
   roleGroups,
 } from "./utils/permissionUtils.js";
@@ -244,11 +242,6 @@ function clearLegacyDemoStorage() {
 function scopedSchoolId() {
   if (!state.currentUser) return "all";
   if (permissionIsGeneralManager(state.currentUser)) return state.activeSchoolId;
-  if (permissionIsTracker(state.currentUser)) {
-    const ids = permissionLinkedSchoolIds(state.currentUser);
-    if (state.activeSchoolId !== "all" && ids.includes(state.activeSchoolId)) return state.activeSchoolId;
-    return "all";
-  }
   return state.currentUser.schoolId;
 }
 
@@ -257,11 +250,6 @@ function scopedSchoolIds() {
   if (permissionIsGeneralManager(state.currentUser)) {
     if (state.activeSchoolId && state.activeSchoolId !== "all") return [state.activeSchoolId];
     return (state.schools || schools).map((school) => school.id);
-  }
-  if (permissionIsTracker(state.currentUser)) {
-    const ids = permissionLinkedSchoolIds(state.currentUser);
-    if (state.activeSchoolId !== "all" && ids.includes(state.activeSchoolId)) return [state.activeSchoolId];
-    return ids.length ? ids : [state.currentUser.schoolId].filter(Boolean);
   }
   return [state.currentUser.schoolId].filter(Boolean);
 }
@@ -472,7 +460,7 @@ function canAssignTask(taskOrSchool, assignee = null, user = state.currentUser) 
   if (!schoolId || schoolId !== user?.schoolId) return false;
   if (!assignee) return true;
   const assigneeRole = normalizeRole(assignee.role, "");
-  return assignee.active !== false && assignee.schoolId === schoolId && !["general_manager", "school_principal", "deputy_principal"].includes(assigneeRole);
+  return assignee.active !== false && assignee.schoolId === schoolId && !["superadmin", "general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary", "school_principal", "deputy_principal"].includes(assigneeRole);
 }
 
 function canDeleteTask(task, user = state.currentUser) {
@@ -981,12 +969,7 @@ window.actions = {
   },
   setActiveSchool(value) {
     const requested = String(value || "all");
-    if (permissionIsTracker(state.currentUser)) {
-      const ids = permissionLinkedSchoolIds(state.currentUser);
-      state.activeSchoolId = requested === "all" || ids.includes(requested) ? requested : "all";
-    } else {
-      state.activeSchoolId = requested;
-    }
+    state.activeSchoolId = permissionIsGeneralManager(state.currentUser) ? requested : state.currentUser?.schoolId || "all";
     localStorage.setItem("schoolTaskActiveSchool", state.activeSchoolId);
     state.pagination = { ...paginationDefaults };
     state.mobileNavOpen = false;
