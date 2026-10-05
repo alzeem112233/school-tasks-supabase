@@ -1,0 +1,475 @@
+/* Final platform-wide dark theme layer. Loaded after all feature styles. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-app: #070d18;
+  --bg-surface: #101a2b;
+  --bg-surface-elevated: #162238;
+  --bg-input: #0b1525;
+  --bg-hover: #1b2941;
+  --bg-active: #203552;
+  --text-primary: #f4f7fb;
+  --text-secondary: #c2ccdc;
+  --text-muted: #94a3b8;
+  --text-disabled: #64748b;
+  --border-default: #33445f;
+  --border-subtle: #24334b;
+  --divider: #2b3b55;
+  --primary: #6aa0ff;
+  --primary-hover: #8bb5ff;
+  --primary-soft: rgba(79, 140, 255, 0.17);
+  --success: #5ee0ad;
+  --success-soft: rgba(69, 211, 156, 0.16);
+  --warning: #f7ce70;
+  --warning-soft: rgba(246, 199, 96, 0.16);
+  --danger: #ff7c87;
+  --danger-soft: rgba(255, 107, 120, 0.16);
+  --overlay: rgba(2, 6, 15, 0.82);
+  --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.3);
+  --ink: var(--text-primary);
+  --muted: var(--text-secondary);
+  --line: var(--border-default);
+  --panel: var(--bg-surface);
+  --soft: var(--bg-surface-elevated);
+  --surface: var(--bg-surface);
+  --surface-soft: var(--bg-surface-elevated);
+  --border: var(--border-default);
+}
+
+:root[data-theme="dark"] body,
+:root[data-theme="dark"] #app,
+:root[data-theme="dark"] .shell,
+:root[data-theme="dark"] .content {
+  color: var(--text-primary) !important;
+  background-color: var(--bg-app) !important;
+}
+
+:root[data-theme="dark"] body {
+  background-image: linear-gradient(180deg, #070d18 0%, #0a1322 58%, #0d1727 100%) !important;
+}
+
+:root[data-theme="dark"] ::selection {
+  color: #ffffff;
+  background: rgba(79, 140, 255, 0.62);
+}
+
+:root[data-theme="dark"] *,
+:root[data-theme="dark"] *::before,
+:root[data-theme="dark"] *::after {
+  scrollbar-color: #405474 #0b1525;
+}
+
+:root[data-theme="dark"] .sidebar,
+:root[data-theme="dark"] .mobile-header,
+:root[data-theme="dark"] .mobile-nav,
+:root[data-theme="dark"] .topbar,
+:root[data-theme="dark"] .dashboard-topbar,
+:root[data-theme="dark"] .panel,
+:root[data-theme="dark"] .dashboard-panel,
+:root[data-theme="dark"] .page-shell,
+:root[data-theme="dark"] .module-card,
+:root[data-theme="dark"] .task-card,
+:root[data-theme="dark"] .task-card-pro,
+:root[data-theme="dark"] .notification-item,
+:root[data-theme="dark"] .log-item,
+:root[data-theme="dark"] .finance-row,
+:root[data-theme="dark"] .finance-card,
+:root[data-theme="dark"] .exam-panel,
+:root[data-theme="dark"] .exam-period-card,
+:root[data-theme="dark"] .daily-card,
+:root[data-theme="dark"] .notebook-card,
+:root[data-theme="dark"] .attachment-card,
+:root[data-theme="dark"] .signature-card,
+:root[data-theme="dark"] .teacher-directory-card,
+:root[data-theme="dark"] .evaluation-card,
+:root[data-theme="dark"] .evaluation-progress > div,
+:root[data-theme="dark"] .chat-contacts,
+:root[data-theme="dark"] .chat-window,
+:root[data-theme="dark"] .chat-contact,
+:root[data-theme="dark"] .chat-compose,
+:root[data-theme="dark"] .empty {
+  color: var(--text-primary) !important;
+  border-color: var(--border-subtle) !important;
+  background: var(--bg-surface) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+:root[data-theme="dark"] .toolbar,
+:root[data-theme="dark"] .module-toolbar,
+:root[data-theme="dark"] .daily-toolbar,
+:root[data-theme="dark"] .finance-filter-bar,
+:root[data-theme="dark"] .admin-report-filters,
+:root[data-theme="dark"] .exam-toolbar,
+:root[data-theme="dark"] .evaluation-tools,
+:root[data-theme="dark"] .evaluation-report-actions,
+:root[data-theme="dark"] .account-summary,
+:root[data-theme="dark"] .sidebar-section,
+:root[data-theme="dark"] .task-card-info-grid > div,
+:root[data-theme="dark"] .grade-card-grid > div,
+:root[data-theme="dark"] .grade-change > div,
+:root[data-theme="dark"] .grade-choice-grid span {
+  color: var(--text-primary) !important;
+  border-color: var(--border-subtle) !important;
+  background: var(--bg-surface-elevated) !important;
+}
+
+:root[data-theme="dark"] h1,
+:root[data-theme="dark"] h2,
+:root[data-theme="dark"] h3,
+:root[data-theme="dark"] h4,
+:root[data-theme="dark"] strong,
+:root[data-theme="dark"] legend,
+:root[data-theme="dark"] label {
+  color: var(--text-primary);
+}
+
+:root[data-theme="dark"] .muted,
+:root[data-theme="dark"] small,
+:root[data-theme="dark"] .section-title p,
+:root[data-theme="dark"] .page-heading p,
+:root[data-theme="dark"] .task-card-title-block p,
+:root[data-theme="dark"] .grade-card-meta,
+:root[data-theme="dark"] .grade-card-grid span,
+:root[data-theme="dark"] .grade-change span,
+:root[data-theme="dark"] .grade-reason span,
+:root[data-theme="dark"] .evaluation-progress span,
+:root[data-theme="dark"] .teacher-directory-row span {
+  color: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] .input,
+:root[data-theme="dark"] .sidebar-search-box,
+:root[data-theme="dark"] .theme-mode-select {
+  color: var(--text-primary) !important;
+  border-color: var(--border-default) !important;
+  background-color: var(--bg-input) !important;
+  caret-color: var(--primary);
+}
+
+:root[data-theme="dark"] select option,
+:root[data-theme="dark"] select optgroup {
+  color: var(--text-primary);
+  background: var(--bg-input);
+}
+
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 1;
+}
+
+:root[data-theme="dark"] input:focus,
+:root[data-theme="dark"] select:focus,
+:root[data-theme="dark"] textarea:focus,
+:root[data-theme="dark"] button:focus-visible,
+:root[data-theme="dark"] a:focus-visible {
+  border-color: var(--primary) !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(106, 160, 255, 0.24) !important;
+}
+
+:root[data-theme="dark"] input:-webkit-autofill,
+:root[data-theme="dark"] input:-webkit-autofill:hover,
+:root[data-theme="dark"] input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-primary);
+  box-shadow: 0 0 0 1000px var(--bg-input) inset !important;
+  transition: background-color 9999s ease-out;
+}
+
+:root[data-theme="dark"] input[readonly],
+:root[data-theme="dark"] input:disabled,
+:root[data-theme="dark"] select:disabled,
+:root[data-theme="dark"] textarea:disabled {
+  color: var(--text-secondary) !important;
+  border-color: var(--border-subtle) !important;
+  background: #111c2e !important;
+  opacity: 1;
+}
+
+:root[data-theme="dark"] .btn.secondary,
+:root[data-theme="dark"] .button.ghost,
+:root[data-theme="dark"] .icon-btn,
+:root[data-theme="dark"] .mini-button,
+:root[data-theme="dark"] .file-button {
+  color: var(--text-primary) !important;
+  border-color: var(--border-default) !important;
+  background: var(--bg-surface-elevated) !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme="dark"] .btn.secondary:hover,
+:root[data-theme="dark"] .button.ghost:hover,
+:root[data-theme="dark"] .icon-btn:hover,
+:root[data-theme="dark"] .mini-button:hover {
+  color: var(--primary-hover) !important;
+  border-color: var(--primary) !important;
+  background: var(--bg-hover) !important;
+}
+
+:root[data-theme="dark"] .button.primary,
+:root[data-theme="dark"] .btn.primary,
+:root[data-theme="dark"] .grade-choice-grid input:checked + span {
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+  background: #3f7de8 !important;
+}
+
+:root[data-theme="dark"] .button.danger,
+:root[data-theme="dark"] .btn.danger {
+  color: #ffe5e8 !important;
+  border-color: rgba(255, 124, 135, 0.44) !important;
+  background: var(--danger-soft) !important;
+}
+
+:root[data-theme="dark"] table,
+:root[data-theme="dark"] thead,
+:root[data-theme="dark"] tbody,
+:root[data-theme="dark"] tr,
+:root[data-theme="dark"] th,
+:root[data-theme="dark"] td {
+  border-color: var(--border-subtle) !important;
+}
+
+:root[data-theme="dark"] table {
+  color: var(--text-primary) !important;
+  background: transparent !important;
+}
+
+:root[data-theme="dark"] thead,
+:root[data-theme="dark"] .task-table-head {
+  color: #dbeafe !important;
+  background: #172641 !important;
+}
+
+:root[data-theme="dark"] tbody tr,
+:root[data-theme="dark"] .task-table-row {
+  color: var(--text-primary) !important;
+  background: var(--bg-surface) !important;
+}
+
+:root[data-theme="dark"] tbody tr:nth-child(even),
+:root[data-theme="dark"] .task-table-row:nth-child(even) {
+  background: #121f33 !important;
+}
+
+:root[data-theme="dark"] tbody tr:hover,
+:root[data-theme="dark"] .task-table-row:hover {
+  background: var(--bg-hover) !important;
+}
+
+:root[data-theme="dark"] .modal,
+:root[data-theme="dark"] .modal-backdrop,
+:root[data-theme="dark"] .sidebar-overlay {
+  background-color: var(--overlay) !important;
+}
+
+:root[data-theme="dark"] .modal-box,
+:root[data-theme="dark"] .modal-card,
+:root[data-theme="dark"] .module-modal,
+:root[data-theme="dark"] .exam-modal,
+:root[data-theme="dark"] .finance-modal,
+:root[data-theme="dark"] .staff-evaluation-modal {
+  color: var(--text-primary) !important;
+  border-color: var(--border-default) !important;
+  background: var(--bg-surface) !important;
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.58) !important;
+}
+
+:root[data-theme="dark"] .modal-head,
+:root[data-theme="dark"] .modal-header,
+:root[data-theme="dark"] .staff-evaluation-modal > header {
+  color: var(--text-primary) !important;
+  border-color: var(--divider) !important;
+  background: #121f33 !important;
+}
+
+:root[data-theme="dark"] .modal-box > .actions:last-child,
+:root[data-theme="dark"] .modal-box .actions:last-child,
+:root[data-theme="dark"] .module-modal .actions:last-child,
+:root[data-theme="dark"] .exam-modal .actions:last-child,
+:root[data-theme="dark"] .staff-evaluation-modal > form > footer {
+  border-color: var(--divider) !important;
+  background: linear-gradient(180deg, rgba(16, 26, 43, 0.86), var(--bg-surface)) !important;
+}
+
+:root[data-theme="dark"] .role-pill,
+:root[data-theme="dark"] .status-pill,
+:root[data-theme="dark"] .tag,
+:root[data-theme="dark"] .badge,
+:root[data-theme="dark"] .task-card-number {
+  color: #dbeafe !important;
+  border-color: rgba(106, 160, 255, 0.34) !important;
+  background: var(--primary-soft) !important;
+}
+
+:root[data-theme="dark"] .finance-status-pending,
+:root[data-theme="dark"] .exam-status-review,
+:root[data-theme="dark"] .admin-status-submitted {
+  color: var(--warning) !important;
+  background: var(--warning-soft) !important;
+}
+
+:root[data-theme="dark"] .finance-status-received,
+:root[data-theme="dark"] .exam-status-draft,
+:root[data-theme="dark"] .admin-status-draft {
+  color: var(--primary-hover) !important;
+  background: var(--primary-soft) !important;
+}
+
+:root[data-theme="dark"] .finance-status-completed {
+  color: var(--success) !important;
+  background: var(--success-soft) !important;
+}
+
+:root[data-theme="dark"] .staff-evaluation-page {
+  background: transparent !important;
+}
+
+:root[data-theme="dark"] .teacher-directory-row {
+  border-color: var(--divider) !important;
+}
+
+:root[data-theme="dark"] .evaluation-progress > div {
+  background: var(--bg-surface-elevated) !important;
+}
+
+:root[data-theme="dark"] .evaluation-progress b,
+:root[data-theme="dark"] .evaluation-card > b,
+:root[data-theme="dark"] .evaluation-criterion-card > small,
+:root[data-theme="dark"] .evaluation-criterion-card > span > b {
+  color: var(--success) !important;
+  background: var(--success-soft) !important;
+}
+
+:root[data-theme="dark"] .evaluation-form-grid,
+:root[data-theme="dark"] .evaluation-criterion-card {
+  color: var(--text-primary) !important;
+  border-color: var(--border-subtle) !important;
+  background: var(--bg-surface-elevated) !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme="dark"] .evaluation-over-limit {
+  color: #ffd8dc !important;
+  border-color: rgba(255, 124, 135, 0.54) !important;
+  background: var(--danger-soft) !important;
+}
+
+:root[data-theme="dark"] .evaluation-lock.is-open {
+  color: #b9f8dc !important;
+  border-color: rgba(94, 224, 173, 0.42) !important;
+  background: var(--success-soft) !important;
+}
+
+:root[data-theme="dark"] .evaluation-lock.is-closed {
+  color: #ffd8dc !important;
+  border-color: rgba(255, 124, 135, 0.42) !important;
+  background: var(--danger-soft) !important;
+}
+
+:root[data-theme="dark"] .chat-bubble {
+  color: var(--text-primary) !important;
+  border-color: var(--border-subtle) !important;
+  background: var(--bg-surface-elevated) !important;
+}
+
+:root[data-theme="dark"] .chat-message.mine .chat-bubble {
+  color: #eef6ff !important;
+  border-color: rgba(106, 160, 255, 0.34) !important;
+  background: #244a83 !important;
+}
+
+:root[data-theme="dark"] .login-card,
+:root[data-theme="dark"] .login-form,
+:root[data-theme="dark"] .login-visual {
+  color: var(--text-primary) !important;
+  border-color: var(--border-subtle) !important;
+  background: var(--bg-surface) !important;
+}
+
+:root[data-theme="dark"] .toast {
+  color: var(--text-primary) !important;
+  border-color: var(--border-default) !important;
+  background: #162238 !important;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.48) !important;
+}
+
+@media (max-width: 1040px) {
+  :root[data-theme="dark"] .sidebar {
+    background: #0d1727 !important;
+    border-color: var(--border-default) !important;
+    box-shadow: -24px 0 64px rgba(0, 0, 0, 0.58) !important;
+  }
+
+  :root[data-theme="dark"] .sidebar-head,
+  :root[data-theme="dark"] .mobile-header,
+  :root[data-theme="dark"] .mobile-nav {
+    background: rgba(13, 23, 39, 0.98) !important;
+    border-color: var(--border-default) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  :root[data-theme="dark"] .mobile-nav button {
+    color: var(--text-secondary) !important;
+  }
+
+  :root[data-theme="dark"] .mobile-nav button.active {
+    color: #dbeafe !important;
+    background: var(--bg-active) !important;
+  }
+
+  :root[data-theme="dark"] .responsive-table tr,
+  :root[data-theme="dark"] .report-table tr {
+    color: var(--text-primary) !important;
+    border-color: var(--border-default) !important;
+    background: var(--bg-surface) !important;
+  }
+
+  :root[data-theme="dark"] .responsive-table td::before,
+  :root[data-theme="dark"] .report-table td::before {
+    color: var(--text-secondary) !important;
+  }
+}
+
+@media (max-width: 560px) {
+  :root[data-theme="dark"] .staff-evaluation-page,
+  :root[data-theme="dark"] .grade-adjustments-page,
+  :root[data-theme="dark"] .home-page {
+    background: transparent !important;
+  }
+
+  :root[data-theme="dark"] .evaluation-tools,
+  :root[data-theme="dark"] .evaluation-report-actions {
+    border-color: var(--border-subtle) !important;
+    background: var(--bg-surface) !important;
+  }
+
+  :root[data-theme="dark"] .evaluation-tools > *,
+  :root[data-theme="dark"] .evaluation-report-actions .button {
+    border-color: var(--border-subtle) !important;
+  }
+
+  :root[data-theme="dark"] .modal-box,
+  :root[data-theme="dark"] .modal-card,
+  :root[data-theme="dark"] .module-modal,
+  :root[data-theme="dark"] .exam-modal,
+  :root[data-theme="dark"] .finance-modal,
+  :root[data-theme="dark"] .staff-evaluation-modal {
+    border-color: var(--border-default) !important;
+    background: var(--bg-surface) !important;
+  }
+}
+
+@media print {
+  :root[data-theme="dark"],
+  :root[data-theme="dark"] body,
+  :root[data-theme="dark"] .print-page,
+  :root[data-theme="dark"] .a4-page {
+    color-scheme: light !important;
+    color: #111827 !important;
+    background: #ffffff !important;
+  }
+}

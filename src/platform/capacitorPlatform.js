@@ -25,7 +25,7 @@ export async function initializeCapacitorPlatform({ state, actions, render, show
   async function applyNativeTheme(theme = "light") {
     const dark = theme === "dark";
     await StatusBar?.setBackgroundColor?.({ color: dark ? "#080F1D" : "#2563eb" }).catch(() => {});
-    await StatusBar?.setStyle?.({ style: dark ? "DARK" : "LIGHT" }).catch(() => {});
+    await StatusBar?.setStyle?.({ style: dark ? "LIGHT" : "DARK" }).catch(() => {});
   }
 
   window.__setNativeTheme = applyNativeTheme;
