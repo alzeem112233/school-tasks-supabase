@@ -437,7 +437,7 @@ export function createAdminModule(getContext) {
 
   function renderShell() {
     const { app, state, safe, roleLabel, icons, schools, schoolName, scopedSchoolId, notifications } = getContext();
-    const canSelectSchoolScope = getContext().canReadSchoolTasks?.() && ["superadmin", "general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary"].includes(state.currentUser.role);
+    const canSelectSchoolScope = getContext().canReadSchoolTasks?.() && state.currentUser.role === "superadmin";
     const selectableSchools = schools;
     const unread = notifications.getUnreadCount();
     const offlineCount = state.offlineQueue?.length || 0;

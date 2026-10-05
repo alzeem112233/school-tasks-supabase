@@ -241,13 +241,13 @@ function clearLegacyDemoStorage() {
 
 function scopedSchoolId() {
   if (!state.currentUser) return "all";
-  if (permissionIsGeneralManager(state.currentUser)) return state.activeSchoolId;
+  if (state.currentUser.role === "superadmin") return state.activeSchoolId;
   return state.currentUser.schoolId;
 }
 
 function scopedSchoolIds() {
   if (!state.currentUser) return [];
-  if (permissionIsGeneralManager(state.currentUser)) {
+  if (state.currentUser.role === "superadmin") {
     if (state.activeSchoolId && state.activeSchoolId !== "all") return [state.activeSchoolId];
     return (state.schools || schools).map((school) => school.id);
   }
@@ -969,7 +969,7 @@ window.actions = {
   },
   setActiveSchool(value) {
     const requested = String(value || "all");
-    state.activeSchoolId = permissionIsGeneralManager(state.currentUser) ? requested : state.currentUser?.schoolId || "all";
+    state.activeSchoolId = state.currentUser?.role === "superadmin" ? requested : state.currentUser?.schoolId || "all";
     localStorage.setItem("schoolTaskActiveSchool", state.activeSchoolId);
     state.pagination = { ...paginationDefaults };
     state.mobileNavOpen = false;
