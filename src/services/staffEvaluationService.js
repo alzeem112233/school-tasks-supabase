@@ -77,12 +77,14 @@ export function createStaffEvaluationsModule(getContext) {
     const reportRows = rows.filter((item) => !hidden.has(item.teacherId));
     const visibleRows = canReports ? reportRows : rows.filter((item) => item.sequenceKey === currentRoleSequence && !hidden.has(item.teacherId));
     const teachers = (state.teacherDirectory || []).filter((x) => x.schoolId === branch && x.active !== false);
+    const visibleTeachers = teachers.filter((teacher) => !hidden.has(teacher.id));
+    const visibleTeacherIds = new Set(visibleTeachers.map((teacher) => teacher.id));
     const userEvaluations = (state.staffEvaluations || []).filter((item) => item.schoolId === branch && item.evaluatedBy === state.currentUser?.id && normalizeAssessmentPeriod(item.assessmentPeriod) === selectedPeriod && (isSuperAdmin() || permittedSequences.includes(item.sequenceKey)));
-    const enteredTeacherIds = new Set(userEvaluations.map((item) => item.teacherId).filter(Boolean));
+    const enteredTeacherIds = new Set(userEvaluations.map((item) => item.teacherId).filter((teacherId) => visibleTeacherIds.has(teacherId)));
     const enteredCount = enteredTeacherIds.size;
-    const remainingCount = Math.max(0, teachers.length - enteredCount);
+    const remainingCount = Math.max(0, visibleTeachers.length - enteredCount);
     return `<main class="staff-evaluation-page page-shell"><div class="page-heading"><div><span class="eyebrow">تقييم الأداء</span><h1>تقييم الموظفين والمعلمين</h1><p>استمارات مبنية على بنود التقييم الإداري التفصيلي.</p></div><div class="evaluation-head-actions"><button class="evaluation-lock ${setting.openToAll ? "is-open" : "is-closed"}" type="button" ${canControlStaffEvaluationAccess() ? `onclick="actions.toggleStaffEvaluationAccess()"` : "disabled"} title="${setting.openToAll ? "الإضافة متاحة لجميع المستخدمين" : "الإضافة العامة مغلقة"}"><span>${setting.openToAll ? "🔓" : "🔒"}</span><small>${setting.openToAll ? "مفتوح" : "مغلق"}</small></button>${canAdd ? `<button class="button primary" onclick="actions.openStaffEvaluation('')">${icons.plus || "+"} إضافة تقييم</button>` : ""}</div></div>
-      <section class="evaluation-progress" aria-label="إحصاءات التقييم"><div><span>المعلمون في الفرع</span><b>${teachers.length}</b></div><div><span>تقييماتك المدخلة</span><b>${enteredCount}</b></div><div><span>المعلمون المتبقون</span><b>${remainingCount}</b></div></section>
+      <section class="evaluation-progress" aria-label="إحصاءات التقييم"><div><span>المعلمون في التقييم</span><b>${visibleTeachers.length}</b></div><div><span>تقييماتك المدخلة</span><b>${enteredCount}</b></div><div><span>المعلمون المتبقون</span><b>${remainingCount}</b></div></section>
       <section class="evaluation-tools"><input class="input" placeholder="ابحث باسم المعلم أو المادة" value="${esc(filters.search, safe)}" oninput="actions.setStaffEvaluationFilter('search', this.value)"><select class="input" onchange="actions.setStaffEvaluationFilter('roleKey', this.value)"><option value="all">${isSuperAdmin() ? "كل التسلسلات" : "تسلسلي فقط"}</option>${Object.entries(SEQUENCES).filter(([key]) => isSuperAdmin() || permittedSequences.includes(key)).map(([key, value]) => `<option value="${key}" ${filters.roleKey === key ? "selected" : ""}>${safe(value.label)}</option>`).join("")}</select><select class="input" onchange="actions.setStaffEvaluationFilter('assessmentPeriod', this.value)">${assessmentPeriodOptions(selectedPeriod).map((option) => `<option value="${option.value}" ${option.selected ? "selected" : ""}>${safe(option.label)}</option>`).join("")}</select>${canManageStaffEvaluations() ? `<button class="button ghost" onclick="actions.exportTeacherTemplate()">تصدير نموذج المعلمين</button><label class="button ghost file-button">استيراد المعلمين<input type="file" accept=".csv,.xlsx,.xls" hidden onchange="actions.importTeacherDirectory(this.files[0])"></label>` : ""}</section>
       ${canReports ? `<section class="evaluation-report-actions"><strong>التقارير</strong><button class="button ghost" onclick="actions.printStaffEvaluationReport('ranked')">ترتيب الأعلى</button><button class="button ghost" onclick="actions.printStaffEvaluationReport('summary')">ملخص النتائج</button><button class="button ghost" onclick="actions.printStaffEvaluationReport('full')">التقرير العام</button><button class="button ghost" onclick="actions.printStaffEvaluationUsersReport()">من قيّم؟</button></section>` : ""}
       <section class="teacher-directory-card"><h3>معلمو الفرع الحالي</h3><div class="teacher-directory-list">${teachers.length ? teachers.map((teacher) => `<div class="teacher-directory-row"><span>${safe(teacher.teacherName)} — ${safe(teacher.subjectName)}</span><button class="button ${hidden.has(teacher.id) ? "primary" : "ghost"}" onclick="actions.toggleStaffEvaluationTeacher('${teacher.id}')">${hidden.has(teacher.id) ? "إظهار لي" : "إخفاء لي"}</button></div>`).join("") : `<span class="empty">لم يتم استيراد معلمين لهذا الفرع.</span>`}</div></section>
@@ -188,9 +190,11 @@ export function createStaffEvaluationsModule(getContext) {
       .sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "ar"));
     const users = activeUsers.filter((user) => filters.roleKey === "all" || sequenceForRole(user.role) === filters.roleKey);
     const userIds = new Set(users.map((user) => user.id));
+    const hidden = hiddenTeachers();
     const evaluations = (state.staffEvaluations || [])
       .filter((item) => item.schoolId === branch)
       .filter((item) => normalizeAssessmentPeriod(item.assessmentPeriod) === selectedPeriod)
+      .filter((item) => !hidden.has(item.teacherId))
       .filter((item) => userIds.has(item.evaluatedBy));
     const byUser = new Map();
     evaluations.forEach((item) => {
