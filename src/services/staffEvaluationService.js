@@ -36,6 +36,11 @@ export function createStaffEvaluationsModule(getContext) {
     computer_unit: "computer_unit",
     printing_unit: "printing_unit",
   }[String(role || "")] || "");
+  const evaluationMatchesEvaluatorRole = (item) => {
+    const evaluator = (getContext().state.users || []).find((user) => user.id === item.evaluatedBy);
+    const assignedSequence = sequenceForRole(evaluator?.role);
+    return !evaluator || !assignedSequence || assignedSequence === item.sequenceKey || String(evaluator.role) === "superadmin";
+  };
   const isSuperAdmin = () => String(getContext().state.currentUser?.role || "") === "superadmin";
   const allowedSequenceKeys = () => isSuperAdmin() ? Object.keys(SEQUENCES) : [sequenceForRole(getContext().state.currentUser?.role)].filter(Boolean);
   const canEvaluateSequence = (sequenceKey) => isSuperAdmin() || allowedSequenceKeys().includes(String(sequenceKey || ""));
@@ -76,7 +81,7 @@ export function createStaffEvaluationsModule(getContext) {
     const { state, safe, icons, canManageStaffEvaluations, canViewStaffEvaluationReports, canControlStaffEvaluationAccess } = getContext(); const branch = branchId(); const hidden = hiddenTeachers(); const setting = currentSetting(); const canReports = canViewStaffEvaluationReports(); const permittedSequences = allowedSequenceKeys(); const canAdd = canSubmitEvaluation() && permittedSequences.length > 0; const canViewRoleRows = canManageStaffEvaluations(); const currentRoleSequence = sequenceForRole(state.currentUser?.role);
     const filters = state.staffEvaluationFilters || {};
     const selectedPeriod = normalizeAssessmentPeriod(filters.assessmentPeriod);
-    const rows = (state.staffEvaluations || []).filter((x) => x.schoolId === branch).filter((x) => normalizeAssessmentPeriod(x.assessmentPeriod) === selectedPeriod).filter((x) => isSuperAdmin() || canReports || permittedSequences.includes(x.sequenceKey)).filter((x) => filters.roleKey === "all" || x.sequenceKey === filters.roleKey).filter((x) => !filters.search || `${x.teacherName} ${x.subjectName}`.includes(filters.search)).sort((a, b) => Number(b.total) - Number(a.total));
+    const rows = (state.staffEvaluations || []).filter((x) => x.schoolId === branch).filter((x) => normalizeAssessmentPeriod(x.assessmentPeriod) === selectedPeriod).filter(evaluationMatchesEvaluatorRole).filter((x) => isSuperAdmin() || canReports || permittedSequences.includes(x.sequenceKey)).filter((x) => filters.roleKey === "all" || x.sequenceKey === filters.roleKey).filter((x) => !filters.search || `${x.teacherName} ${x.subjectName}`.includes(filters.search)).sort((a, b) => Number(b.total) - Number(a.total));
     const reportRows = rows.filter((item) => !hidden.has(item.teacherId));
     const visibleRows = canReports ? reportRows : rows.filter((item) => item.sequenceKey === currentRoleSequence && !hidden.has(item.teacherId));
     const teachers = (state.teacherDirectory || []).filter((x) => x.schoolId === branch && x.active !== false);
@@ -141,6 +146,7 @@ export function createStaffEvaluationsModule(getContext) {
     const evaluationRows = [...state.staffEvaluations]
       .filter((item) => item.schoolId === branchId() && !hidden.has(item.teacherId))
       .filter((item) => normalizeAssessmentPeriod(item.assessmentPeriod) === selectedPeriod)
+      .filter(evaluationMatchesEvaluatorRole)
       .filter((item) => filters.roleKey === "all" || item.sequenceKey === filters.roleKey)
       .filter((item) => !filters.search || `${item.teacherName} ${item.subjectName}`.includes(filters.search))
       .sort((a, b) => percentage(b) - percentage(a) || Number(b.total) - Number(a.total));
@@ -199,6 +205,7 @@ export function createStaffEvaluationsModule(getContext) {
       .filter((item) => item.schoolId === branch)
       .filter((item) => normalizeAssessmentPeriod(item.assessmentPeriod) === selectedPeriod)
       .filter((item) => !hidden.has(item.teacherId))
+      .filter(evaluationMatchesEvaluatorRole)
       .filter((item) => userIds.has(item.evaluatedBy));
     const byUser = new Map();
     evaluations.forEach((item) => {
