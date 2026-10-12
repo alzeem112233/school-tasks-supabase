@@ -126,6 +126,8 @@ export function createUserView(getContext) {
       : `<select name="role" required>${roleOptions}</select>`;
     const selectedSchoolId = user.schoolId || (state.activeSchoolId !== "all" ? state.activeSchoolId : "");
     const schoolOptions = `<option value="">اختر الفرع</option>${schools.map((school) => `<option value="${safe(school.id)}" ${selectedSchoolId === school.id ? "selected" : ""}>${safe(school.name)}</option>`).join("")}`;
+    const managerRole = ["general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary"].includes(selectedRole);
+    const linkedIds = Array.isArray(user.linkedSchoolIds) ? user.linkedSchoolIds : [];
     const accessValue = (key) => user.accessFlags?.[key] === true ? "allow" : user.accessFlags?.[key] === false ? "deny" : "inherit";
     const accessSelect = (name, label, key) => `
       <label class="field">
@@ -151,6 +153,7 @@ export function createUserView(getContext) {
             <label class="field"><span>البريد الإلكتروني</span><input name="email" type="email" value="${safe(user.email || "")}" ${editing && cloud.enabled ? "readonly" : ""} required /></label>
             <label class="field"><span>الدور</span>${roleField}</label>
             <label class="field"><span>الفرع / النطاق</span>${currentIsSuperAdmin ? `<select name="schoolId">${schoolOptions}</select>` : `<input name="schoolId" value="${safe(user.schoolId || state.currentUser.schoolId || "")}" readonly required />`}</label>
+            ${currentIsSuperAdmin && managerRole ? `<label class="field field-wide"><span>الفروع المسموح للمدير بالعمل معها</span><select name="linkedSchoolIds" multiple size="${Math.min(Math.max(schools.length - 1, 3), 6)}">${schools.filter((school) => !isGeneralSchoolId(school.id)).map((school) => `<option value="${safe(school.id)}" ${linkedIds.includes(school.id) ? "selected" : ""}>${safe(school.name)}</option>`).join("")}</select></label>` : ""}
             ${passwordField}
           </div>
           <div class="access-panel">

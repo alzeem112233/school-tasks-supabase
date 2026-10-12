@@ -156,7 +156,7 @@ Deno.serve(async (request) => {
       email,
       role,
       school_id: schoolId,
-      linked_school_ids: [],
+      linked_school_ids: linkedSchoolIds,
       department_name: null,
       access_flags: accessFlags,
       status: "active",

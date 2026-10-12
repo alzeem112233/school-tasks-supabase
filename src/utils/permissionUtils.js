@@ -157,10 +157,11 @@ export function linkedSchoolIds(user) {
 
 export function canAccessSchool(user, resource) {
   if (!isActiveUser(user)) return false;
-  if (isGeneralManager(user)) return true;
+  if (normalizeRole(user?.role, "") === "superadmin") return true;
   const schoolId = resourceSchoolId(resource);
   if (!schoolId) return false;
   if (schoolId === user.schoolId) return true;
+  if (isGeneralManager(user) && linkedSchoolIds(user).includes(schoolId)) return true;
   return false;
 }
 

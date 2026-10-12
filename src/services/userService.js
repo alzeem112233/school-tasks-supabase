@@ -152,7 +152,11 @@ export function createUsersModule(getContext) {
       createTask: parseAccessFlag(form.get("accessCreateTask")),
       createNotebook: parseAccessFlag(form.get("accessCreateNotebook")),
     };
-    const user = normalizeUser({ id: id || createUuid(), name: String(form.get("name")).trim(), email, role: effectiveRole, schoolId, active, linkedSchoolIds: [], accessFlags });
+    const user = normalizeUser({ id: id || createUuid(), name: String(form.get("name")).trim(), email, role: effectiveRole, schoolId, active, linkedSchoolIds: currentIsSuperAdmin ? linkedSchoolIds : (previousUser?.linkedSchoolIds || []), accessFlags });
+    if (currentIsSuperAdmin && generalRoles.includes(effectiveRole) && effectiveRole !== "superadmin" && !user.linkedSchoolIds.length) {
+      showToast("اختر فرعًا واحدًا على الأقل لمدير الإدارة.");
+      return;
+    }
     if (id ? !canEditUser(previousUser) : !canCreateUsers()) {
       showToast("لا توجد صلاحية كافية لتنفيذ هذا الإجراء.");
       return;

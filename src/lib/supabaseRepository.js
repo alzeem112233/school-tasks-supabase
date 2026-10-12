@@ -222,6 +222,12 @@ function toDatabaseRow(collectionName, data) {
     row.updated_at = toStorageTimestamp(data.updatedAt) || row.updated_at;
   }
   if (collectionName === "administrativeReports") {
+    if (data.reportKind === "secretary_daily") {
+      row.type = "secretary_daily";
+      row.supervisor_id = data.secretaryId || null;
+      row.sections = { secretary: { tasks: data.tasks || [], urgentTasks: data.urgentTasks || [], teacherNotes: data.teacherNotes || [], recommendations: data.recommendations || "", secretaryName: data.secretaryName || "" } };
+      delete row.reportKind; delete row.secretaryId; delete row.secretaryName; delete row.tasks; delete row.urgentTasks; delete row.teacherNotes; delete row.recommendations; delete row.approvedAt; delete row.approvedBy;
+    }
     const reportDate = String(data.date || "");
     row.report_date = /^\d{4}-\d{2}-\d{2}$/.test(reportDate) ? reportDate : new Date().toISOString().slice(0, 10);
     row.supervisor_id = row.supervisor_id || null;
@@ -260,6 +266,16 @@ function fromDatabaseRow(collectionName, row) {
     value.targetType = row.details?.targetType || "system";
     value.targetId = row.details?.targetId || "";
     value.details = row.details?.message || "";
+  }
+  if (collectionName === "administrativeReports" && row.type === "secretary_daily") {
+    const secretary = row.sections?.secretary || {};
+    value.reportKind = "secretary_daily";
+    value.secretaryId = value.supervisorId || "";
+    value.secretaryName = secretary.secretaryName || "";
+    value.tasks = secretary.tasks || [];
+    value.urgentTasks = secretary.urgentTasks || [];
+    value.teacherNotes = secretary.teacherNotes || [];
+    value.recommendations = secretary.recommendations || "";
   }
   return value;
 }

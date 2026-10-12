@@ -444,6 +444,7 @@ export function createAdministrativeReportsModule(getContext) {
     const filters = state.administrativeReportFilters || {};
     const schoolScope = scopedSchoolIds();
     return reports()
+      .filter((report) => report.reportKind !== "secretary_daily")
       .filter((report) => !schoolScope || schoolScope.includes(report.schoolId))
       .filter((report) => reportMatchesPeriod(report, filters))
       .filter((report) => (filters.supervisorId && filters.supervisorId !== "all" ? report.supervisorId === filters.supervisorId : true))

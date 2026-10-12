@@ -55,6 +55,7 @@ import { createFinanceModule } from "./services/financeService.js";
 import { createGradeAdjustmentsModule } from "./services/gradeAdjustmentService.js";
 import { createStaffEvaluationsModule } from "./services/staffEvaluationService.js";
 import { createAdministrativeReportsModule } from "./services/administrativeReportService.js";
+import { createSecretaryReportModule } from "./services/secretaryReportService.js";
 import { createExamScheduleModule } from "./services/examScheduleService.js";
 import { createCircularsModule } from "./services/circularService.js";
 import { createMeetingsModule } from "./services/meetingService.js";
@@ -644,6 +645,7 @@ modules.finance = createFinanceModule(getContext);
 modules.gradeAdjustments = createGradeAdjustmentsModule(getContext);
 modules.staffEvaluations = createStaffEvaluationsModule(getContext);
 modules.administrativeReports = createAdministrativeReportsModule(getContext);
+modules.secretaryReports = createSecretaryReportModule(getContext);
 modules.examSchedules = createExamScheduleModule(getContext);
 modules.circulars = createCircularsModule(getContext);
 modules.meetings = createMeetingsModule(getContext);
@@ -836,6 +838,11 @@ window.actions = {
   approveAdministrativeReportAsDeputy: modules.administrativeReports.approveByDeputy,
   saveAndApproveAdministrativeReportAsDeputy: modules.administrativeReports.saveAndApproveByDeputy,
   approveAdministrativeReportAsPrincipal: modules.administrativeReports.approveByPrincipal,
+  openSecretaryReport: modules.secretaryReports.openReport,
+  saveSecretaryReport: modules.secretaryReports.saveReport,
+  approveSecretaryReport: modules.secretaryReports.approveReport,
+  setSecretaryReportFilter: modules.secretaryReports.setFilter,
+  printSecretaryMonthlyReport: modules.secretaryReports.printMonthlyReport,
   deleteAdministrativeReportGroup: modules.administrativeReports.deleteAdministrativeReportGroup,
   setAdministrativeReportFilter: modules.administrativeReports.setFilter,
   setAdministrativeReportTab: modules.administrativeReports.setTab,
