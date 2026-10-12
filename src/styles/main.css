@@ -13859,3 +13859,438 @@ body.offline-mode .floating-sync {
   .offline-banner-action svg { width: 15px; height: 15px; }
 }
 
+/* Platform-wide responsive system: shared rhythm, readable controls, and right-side navigation. */
+:root {
+  --ui-blue: #2563eb;
+  --ui-teal: #0f9f86;
+  --ui-amber: #d99008;
+  --ui-red: #dc4c64;
+  --ui-violet: #7c5ce5;
+  --ui-surface-soft: #f7faff;
+  --ui-border: #dbe4ef;
+  --ui-radius: 8px;
+  --ui-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+.content {
+  width: 100%;
+  min-width: 0;
+}
+
+.content > * {
+  max-width: 100%;
+}
+
+:where(.topbar, .dashboard-topbar, .finance-page-head, .chat-topbar,
+  .admin-report-hero, .activity-report-hero, .social-report-hero,
+  .notebook-template-hero, .exam-hero, .report-insight-hero,
+  .notebook-report-hero) {
+  border: 1px solid var(--ui-border);
+  border-inline-start: 4px solid var(--ui-blue);
+  border-radius: var(--ui-radius);
+  background: var(--ui-surface-soft);
+  box-shadow: var(--ui-shadow);
+}
+
+:where(.activity-report-hero, .social-report-hero) { border-inline-start-color: var(--ui-teal); }
+:where(.finance-page-head, .notebook-template-hero) { border-inline-start-color: var(--ui-amber); }
+:where(.exam-hero, .chat-topbar) { border-inline-start-color: var(--ui-violet); }
+
+:where(.panel, .dashboard-panel, .task-card, .notification-item, .module-card,
+  .exam-panel, .exam-period-card, .finance-row, .evaluation-card,
+  .grade-adjustment-card, .vice-report-card, .activity-report-card,
+  .social-report-card, .secretary-section, .home-message-card,
+  .home-alert-card, .report-print-toolbar) {
+  border-radius: var(--ui-radius) !important;
+}
+
+:where(.panel, .dashboard-panel, .module-card, .notification-item,
+  .vice-report-card, .activity-report-card, .social-report-card) {
+  border-color: var(--ui-border) !important;
+  box-shadow: var(--ui-shadow);
+}
+
+:where(.btn, .button, .icon-btn, input, select, textarea, .sync-chip) {
+  border-radius: var(--ui-radius) !important;
+}
+
+:where(input, select, textarea) {
+  max-width: 100%;
+  border-color: #cbd7e6;
+}
+
+:where(input, select, textarea):focus {
+  border-color: var(--ui-blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.13);
+}
+
+:where(.toolbar, .actions, .topbar, .dashboard-topbar) {
+  min-width: 0;
+}
+
+:where(.toolbar, .actions) {
+  flex-wrap: wrap;
+}
+
+:where(.table-wrap, .task-table-scroll, .report-table-wrap,
+  .responsive-table-wrap, .exam-table-wrap, .finance-table-panel) {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+:where(table, th, td) {
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 1041px) {
+  .shell {
+    padding-right: 280px !important;
+    padding-left: 0 !important;
+  }
+
+  .sidebar {
+    right: 0 !important;
+    left: auto !important;
+    inset-inline-start: auto !important;
+    inset-inline-end: auto !important;
+  }
+}
+
+@media (max-width: 1040px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .shell {
+    width: 100%;
+    padding: 0 !important;
+  }
+
+  .mobile-header {
+    display: grid !important;
+    grid-template-columns: 44px minmax(0, 1fr) minmax(74px, auto) 44px;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    margin: 0 0 10px;
+    padding: max(8px, env(safe-area-inset-top, 0px)) 10px 8px;
+    border: 1px solid var(--ui-border);
+    border-radius: 0 0 var(--ui-radius) var(--ui-radius);
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 5px 16px rgba(15, 23, 42, 0.07);
+  }
+
+  .mobile-menu-button {
+    grid-column: 1;
+    color: var(--ui-blue);
+    background: #eef5ff;
+    border-color: #cfe0fb;
+  }
+
+  .mobile-header-copy {
+    grid-column: 2;
+    text-align: start;
+  }
+
+  .mobile-header > .sync-chip { grid-column: 3; }
+  .mobile-notification-button { grid-column: 4; }
+
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: auto !important;
+    inset-inline-start: auto !important;
+    inset-inline-end: auto !important;
+    width: min(88vw, 360px) !important;
+    max-width: calc(100vw - 18px) !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 12px calc(20px + env(safe-area-inset-bottom, 0px)) !important;
+    border: 0 !important;
+    border-left: 1px solid var(--ui-border) !important;
+    border-radius: var(--ui-radius) 0 0 var(--ui-radius) !important;
+    background: #fff !important;
+    box-shadow: -18px 0 48px rgba(15, 23, 42, 0.22) !important;
+    transform: translate3d(105%, 0, 0) !important;
+    transition: transform 280ms cubic-bezier(.22, 1, .36, 1) !important;
+    will-change: transform;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .sidebar.open,
+  .shell.nav-open .sidebar,
+  [dir="rtl"] .sidebar.open {
+    transform: translate3d(0, 0, 0) !important;
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    display: block !important;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    background: rgba(15, 23, 42, 0.48);
+    backdrop-filter: blur(2px);
+    transition: opacity 220ms ease, visibility 220ms ease;
+  }
+
+  .sidebar-overlay.open {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sidebar-head {
+    position: sticky;
+    top: -12px;
+    z-index: 3;
+    margin: -12px -12px 10px;
+    padding: 12px;
+    border-bottom: 1px solid var(--ui-border);
+    background: #fff;
+  }
+
+  .sidebar-close {
+    display: inline-flex !important;
+    color: #b4233c;
+    background: #fff1f3;
+    border-color: #ffd0d8;
+  }
+
+  .sidebar-section {
+    margin-block: 8px;
+    padding: 10px;
+    border-radius: var(--ui-radius) !important;
+    background: #f8fafc;
+  }
+
+  .sidebar .nav {
+    gap: 8px;
+  }
+
+  .sidebar .nav button {
+    width: 100%;
+    min-height: 46px;
+    justify-content: flex-start;
+    border-radius: var(--ui-radius) !important;
+  }
+
+  .sidebar .nav button.active {
+    border-color: #bfd3fa;
+    color: #174ea6;
+    background: #eaf2ff;
+  }
+
+  .content {
+    width: 100%;
+    padding: 0 10px calc(var(--mobile-nav-height) + var(--mobile-safe-bottom) + 28px) !important;
+    overflow-x: hidden;
+  }
+
+  :where(.topbar, .dashboard-topbar, .finance-page-head, .chat-topbar,
+    .admin-report-hero, .activity-report-hero, .social-report-hero,
+    .notebook-template-hero, .exam-hero, .report-insight-hero,
+    .notebook-report-hero) {
+    display: flex !important;
+    align-items: stretch !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    margin-bottom: 10px;
+    padding: 12px !important;
+  }
+
+  :where(.topbar, .dashboard-topbar, .finance-page-head, .chat-topbar) .actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: 7px;
+  }
+
+  :where(.topbar, .dashboard-topbar, .finance-page-head, .chat-topbar) .actions > * {
+    min-width: 0;
+    width: 100%;
+  }
+
+  :where(.form-grid, .two-column, .dashboard-split, .dashboard-focus-row,
+    .dashboard-workload-row, .report-filter-grid, .grade-filter-bar,
+    .grade-form-grid, .social-report-grid, .activity-report-grid,
+    .vice-report-grid, .exam-grid, .meeting-grid, .circular-grid,
+    .notebook-template-grid) {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  :where(.metrics, .dashboard-summary-grid, .dashboard-overview-grid,
+    .home-quick-grid) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  :where(.panel, .dashboard-panel, .task-card, .notification-item,
+    .module-card, .exam-panel, .finance-row, .evaluation-card,
+    .grade-adjustment-card, .vice-report-card, .activity-report-card,
+    .social-report-card, .secretary-section) {
+    padding: 12px !important;
+  }
+
+  :where(.toolbar, .module-toolbar, .admin-report-filters,
+    .exam-toolbar, .finance-filter-bar, .task-filter-toolbar) {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px !important;
+    width: 100%;
+  }
+
+  :where(.toolbar, .module-toolbar, .admin-report-filters,
+    .exam-toolbar, .finance-filter-bar, .task-filter-toolbar) > * {
+    min-width: 0 !important;
+    width: 100%;
+  }
+
+  :where(input, select, textarea) {
+    width: 100%;
+    min-height: 46px;
+    font-size: 16px !important;
+  }
+
+  textarea {
+    min-height: 92px;
+    resize: vertical;
+  }
+
+  :where(.btn, .button) {
+    min-height: 44px;
+    justify-content: center;
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  :where(.modal-box, .module-modal, .exam-modal, .admin-report-modal,
+    .finance-modal, .staff-evaluation-modal, .grade-adjustment-modal) {
+    width: calc(100vw - 12px) !important;
+    max-width: calc(100vw - 12px) !important;
+    max-height: calc(100dvh - 8px) !important;
+    border-radius: var(--ui-radius) var(--ui-radius) 0 0 !important;
+  }
+
+  :where(.admin-report-sticky-actions, .secretary-actions,
+    .modal-box > .actions:last-child, .module-modal > .actions:last-child) {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px !important;
+  }
+
+  :where(.admin-report-sticky-actions, .secretary-actions,
+    .modal-box > .actions:last-child, .module-modal > .actions:last-child) > * {
+    min-width: 0 !important;
+    width: 100%;
+  }
+
+  :where(.table-wrap, .task-table-scroll, .report-table-wrap,
+    .responsive-table-wrap, .exam-table-wrap, .finance-table-panel) {
+    margin-inline: 0;
+    border-radius: var(--ui-radius);
+  }
+
+  :where(table, .task-table, .report-table) {
+    max-width: 100%;
+  }
+
+  :where(th, td) {
+    padding: 9px 8px;
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+  .report-print-toolbar {
+    align-items: stretch;
+    padding: 10px;
+  }
+
+  .report-print-fields {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .mobile-header {
+    grid-template-columns: 42px minmax(0, 1fr) minmax(62px, auto) 42px;
+    gap: 5px;
+    padding-inline: 8px;
+  }
+
+  .mobile-header .icon-btn {
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    min-height: 42px;
+  }
+
+  .mobile-header .sync-chip {
+    max-width: 82px;
+    min-height: 36px;
+    padding-inline: 6px;
+  }
+
+  .mobile-header-copy strong { font-size: 13px; }
+  .mobile-header-copy span { font-size: 10px; }
+
+  :where(.toolbar, .module-toolbar, .admin-report-filters,
+    .exam-toolbar, .finance-filter-bar, .task-filter-toolbar) {
+    grid-template-columns: 1fr !important;
+  }
+
+  :where(.toolbar, .module-toolbar, .admin-report-filters,
+    .exam-toolbar, .finance-filter-bar, .task-filter-toolbar) form.actions {
+    display: grid !important;
+    grid-template-columns: 1fr;
+  }
+
+  :where(.admin-report-sticky-actions, .secretary-actions,
+    .modal-box > .actions:last-child, .module-modal > .actions:last-child) {
+    grid-template-columns: 1fr !important;
+  }
+
+  .section-title h2,
+  :where(.admin-report-hero, .activity-report-hero, .social-report-hero,
+    .notebook-template-hero, .exam-hero) h2 {
+    font-size: 20px !important;
+    line-height: 1.4;
+  }
+
+  :where(.dashboard-overview-grid, .home-quick-grid, .metrics,
+    .dashboard-summary-grid) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ui-surface-soft: #111c30;
+  --ui-border: #2a3a54;
+  --ui-shadow: 0 7px 20px rgba(0, 0, 0, 0.2);
+}
+
+:root[data-theme="dark"] :where(.mobile-header, .sidebar, .sidebar-head) {
+  background: #0f172a !important;
+  border-color: var(--ui-border) !important;
+}
+
+:root[data-theme="dark"] .sidebar-section {
+  background: #111c30;
+}
+
+:root[data-theme="dark"] .mobile-menu-button {
+  color: #8eb5ff;
+  background: #172a4d;
+  border-color: #284779;
+}
+

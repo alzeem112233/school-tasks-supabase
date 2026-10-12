@@ -20,6 +20,7 @@ export const taskStatuses = ["new", "in_progress", "under_review", "approved", "
 export const taskCreationStatuses = ["new", "in_progress", "under_review", "approved", "completed", "archived"];
 
 export const icons = {
+  menu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>',
   dashboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13h8V3H3v10Z"/><path d="M13 21h8v-8h-8v8Z"/><path d="M13 3v8h8V3h-8Z"/><path d="M3 21h8v-6H3v6Z"/></svg>',
   tasks: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
   notebook: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5V5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-1.5Z"/><path d="M8 7h6"/><path d="M8 11h6"/><path d="M8 15h4"/></svg>',

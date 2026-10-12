@@ -45,13 +45,6 @@ export function createAdminModule(getContext) {
   function syncStatus() {
     const { state, safe, icons } = getContext();
     const offlineCount = state.offlineQueue?.length || 0;
-    const reportPrintToolbar = state.view === "vicePrincipalReports"
-      ? `<div class="report-print-toolbar"><span>كشف تقارير الوكيل</span><button class="btn secondary" type="button" onclick="actions.printVicePrincipalReport()">${getContext().icons.print || ""} طباعة الكشف</button></div>`
-      : state.view === "activitySupervisorReports"
-        ? `<div class="report-print-toolbar"><span>كشف تقارير الأنشطة</span><button class="btn secondary" type="button" onclick="actions.printActivitySupervisorReport()">${getContext().icons.print || ""} طباعة الكشف</button></div>`
-        : state.view === "socialSpecialistReports"
-          ? `<div class="report-print-toolbar"><span>كشف تقارير الأخصائي</span><button class="btn secondary" type="button" onclick="actions.printSocialSpecialistReport()">${getContext().icons.print || ""} طباعة الكشف</button></div>`
-          : "";
     if (state.syncingOfflineChanges) return { label: "جارٍ المزامنة", className: "syncing", icon: icons.save, action: "" };
     if (state.isOffline) return { label: "غير متصل", className: "offline", icon: icons.database, action: "" };
     if (offlineCount) return { label: `مزامنة (${safe(offlineCount)})`, className: "pending", icon: icons.save, action: `onclick="actions.syncOfflineChanges()"` };
@@ -465,9 +458,6 @@ export function createAdminModule(getContext) {
     const selectableSchools = schools;
     const unread = notifications.getUnreadCount();
     const offlineCount = state.offlineQueue?.length || 0;
-    const latestViceReportId = (state.administrativeReports || []).find((item) => item.reportKind?.startsWith("vice_principal_"))?.id || "";
-    const latestActivityReportId = (state.administrativeReports || []).find((item) => item.reportKind?.startsWith("activity_"))?.id || "";
-    const latestSocialReportId = (state.administrativeReports || []).find((item) => item.reportKind?.startsWith("social_"))?.id || "";
     const reportPrintControl = (title, action, prefix, sections) => {
       const files = (state.administrativeReports || [])
         .filter((item) => String(item.reportKind || "").startsWith(prefix))
@@ -496,7 +486,7 @@ export function createAdminModule(getContext) {
     app.innerHTML = `
       <section class="shell ${state.mobileNavOpen ? "nav-open" : ""} ${state.modal ? "has-modal" : ""}">
         <header class="mobile-header">
-          <button class="icon-btn" type="button" aria-label="فتح القائمة" onclick="actions.toggleMobileNav()">${icons.dashboard}</button>
+          <button class="icon-btn mobile-menu-button" type="button" aria-label="فتح القائمة" aria-expanded="${state.mobileNavOpen ? "true" : "false"}" onclick="actions.toggleMobileNav()">${icons.menu || icons.dashboard}</button>
           <div class="mobile-header-copy">
             <strong><img class="mobile-logo" src="/icon-192.png" alt="" /> مهام المدارس</strong>
             <span>${safe(roleLabel(state.currentUser.role))}</span>
@@ -567,7 +557,7 @@ export function createAdminModule(getContext) {
           </nav>
           <button class="logout" onclick="actions.logout()">${icons.close} تسجيل الخروج</button>
         </aside>
-        <section class="content">
+        <section class="content" data-view="${safe(state.view)}">
           ${notifications.renderPhoneNotificationPrompt?.() || ""}
           ${state.isOffline ? `<div class="offline-banner"><strong>لا يوجد اتصال بالإنترنت</strong><span>يمكنك استخدام آخر نسخة محفوظة، وأي تعديل سيتم حفظه في الجهاز حتى تضغط مزامنة.</span></div>` : ""}
           ${offlineCount && !state.isOffline ? `<div class="offline-banner online-sync"><div class="offline-banner-copy"><strong>توجد ${safe(offlineCount)} تغييرات غير مرسلة</strong><span>أرسلها الآن لتظهر في التقارير على جميع الأجهزة.</span></div><button class="btn primary offline-banner-action" type="button" ${state.syncingOfflineChanges ? "disabled" : ""} onclick="actions.syncOfflineChanges()">${icons.save}<span>${state.syncingOfflineChanges ? "جارٍ الإرسال" : "مزامنة الآن"}</span></button></div>` : ""}
