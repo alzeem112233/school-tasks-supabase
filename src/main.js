@@ -90,7 +90,7 @@ let reloadingForServiceWorkerUpdate = false;
 let capacitorPlatform = { native: false, hideSplash: async () => {} };
 let systemThemeQuery = null;
 const OFFLINE_QUEUE_KEY = "schoolTaskOfflineQueueV1";
-const APP_RELEASE = "20261012-vice-print-teacher-directory-151";
+const APP_RELEASE = "20261012-secretary-vice-dark-mode-152";
 
 let state = {
   currentUser: null,
