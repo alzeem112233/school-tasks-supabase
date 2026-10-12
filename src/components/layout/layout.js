@@ -45,6 +45,13 @@ export function createAdminModule(getContext) {
   function syncStatus() {
     const { state, safe, icons } = getContext();
     const offlineCount = state.offlineQueue?.length || 0;
+    const reportPrintToolbar = state.view === "vicePrincipalReports"
+      ? `<div class="report-print-toolbar"><span>كشف تقارير الوكيل</span><button class="btn secondary" type="button" onclick="actions.printVicePrincipalReport()">${getContext().icons.print || ""} طباعة الكشف</button></div>`
+      : state.view === "activitySupervisorReports"
+        ? `<div class="report-print-toolbar"><span>كشف تقارير الأنشطة</span><button class="btn secondary" type="button" onclick="actions.printActivitySupervisorReport()">${getContext().icons.print || ""} طباعة الكشف</button></div>`
+        : state.view === "socialSpecialistReports"
+          ? `<div class="report-print-toolbar"><span>كشف تقارير الأخصائي</span><button class="btn secondary" type="button" onclick="actions.printSocialSpecialistReport()">${getContext().icons.print || ""} طباعة الكشف</button></div>`
+          : "";
     if (state.syncingOfflineChanges) return { label: "جارٍ المزامنة", className: "syncing", icon: icons.save, action: "" };
     if (state.isOffline) return { label: "غير متصل", className: "offline", icon: icons.database, action: "" };
     if (offlineCount) return { label: `مزامنة (${safe(offlineCount)})`, className: "pending", icon: icons.save, action: `onclick="actions.syncOfflineChanges()"` };
@@ -458,6 +465,16 @@ export function createAdminModule(getContext) {
     const selectableSchools = schools;
     const unread = notifications.getUnreadCount();
     const offlineCount = state.offlineQueue?.length || 0;
+    const latestViceReportId = (state.administrativeReports || []).find((item) => item.reportKind?.startsWith("vice_"))?.id || "";
+    const latestActivityReportId = (state.administrativeReports || []).find((item) => item.reportKind?.startsWith("activity_"))?.id || "";
+    const latestSocialReportId = (state.administrativeReports || []).find((item) => item.reportKind?.startsWith("social_"))?.id || "";
+    const reportPrintToolbar = state.view === "vicePrincipalReports"
+      ? `<div class="report-print-toolbar"><span>كشف تقارير الوكيل</span><button class="btn secondary" type="button" onclick="actions.printVicePrincipalReport('${safe(latestViceReportId)}')" ${latestViceReportId ? "" : "disabled"}>${icons.print || ""} طباعة الكشف</button></div>`
+      : state.view === "activitySupervisorReports"
+        ? `<div class="report-print-toolbar"><span>كشف تقارير الأنشطة</span><button class="btn secondary" type="button" onclick="actions.printActivitySupervisorReport('${safe(latestActivityReportId)}')" ${latestActivityReportId ? "" : "disabled"}>${icons.print || ""} طباعة الكشف</button></div>`
+        : state.view === "socialSpecialistReports"
+          ? `<div class="report-print-toolbar"><span>كشف تقارير الأخصائي</span><button class="btn secondary" type="button" onclick="actions.printSocialSpecialistReport('${safe(latestSocialReportId)}')" ${latestSocialReportId ? "" : "disabled"}>${icons.print || ""} طباعة الكشف</button></div>`
+          : "";
     const allNavItems = navItems();
     const primaryMobileItems = allNavItems.slice(0, 4);
     const sync = syncStatus();
@@ -546,6 +563,7 @@ export function createAdminModule(getContext) {
           ${notifications.renderPhoneNotificationPrompt?.() || ""}
           ${state.isOffline ? `<div class="offline-banner"><strong>لا يوجد اتصال بالإنترنت</strong><span>يمكنك استخدام آخر نسخة محفوظة، وأي تعديل سيتم حفظه في الجهاز حتى تضغط مزامنة.</span></div>` : ""}
           ${offlineCount && !state.isOffline ? `<div class="offline-banner online-sync"><div class="offline-banner-copy"><strong>توجد ${safe(offlineCount)} تغييرات غير مرسلة</strong><span>أرسلها الآن لتظهر في التقارير على جميع الأجهزة.</span></div><button class="btn primary offline-banner-action" type="button" ${state.syncingOfflineChanges ? "disabled" : ""} onclick="actions.syncOfflineChanges()">${icons.save}<span>${state.syncingOfflineChanges ? "جارٍ الإرسال" : "مزامنة الآن"}</span></button></div>` : ""}
+          ${reportPrintToolbar}
           ${renderView()}
         </section>
         <nav class="mobile-nav">
