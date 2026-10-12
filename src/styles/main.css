@@ -8943,8 +8943,15 @@ textarea:focus {
 
 .report-print-toolbar .btn { min-height: 38px; }
 
+.report-print-fields { display: flex; flex: 1; gap: 8px; }
+.report-print-fields label { display: grid; gap: 4px; min-width: 180px; }
+.report-print-fields span { font-size: 11px; color: #475569; }
+.report-print-fields select { min-height: 38px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 9px; background: #fff; color: #0f172a; font: inherit; }
+
 @media (max-width: 760px) {
   .report-print-toolbar { align-items: stretch; flex-direction: column; padding: 9px 10px; }
+  .report-print-fields { flex-direction: column; }
+  .report-print-fields label { min-width: 0; }
   .report-print-toolbar .btn { width: 100%; }
 }
 
@@ -8953,6 +8960,9 @@ textarea:focus {
   background: linear-gradient(90deg, #172554, #0f172a);
   color: #dbeafe;
 }
+
+:root[data-theme="dark"] .report-print-fields span { color: #cbd5e1; }
+:root[data-theme="dark"] .report-print-fields select { border-color: #475569; background: #0f172a; color: #e2e8f0; }
 
 .dashboard-welcome-card strong {
   display: block;

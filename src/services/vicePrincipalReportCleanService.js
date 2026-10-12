@@ -80,11 +80,12 @@ export function createVicePrincipalReportModule(getContext) {
     set("subject", teacher?.subjectName);
     set("className", teacher?.className);
   }
-  function printReport(id = "") {
+  function printReport(id = "", section = "all") {
     const { state, safe, schoolName, showToast } = ctx();
     const report = reports().find((item) => item.id === id) || state.modal?.vicePrincipalReport;
     if (!report) { showToast?.("لم يتم العثور على التقرير"); return; }
     const type = TYPES[report.viceType] || TYPES.grades;
+    if (section !== "all" && section !== report.viceType) { showToast?.("اختر القسم المطابق لنوع الملف"); return; }
     const cell = (value) => `<td>${safe(value || "-")}</td>`;
     let content = "";
     if (report.viceType === "grades") content = `<table><thead><tr><th>الأسبوع</th><th>م</th><th>ج</th><th>ل</th><th>الملاحظات</th></tr></thead><tbody>${(report.data.weeks || []).map((row, index) => `<tr>${cell(index + 1)}${cell(row.m)}${cell(row.j)}${cell(row.l)}${cell(row.notes)}</tr>`).join("")}</tbody></table>`;

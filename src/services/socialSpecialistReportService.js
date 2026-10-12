@@ -103,8 +103,8 @@ export function createSocialSpecialistReportModule(getContext) {
     set("Name", teacher?.teacherName); set("Subject", teacher?.subjectName); set("Class", teacher?.className);
   }
 
-  function printReport(id = "") {
-    const { state, safe, schoolName, showToast } = ctx(); const report = allReports().find((item) => item.id === id) || state.modal?.socialSpecialistReport; if (!report) return showToast("لم يتم العثور على التقرير"); const key = reportType(report); const type = TYPES[key]; const data = report.data || blankData(key);
+  function printReport(id = "", section = "all") {
+    const { state, safe, schoolName, showToast } = ctx(); const report = allReports().find((item) => item.id === id) || state.modal?.socialSpecialistReport; if (!report) return showToast("لم يتم العثور على التقرير"); const key = reportType(report); const type = TYPES[key]; if (section !== "all" && section !== key) return showToast("اختر القسم المطابق لنوع الملف"); const data = report.data || blankData(key);
     const display = (row, field) => field.type === "teacher" ? row[`${field.key}Name`] || "-" : row[field.key] || "-";
     const table = `<table><thead><tr><th>#</th>${type.fields.map((field) => `<th>${safe(field.label)}</th>`).join("")}</tr></thead><tbody>${data.rows.map((row, index) => `<tr><td>${index + 1}</td>${type.fields.map((field) => `<td>${safe(display(row, field))}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
     const win = window.open("", "_blank", "width=1100,height=800"); if (!win) return showToast("اسمح بالنوافذ المنبثقة لطباعة التقرير");

@@ -468,12 +468,20 @@ export function createAdminModule(getContext) {
     const latestViceReportId = (state.administrativeReports || []).find((item) => item.reportKind?.startsWith("vice_principal_"))?.id || "";
     const latestActivityReportId = (state.administrativeReports || []).find((item) => item.reportKind?.startsWith("activity_"))?.id || "";
     const latestSocialReportId = (state.administrativeReports || []).find((item) => item.reportKind?.startsWith("social_"))?.id || "";
+    const reportPrintControl = (title, action, prefix, sections) => {
+      const files = (state.administrativeReports || [])
+        .filter((item) => String(item.reportKind || "").startsWith(prefix))
+        .sort((a, b) => String(b.date || b.updatedAt || "").localeCompare(String(a.date || a.updatedAt || "")));
+      const fileOptions = files.map((item) => `<option value="${safe(item.id)}" data-section="${safe(String(item.reportKind || "").replace(prefix, ""))}">${safe(item.date || "بدون تاريخ")} - ${safe(item.reportKind || "تقرير")}</option>`).join("");
+      const sectionOptions = [["all", "كل الأقسام"], ...sections].map(([value, label]) => `<option value="${value}">${label}</option>`).join("");
+      return `<div class="report-print-toolbar" data-report-print-toolbar><strong>${title}</strong><div class="report-print-fields"><label><span>الملف المراد طباعته</span><select data-report-print-file onchange="const box=this.closest('[data-report-print-toolbar]'); const section=this.options[this.selectedIndex]?.dataset.section; if(section) box.querySelector('[data-report-print-section]').value=section; box.querySelector('[data-report-print-button]').disabled=!this.value"><option value="">اختر ملف التقرير</option>${fileOptions}</select></label><label><span>القسم المطلوب</span><select data-report-print-section>${sectionOptions}</select></label></div><button class="btn secondary" type="button" data-report-print-button onclick="const box=this.closest('[data-report-print-toolbar]'); actions.${action}(box.querySelector('[data-report-print-file]').value,box.querySelector('[data-report-print-section]').value)" disabled>${icons.print || ""} طباعة الكشف</button></div>`;
+    };
     const reportPrintToolbar = state.view === "vicePrincipalReports"
-      ? `<div class="report-print-toolbar"><span>كشف تقارير الوكيل</span><button class="btn secondary" type="button" onclick="actions.printVicePrincipalReport('${safe(latestViceReportId)}')" ${latestViceReportId ? "" : "disabled"}>${icons.print || ""} طباعة الكشف</button></div>`
+      ? reportPrintControl("كشف تقارير الوكيل", "printVicePrincipalReport", "vice_principal_", [["grades", "سجل الدرجات"], ["absence", "الغياب التراكمي"], ["correction", "حملة التصحيح"], ["delayed", "المتأخرون دراسيًا"]])
       : state.view === "activitySupervisorReports"
-        ? `<div class="report-print-toolbar"><span>كشف تقارير الأنشطة</span><button class="btn secondary" type="button" onclick="actions.printActivitySupervisorReport('${safe(latestActivityReportId)}')" ${latestActivityReportId ? "" : "disabled"}>${icons.print || ""} طباعة الكشف</button></div>`
+        ? reportPrintControl("كشف تقارير الأنشطة", "printActivitySupervisorReport", "activity_supervisor_", [["radio", "الإذاعة المدرسية"], ["weekly", "التقرير الأسبوعي"], ["monthly", "التقرير الشهري"]])
         : state.view === "socialSpecialistReports"
-          ? `<div class="report-print-toolbar"><span>كشف تقارير الأخصائي</span><button class="btn secondary" type="button" onclick="actions.printSocialSpecialistReport('${safe(latestSocialReportId)}')" ${latestSocialReportId ? "" : "disabled"}>${icons.print || ""} طباعة الكشف</button></div>`
+          ? reportPrintControl("كشف تقارير الأخصائي", "printSocialSpecialistReport", "social_specialist_", [["guidance", "الإرشاد الفردي"], ["incidents", "المواقف اليومية"], ["specialCases", "الحالات الخاصة"], ["parentContacts", "تواصل أولياء الأمور"], ["groupGuidance", "الإرشاد الجماعي"], ["delayedStudents", "المتأخرون دراسيًا"], ["chronicIllness", "الأمراض المزمنة"], ["idealStudent", "الطالب المثالي"], ["values", "تفعيل القيم"], ["weekly", "التقرير الأسبوعي"], ["monthly", "التقرير الشهري"], ["unimplemented", "البرامج غير المنفذة"], ["statusRegister", "سجل متابعة الحالة"]])
           : "";
     const allNavItems = navItems();
     const primaryMobileItems = allNavItems.slice(0, 4);
