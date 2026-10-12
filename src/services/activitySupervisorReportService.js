@@ -23,7 +23,7 @@ export function createActivitySupervisorReportModule(getContext) {
   const reportType = (report) => report?.activityType || Object.entries(TYPES).find(([, item]) => item.kind === report?.reportKind)?.[0] || "radio";
   const allReports = () => (ctx().state.administrativeReports || []).filter((item) => String(item.reportKind || "").startsWith("activity_supervisor_"));
   function canView(user = ctx().state.currentUser) { return role(user) === "activity_supervisor" || canManage(user); }
-  function canCreate(user = ctx().state.currentUser) { return role(user) === "activity_supervisor"; }
+  function canCreate(user = ctx().state.currentUser) { return role(user) === "activity_supervisor" || canManage(user); }
   function teacherDirectory(schoolId) { return (ctx().state.teacherDirectory || []).filter((item) => item.active !== false && item.schoolId === schoolId).sort((a, b) => String(a.teacherName || "").localeCompare(String(b.teacherName || ""), "ar")); }
   function statusLabel(status) { return status === "principal_approved" ? "معتمد" : status === "submitted" ? "مرفوع للمدير" : "مسودة"; }
   function scopedReports() { const { state } = ctx(); return allReports().filter((item) => canManage() || item.schoolId === state.currentUser?.schoolId).sort((a, b) => String(b.date || "").localeCompare(String(a.date || ""))); }
@@ -37,8 +37,16 @@ export function createActivitySupervisorReportModule(getContext) {
     state.modal = null; render();
   }
   function openReport(type, id = "") {
-    const { state, render } = ctx(); const existing = allReports().find((item) => item.id === id); if (!existing && !canCreate()) return; const key = existing ? reportType(existing) : type; if (!TYPES[key]) return;
-    state.modal = { type: "activity_supervisor_report", activitySupervisorReport: existing || { id: createUuid(), reportKind: TYPES[key].kind, activityType: key, schoolId: state.currentUser?.schoolId || "", supervisorId: state.currentUser?.id || "", supervisorName: state.currentUser?.name || "", date: new Date().toISOString().slice(0, 10), status: "draft", data: blankData(key), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } }; render();
+    const { state, render, showToast, scopedSchoolId } = ctx(); const existing = allReports().find((item) => item.id === id); if (!existing && !canCreate()) return; const key = existing ? reportType(existing) : type; if (!TYPES[key]) return;
+    let fresh = null;
+    if (!existing) {
+      const selectedSchoolId = scopedSchoolId?.() || state.currentUser?.schoolId || "";
+      const schoolId = selectedSchoolId === "all" ? state.currentUser?.schoolId || "" : selectedSchoolId;
+      const owner = role(state.currentUser) === "activity_supervisor" ? state.currentUser : (state.users || []).find((user) => user.active !== false && user.schoolId === schoolId && role(user) === "activity_supervisor");
+      if (!owner) { showToast?.("أضف حساب مشرف أنشطة نشط لهذا الفرع أولًا، ثم أعد إنشاء التقرير."); return; }
+      fresh = { id: createUuid(), reportKind: TYPES[key].kind, activityType: key, schoolId, supervisorId: owner.id, supervisorName: owner.name || "مشرف الأنشطة", date: new Date().toISOString().slice(0, 10), status: "draft", data: blankData(key), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    }
+    state.modal = { type: "activity_supervisor_report", activitySupervisorReport: existing || fresh }; render();
   }
   function formFromEvent(event) { return event?.currentTarget?.tagName === "FORM" ? event.currentTarget : event?.currentTarget?.form; }
   function collect(form, oldData) {
@@ -67,7 +75,7 @@ export function createActivitySupervisorReportModule(getContext) {
 
   function renderPage() {
     const { safe, icons, schoolName } = ctx(); if (!canView()) return `<section class="empty-state"><h2>لا تملك صلاحية عرض تقارير الأنشطة.</h2></section>`; const reports = scopedReports();
-    return `<section class="admin-report-page activity-report-page"><div class="activity-report-hero"><div><span>تقارير مشرف الأنشطة</span><h2>الإذاعات والبرامج والفعاليات</h2><p>نماذج واضحة للهاتف، مرتبطة بمعلمي الفرع ومحفوظة في السحابة.</p></div><b>${reports.length}<small>تقرير محفوظ</small></b></div><div class="activity-report-grid">${Object.entries(TYPES).map(([key, type], index) => { const history = reports.filter((item) => reportType(item) === key); return `<article class="activity-report-card tone-${index}"><header><span>${index + 1}</span><div><h3>${type.title}</h3><p>${type.hint}</p></div></header>${canCreate() ? `<button type="button" class="btn" onclick="actions.openActivitySupervisorReport('${key}')">${icons.plus || "+"} إنشاء التقرير</button>` : ""}<div class="activity-report-history">${history.slice(0, 5).map((item) => `<button type="button" onclick="actions.openActivitySupervisorReport('${key}','${safe(item.id)}')"><span>${safe(item.date)} · ${safe(schoolName(item.schoolId))}</span><b>${statusLabel(item.status)}</b></button>`).join("") || `<small>لا توجد تقارير محفوظة بعد.</small>`}</div></article>`; }).join("")}</div></section>`;
+    return `<section class="admin-report-page activity-report-page"><div class="activity-report-hero"><div><span>تقارير مشرف الأنشطة</span><h2>الإذاعات والبرامج والفعاليات</h2><p>نماذج واضحة للهاتف، مرتبطة بمعلمي الفرع ومحفوظة في السحابة.</p></div><b>${reports.length}<small>تقرير محفوظ</small></b></div><div class="activity-report-grid">${Object.entries(TYPES).map(([key, type], index) => { const history = reports.filter((item) => reportType(item) === key); return `<article class="activity-report-card tone-${index}"><header><span>${index + 1}</span><div><h3>${type.title}</h3><p>${type.hint}</p></div></header>${canCreate() ? `<button type="button" class="btn" onclick="actions.openActivitySupervisorReport('${key}')">${icons.plus || "+"} إضافة تقرير</button>` : ""}<div class="activity-report-history">${history.slice(0, 5).map((item) => `<button type="button" onclick="actions.openActivitySupervisorReport('${key}','${safe(item.id)}')"><span>${safe(item.date)} · ${safe(schoolName(item.schoolId))}</span><b>${statusLabel(item.status)}</b></button>`).join("") || `<small>لا توجد تقارير محفوظة بعد.</small>`}</div></article>`; }).join("")}</div></section>`;
   }
   function renderModal() {
     const { state, safe, icons, schoolName } = ctx(); const report = state.modal?.activitySupervisorReport; if (!report) return ""; const type = TYPES[reportType(report)]; const editable = canCreate() && report.status !== "principal_approved";
