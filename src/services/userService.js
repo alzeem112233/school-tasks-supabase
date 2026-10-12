@@ -242,7 +242,7 @@ export function createUsersModule(getContext) {
         } catch (refreshError) {
           console.error(refreshError);
         }
-        showToast("تم إنشاء المستخدم وربطه بخدمة المصادقة.");
+        showToast("تم إنشاء المستخدم وإسناد دفتر مهامه الوظيفي تلقائيًا.");
         return;
       } catch (error) {
         console.error(error);
