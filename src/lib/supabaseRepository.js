@@ -21,6 +21,7 @@ const TABLES = {
   staffEvaluationSettings: "staff_evaluation_settings",
   administrativeReports: "administrative_reports",
   chatMessages: "chat_messages",
+  notebookRoleTemplates: "notebook_role_templates",
 };
 
 const COLUMN_MAPS = {
@@ -150,6 +151,12 @@ const COLUMN_MAPS = {
     text: "message",
     readAt: "read_at",
     createdAt: "created_at",
+  },
+  notebookRoleTemplates: {
+    roleKey: "role_key",
+    updatedBy: "updated_by",
+    createdAt: "created_at",
+    updatedAt: "updated_at",
   },
 };
 
@@ -570,6 +577,8 @@ export function createSupabaseModule(getContext) {
     state.schools = sortSchools(defaultSchools);
     state.users = [];
     state.tasks = [];
+    state.notebookRoleTemplates = [];
+    state.notebookTemplateBusy = false;
     state.taskActionBusy = {};
     state.notifications = [];
     state.chatMessages = [];
@@ -645,6 +654,7 @@ export function createSupabaseModule(getContext) {
       if (isGeneralManager(profile)) return query.order("report_date", { ascending: false }).limit(1200);
       return query.eq("school_id", profile.schoolId).order("report_date", { ascending: false }).limit(1200);
     }
+    if (collectionName === "notebookRoleTemplates") return query.order("role_key", { ascending: true });
     if (!(isGeneralManager(profile) && state.activeSchoolId === "all")) {
       const schoolId = isGeneralManager(profile) ? state.activeSchoolId : profile.schoolId;
       query = query.eq("school_id", schoolId);
@@ -775,7 +785,7 @@ export function createSupabaseModule(getContext) {
     let core = null;
     let cachedSnapshot = null;
     try {
-      core = await fetchScopedCollections(["schools", "users", "tasks", "notifications", "financeDiscounts", "gradeAdjustments", "teacherDirectory", "staffEvaluations", "staffEvaluationSettings", "administrativeReports", "chatMessages"], profile);
+      core = await fetchScopedCollections(["schools", "users", "tasks", "notifications", "financeDiscounts", "gradeAdjustments", "teacherDirectory", "staffEvaluations", "staffEvaluationSettings", "administrativeReports", "chatMessages", "notebookRoleTemplates"], profile);
     } catch (error) {
       cachedSnapshot = readScopedDataCache(profile);
       if (!cachedSnapshot?.data?.core) throw error;
@@ -794,6 +804,7 @@ export function createSupabaseModule(getContext) {
     state.users = core.users.map(users.normalizeUser);
     const coreTasks = core.tasks.map((task) => tasks.normalizeTask({ ...task, attachments: [] }));
     state.tasks = tasks.generateRecurringInstances(coreTasks);
+    state.notebookRoleTemplates = core.notebookRoleTemplates || [];
     state.financeDiscounts = core.financeDiscounts.map(finance.normalizeDiscount);
     state.gradeAdjustments = core.gradeAdjustments.map(getContext().gradeAdjustments.normalizeAdjustment);
     state.teacherDirectory = (core.teacherDirectory || []).map((item) => ({ ...item, active: item.active !== false }));
@@ -890,6 +901,7 @@ export function createSupabaseModule(getContext) {
     if (collectionName === "notifications") return `user_id=eq.${profile.id}`;
     if (collectionName === "chatMessages") return undefined;
     if (collectionName === "administrativeReports") return isGeneralManager(profile) ? undefined : `school_id=eq.${profile.schoolId}`;
+    if (collectionName === "notebookRoleTemplates") return undefined;
     if (isGeneralManager(profile) && state.activeSchoolId === "all") return undefined;
     const schoolId = isGeneralManager(profile) ? state.activeSchoolId : profile.schoolId;
     return `school_id=eq.${schoolId}`;

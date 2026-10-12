@@ -59,6 +59,7 @@ import { createSecretaryReportModule } from "./services/secretaryReportService.j
 import { createVicePrincipalReportModule } from "./services/vicePrincipalReportCleanService.js";
 import { createSocialSpecialistReportModule } from "./services/socialSpecialistReportService.js";
 import { createActivitySupervisorReportModule } from "./services/activitySupervisorReportService.js";
+import { createNotebookRoleTemplateModule } from "./services/notebookRoleTemplateService.js";
 import { createExamScheduleModule } from "./services/examScheduleService.js";
 import { createCircularsModule } from "./services/circularService.js";
 import { createMeetingsModule } from "./services/meetingService.js";
@@ -92,13 +93,15 @@ let reloadingForServiceWorkerUpdate = false;
 let capacitorPlatform = { native: false, hideSplash: async () => {} };
 let systemThemeQuery = null;
 const OFFLINE_QUEUE_KEY = "schoolTaskOfflineQueueV1";
-const APP_RELEASE = "20261012-secretary-vice-dark-mode-152";
+const APP_RELEASE = "20261012-notebook-role-templates-156";
 
 let state = {
   currentUser: null,
   schools: sortSchools(schools),
   users: [],
   tasks: [],
+  notebookRoleTemplates: [],
+  notebookTemplateBusy: false,
   financeDiscounts: [],
   gradeAdjustments: [],
   gradeAdjustmentBusy: {},
@@ -652,6 +655,7 @@ modules.secretaryReports = createSecretaryReportModule(getContext);
 modules.vicePrincipalReports = createVicePrincipalReportModule(getContext);
 modules.socialSpecialistReports = createSocialSpecialistReportModule(getContext);
 modules.activitySupervisorReports = createActivitySupervisorReportModule(getContext);
+modules.notebookRoleTemplates = createNotebookRoleTemplateModule(getContext);
 modules.examSchedules = createExamScheduleModule(getContext);
 modules.circulars = createCircularsModule(getContext);
 modules.meetings = createMeetingsModule(getContext);
@@ -1265,6 +1269,10 @@ window.actions = {
     state.modal = { type: "assign_notebook" };
     render();
   },
+  openNotebookRoleTemplate: modules.notebookRoleTemplates.openTemplate,
+  addNotebookRoleTemplateItem: modules.notebookRoleTemplates.addItem,
+  removeNotebookRoleTemplateItem: modules.notebookRoleTemplates.removeItem,
+  saveNotebookRoleTemplate: modules.notebookRoleTemplates.saveTemplate,
   addNotebookItemRow(button) {
     const container = button?.closest(".notebook-builder")?.querySelector("[data-notebook-items]");
     if (!container) return;
