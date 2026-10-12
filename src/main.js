@@ -58,6 +58,7 @@ import { createAdministrativeReportsModule } from "./services/administrativeRepo
 import { createSecretaryReportModule } from "./services/secretaryReportService.js";
 import { createVicePrincipalReportModule } from "./services/vicePrincipalReportCleanService.js";
 import { createSocialSpecialistReportModule } from "./services/socialSpecialistReportService.js";
+import { createActivitySupervisorReportModule } from "./services/activitySupervisorReportService.js";
 import { createExamScheduleModule } from "./services/examScheduleService.js";
 import { createCircularsModule } from "./services/circularService.js";
 import { createMeetingsModule } from "./services/meetingService.js";
@@ -650,6 +651,7 @@ modules.administrativeReports = createAdministrativeReportsModule(getContext);
 modules.secretaryReports = createSecretaryReportModule(getContext);
 modules.vicePrincipalReports = createVicePrincipalReportModule(getContext);
 modules.socialSpecialistReports = createSocialSpecialistReportModule(getContext);
+modules.activitySupervisorReports = createActivitySupervisorReportModule(getContext);
 modules.examSchedules = createExamScheduleModule(getContext);
 modules.circulars = createCircularsModule(getContext);
 modules.meetings = createMeetingsModule(getContext);
@@ -904,6 +906,14 @@ window.actions = {
   removeSocialSpecialistRow: modules.socialSpecialistReports.removeRow,
   selectSocialSpecialistTeacher: modules.socialSpecialistReports.selectTeacher,
   printSocialSpecialistReport: modules.socialSpecialistReports.printReport,
+  openActivitySupervisorReport: modules.activitySupervisorReports.openReport,
+  saveActivitySupervisorReport: modules.activitySupervisorReports.saveReport,
+  approveActivitySupervisorReport: modules.activitySupervisorReports.approveReport,
+  selectActivityReportTeacher: modules.activitySupervisorReports.selectTeacher,
+  updateActivityReportNumber: modules.activitySupervisorReports.updateNumber,
+  addActivityReportRow: modules.activitySupervisorReports.addRow,
+  removeActivityReportRow: modules.activitySupervisorReports.removeRow,
+  printActivitySupervisorReport: modules.activitySupervisorReports.printReport,
   deleteAdministrativeReportGroup: modules.administrativeReports.deleteAdministrativeReportGroup,
   setAdministrativeReportFilter: modules.administrativeReports.setFilter,
   setAdministrativeReportTab: modules.administrativeReports.setTab,

@@ -240,6 +240,12 @@ function toDatabaseRow(collectionName, data) {
       row.sections = { socialSpecialist: { socialType: data.socialType || "", data: data.data || {}, specialistName: data.specialistName || "" } };
       delete row.reportKind; delete row.socialType; delete row.specialistId; delete row.specialistName; delete row.data; delete row.approvedAt; delete row.approvedBy;
     }
+    if (String(data.reportKind || "").startsWith("activity_supervisor_")) {
+      row.type = data.reportKind;
+      row.supervisor_id = data.supervisorId || null;
+      row.sections = { activitySupervisor: { activityType: data.activityType || "", data: data.data || {}, supervisorName: data.supervisorName || "" } };
+      delete row.reportKind; delete row.activityType; delete row.supervisorName; delete row.data; delete row.approvedAt; delete row.approvedBy;
+    }
     const reportDate = String(data.date || "");
     row.report_date = /^\d{4}-\d{2}-\d{2}$/.test(reportDate) ? reportDate : new Date().toISOString().slice(0, 10);
     row.supervisor_id = row.supervisor_id || null;
@@ -304,6 +310,14 @@ function fromDatabaseRow(collectionName, row) {
       value.specialistId = value.supervisorId || "";
       value.specialistName = socialSpecialist.specialistName || "";
       value.data = socialSpecialist.data || {};
+    }
+    if (collectionName === "administrativeReports" && String(row.type || "").startsWith("activity_supervisor_")) {
+      const activitySupervisor = row.sections?.activitySupervisor || {};
+      value.reportKind = row.type;
+      value.activityType = activitySupervisor.activityType || "";
+      value.supervisorId = value.supervisorId || "";
+      value.supervisorName = activitySupervisor.supervisorName || "";
+      value.data = activitySupervisor.data || {};
     }
   return value;
 }

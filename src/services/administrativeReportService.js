@@ -444,7 +444,7 @@ export function createAdministrativeReportsModule(getContext) {
     const filters = state.administrativeReportFilters || {};
     const schoolScope = scopedSchoolIds();
     return reports()
-        .filter((report) => report.reportKind !== "secretary_daily" && !String(report.reportKind || "").startsWith("vice_principal_") && !String(report.reportKind || "").startsWith("social_specialist_"))
+        .filter((report) => report.reportKind !== "secretary_daily" && !String(report.reportKind || "").startsWith("vice_principal_") && !String(report.reportKind || "").startsWith("social_specialist_") && !String(report.reportKind || "").startsWith("activity_supervisor_"))
       .filter((report) => !schoolScope || schoolScope.includes(report.schoolId))
       .filter((report) => reportMatchesPeriod(report, filters))
       .filter((report) => (filters.supervisorId && filters.supervisorId !== "all" ? report.supervisorId === filters.supervisorId : true))
