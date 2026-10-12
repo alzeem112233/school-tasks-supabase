@@ -399,7 +399,8 @@ export function createAdminModule(getContext) {
 
   function renderView() {
     const { state, canViewUsers, canViewAuditLogs, canCreateBackups, canViewReports, canViewFinance, canViewGradeAdjustments, canViewStaffEvaluations, users, dashboard, notifications, tasks, finance, gradeAdjustments, staffEvaluations, administrativeReports, secretaryReports, vicePrincipalReports, socialSpecialistReports, activitySupervisorReports, notebookRoleTemplates, examSchedules, circulars, meetings, chat } = getContext();
-    if (state.view === "home" || state.view === "dashboard") return renderHome();
+    if (state.view === "dashboard" && getContext().canViewDashboard()) return dashboard.renderDashboard();
+    if (state.view === "home") return getContext().canViewDashboard() ? dashboard.renderDashboard() : renderHome();
     if (state.view === "users" && canViewUsers()) return users.renderUsers();
     if (state.view === "reports" && canViewReports()) return dashboard.renderReports();
     if (state.view === "notifications") return notifications.renderNotifications();

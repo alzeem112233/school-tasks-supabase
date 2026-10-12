@@ -207,7 +207,7 @@ function showToast(message) {
 
 function queueDashboardRefresh(delay = 180) {
   if (dashboardQueryTimer) window.clearTimeout(dashboardQueryTimer);
-  if (!cloud.enabled || !state.currentUser || state.view !== "dashboard") return;
+  if (!cloud.enabled || !state.currentUser || !["dashboard", "home"].includes(state.view)) return;
   dashboardQueryTimer = window.setTimeout(() => {
     modules.supabase.loadDashboardData(state.currentUser).catch((error) => {
       console.error("Dashboard query failed", error);
