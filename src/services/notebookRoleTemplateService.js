@@ -51,8 +51,7 @@ export function createNotebookRoleTemplateModule(getContext) {
                   <div><h2>${safe(roleLabel(roleKey))}</h2><p>${safe(employees)} موظف نشط</p></div>
                   <b>${safe(items.length)}<small>بند</small></b>
                 </header>
-                <ol>${items.slice(0, 4).map((item) => `<li>${safe(item.title)}</li>`).join("") || `<li class="is-empty">لم تُحدد عناوين لهذا التسلسل بعد.</li>`}</ol>
-                ${items.length > 4 ? `<p class="notebook-more">و${safe(items.length - 4)} بنود أخرى</p>` : ""}
+                <ol>${items.map((item) => `<li>${safe(item.title)}</li>`).join("") || `<li class="is-empty">لم تُحدد عناوين لهذا التسلسل بعد.</li>`}</ol>
                 <button class="btn notebook-role-edit" type="button" onclick="actions.openNotebookRoleTemplate('${safe(roleKey)}')">${icons.edit || ""} تعديل عناوين الدفتر</button>
               </article>`;
           }).join("")}

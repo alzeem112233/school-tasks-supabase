@@ -93,7 +93,7 @@ let reloadingForServiceWorkerUpdate = false;
 let capacitorPlatform = { native: false, hideSplash: async () => {} };
 let systemThemeQuery = null;
 const OFFLINE_QUEUE_KEY = "schoolTaskOfflineQueueV1";
-const APP_RELEASE = "20261012-notebook-role-templates-156";
+const APP_RELEASE = "20261012-notebook-role-templates-157";
 
 let state = {
   currentUser: null,
