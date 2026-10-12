@@ -56,7 +56,7 @@ import { createGradeAdjustmentsModule } from "./services/gradeAdjustmentService.
 import { createStaffEvaluationsModule } from "./services/staffEvaluationService.js";
 import { createAdministrativeReportsModule } from "./services/administrativeReportService.js";
 import { createSecretaryReportModule } from "./services/secretaryReportService.js";
-import { createVicePrincipalReportModule } from "./services/vicePrincipalReportService.js";
+import { createVicePrincipalReportModule } from "./services/vicePrincipalReportCleanService.js";
 import { createExamScheduleModule } from "./services/examScheduleService.js";
 import { createCircularsModule } from "./services/circularService.js";
 import { createMeetingsModule } from "./services/meetingService.js";
@@ -90,7 +90,7 @@ let reloadingForServiceWorkerUpdate = false;
 let capacitorPlatform = { native: false, hideSplash: async () => {} };
 let systemThemeQuery = null;
 const OFFLINE_QUEUE_KEY = "schoolTaskOfflineQueueV1";
-const APP_RELEASE = "20261012-secretary-mobile-layout-149";
+const APP_RELEASE = "20261012-secretary-status-and-vice-encoding-150";
 
 let state = {
   currentUser: null,
@@ -677,6 +677,14 @@ function renderNow() {
     return;
   }
   modules.admin.renderShell();
+  document.querySelectorAll(".secretary-task-card").forEach((card) => {
+    const done = card.querySelector('input[name^="taskDone"]');
+    const deferred = card.querySelector('input[name^="taskDeferred"]');
+    if (done?.checked && deferred?.checked) {
+      done.checked = false;
+      card.classList.remove("is-done");
+    }
+  });
 }
 
 function render() {
@@ -688,8 +696,31 @@ function render() {
   });
 }
 
+function handleSecretaryTaskStatusChange(event) {
+  const input = event.target;
+  const match = /^task(Done|Deferred)(\d+)$/.exec(input?.name || "");
+  if (!match || !input.checked) return;
+  const card = input.closest(".secretary-task-card");
+  if (!card) return;
+  const otherName = match[1] === "Done" ? `taskDeferred${match[2]}` : `taskDone${match[2]}`;
+  const other = card.querySelector(`[name="${otherName}"]`);
+  if (other) other.checked = false;
+  card.classList.toggle("is-done", match[1] === "Done");
+  card.classList.toggle("is-deferred", match[1] === "Deferred");
+}
+
+function installSecretaryTaskStatusStyles() {
+  if (document.getElementById("secretary-task-status-styles")) return;
+  const style = document.createElement("style");
+  style.id = "secretary-task-status-styles";
+  style.textContent = ".secretary-task-card .secretary-task-details{display:none!important}.secretary-task-card.is-deferred .secretary-task-details{display:grid!important}";
+  document.head.appendChild(style);
+}
+
 async function boot() {
   clearLegacyDemoStorage();
+  installSecretaryTaskStatusStyles();
+  document.addEventListener("change", handleSecretaryTaskStatusChange);
   state.theme = localStorage.getItem("schoolTaskTheme") || "system";
   state.activeSchoolId = localStorage.getItem("schoolTaskActiveSchool") || "all";
   state.messagingStatus = localStorage.getItem("schoolTaskNotificationStatus") || "idle";
