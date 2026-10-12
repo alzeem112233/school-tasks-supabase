@@ -7,9 +7,9 @@ const APP_SHELL = [
   "/icon-192.png",
   "/icon-512.png",
   "/school-tasks-logo.jpeg",
-  "/assets/app-v159.js",
-  "/assets/index-v159.css",
-  "/assets/supabase-vendor-v159.js",
+  "/assets/app-v161.js",
+  "/assets/index-v161.css",
+  "/assets/supabase-vendor-v161.js",
 ];
 
 self.addEventListener("install", (event) => {
