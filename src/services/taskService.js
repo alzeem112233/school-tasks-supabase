@@ -541,26 +541,17 @@ export function createTasksModule(getContext) {
   }
 
   function permanentDailyEmployeeGroups(tasks = filteredPermanentTaskRoots()) {
-    const { getUser, state } = getContext();
-    const currentUserId = state.currentUser?.id || "";
-    const restrictToDeputyOwnNotebook = isDeputyPrincipal(state.currentUser);
+    const { getUser, canReadTask } = getContext();
     const groups = new Map();
     for (const task of tasks) {
-      if (restrictToDeputyOwnNotebook && task.assigneeId !== currentUserId) continue;
+      if (!canReadTask(task)) continue;
       const key = task.assigneeId || "unassigned";
       const user = getUser(task.assigneeId);
       const group = groups.get(key) || { userId: key, name: user?.name || "غير مسندة", role: user?.role || "", tasks: [] };
       group.tasks.push(task);
       groups.set(key, group);
     }
-    return [...groups.values()].sort((a, b) => {
-      if (restrictToDeputyOwnNotebook) {
-        const aIsCurrentUser = a.userId === currentUserId;
-        const bIsCurrentUser = b.userId === currentUserId;
-        if (aIsCurrentUser !== bIsCurrentUser) return aIsCurrentUser ? -1 : 1;
-      }
-      return a.name.localeCompare(b.name, "ar");
-    });
+    return [...groups.values()].sort((a, b) => a.name.localeCompare(b.name, "ar"));
   }
 
   function notebookSiblingTasks(task) {
@@ -1292,7 +1283,7 @@ export function createTasksModule(getContext) {
         <div class="permanent-daily-list">
           ${groups.length
             ? groups.map((group) => renderEmployeeDailyNotebook(group, selectedDate)).join("")
-            : `<div class="panel empty">لا توجد مهام في دفتر المهام اليومية لهذا التاريخ أو الفلاتر.</div>`}
+            : `<div class="panel empty">${allGroups.length ? "لا توجد مهام في دفتر المهام اليومية لهذا التاريخ أو الفلاتر." : "لا توجد دفاتر مهام مسندة للموظفين حاليًا."}</div>`}
         </div>
         ${renderPermanentDailyReport(visibleTasks, selectedDate)}
         ${renderAllDailyExtraTasks(allGroups, selectedDate)}
