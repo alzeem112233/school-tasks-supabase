@@ -90,7 +90,7 @@ let reloadingForServiceWorkerUpdate = false;
 let capacitorPlatform = { native: false, hideSplash: async () => {} };
 let systemThemeQuery = null;
 const OFFLINE_QUEUE_KEY = "schoolTaskOfflineQueueV1";
-const APP_RELEASE = "20261012-secretary-runtime-fix-148";
+const APP_RELEASE = "20261012-secretary-mobile-layout-149";
 
 let state = {
   currentUser: null,
