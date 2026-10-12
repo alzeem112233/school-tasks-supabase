@@ -545,7 +545,7 @@ export function createAdminModule(getContext) {
         <section class="content">
           ${notifications.renderPhoneNotificationPrompt?.() || ""}
           ${state.isOffline ? `<div class="offline-banner"><strong>لا يوجد اتصال بالإنترنت</strong><span>يمكنك استخدام آخر نسخة محفوظة، وأي تعديل سيتم حفظه في الجهاز حتى تضغط مزامنة.</span></div>` : ""}
-          ${offlineCount && !state.isOffline ? `<div class="offline-banner online-sync"><strong>توجد تغييرات غير مرسلة</strong><span>اضغط زر مزامنة لإرسالها إلى السيرفر وظهورها في التقارير.</span></div>` : ""}
+          ${offlineCount && !state.isOffline ? `<div class="offline-banner online-sync"><div class="offline-banner-copy"><strong>توجد ${safe(offlineCount)} تغييرات غير مرسلة</strong><span>أرسلها الآن لتظهر في التقارير على جميع الأجهزة.</span></div><button class="btn primary offline-banner-action" type="button" ${state.syncingOfflineChanges ? "disabled" : ""} onclick="actions.syncOfflineChanges()">${icons.save}<span>${state.syncingOfflineChanges ? "جارٍ الإرسال" : "مزامنة الآن"}</span></button></div>` : ""}
           ${renderView()}
         </section>
         <nav class="mobile-nav">

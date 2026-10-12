@@ -304,7 +304,10 @@ function setConnectivityState(isOffline, announce = false) {
   applyTheme();
   render();
   if (announce) {
-    showToast(isOffline ? "لا يوجد اتصال بالإنترنت. سيتم حفظ التغييرات محليا حتى تضغط مزامنة." : "عاد الاتصال بالإنترنت. اضغط مزامنة لإرسال التغييرات المحفوظة.");
+    showToast(isOffline ? "لا يوجد اتصال بالإنترنت. سيتم حفظ التغييرات محليا حتى تضغط مزامنة." : state.offlineQueue.length ? "عاد الاتصال بالإنترنت. جارٍ إرسال التغييرات المحفوظة." : "عاد الاتصال بالإنترنت.");
+  }
+  if (!isOffline && state.offlineQueue.length && !state.syncingOfflineChanges) {
+    window.queueMicrotask(() => window.actions?.syncOfflineChanges?.());
   }
 }
 

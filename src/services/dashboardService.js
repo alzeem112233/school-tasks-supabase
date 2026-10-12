@@ -1011,12 +1011,18 @@ export function createDashboardModule(getContext) {
     const userName = currentUser.name || "المستخدم";
     const userRole = roleLabel(currentUser.role || "");
     return `
+      <article class="dashboard-welcome-card dashboard-overview-card dashboard-welcome-banner">
+        <span class="dashboard-welcome-eyebrow">مرحبا بك</span>
+        <strong>${safe(userName)}</strong>
+        <p>${safe(userRole || "حساب إداري")}</p>
+        <small>${safe(scopeLabel)}</small>
+      </article>
       <div class="topbar dashboard-topbar">
         <div class="section-title">
           <h2>لوحة التحكم</h2>
           <p class="muted">مؤشرات مباشرة لتنفيذ المهام والمواعيد والعبء التشغيلي ونشاط المؤسسة ضمن نطاق المدرسة الحالي.</p>
         </div>
-        <div class="actions">
+        <div class="actions dashboard-actions">
           <span class="live-chip"><span class="live-dot"></span>${state.dashboardLoading ? "جارٍ التحديث" : "online"}</span>
           ${canCreateTasks() ? `<button class="btn" onclick="actions.openTask()">${icons.plus} مهمة جديدة</button>` : ""}
           ${canCreateUsers() ? `<button class="btn secondary" onclick="actions.openUser()">${icons.users} مستخدم جديد</button>` : ""}
@@ -1024,12 +1030,6 @@ export function createDashboardModule(getContext) {
       </div>
       ${state.dashboardError ? `<div class="feedback error"><strong>تعذر جلب مؤشرات Supabase</strong><p class="muted">يُعرض مؤقتًا ملخص محلي حتى يعود الاتصال.</p></div>` : ""}
       <div class="dashboard-overview-grid">
-        <article class="dashboard-welcome-card dashboard-overview-card">
-          <span class="dashboard-welcome-eyebrow">مرحبا بك</span>
-          <strong>${safe(userName)}</strong>
-          <p>${safe(userRole || "حساب إداري")}</p>
-          <small>${safe(scopeLabel)}</small>
-        </article>
         <div class="metric metric-rich dashboard-overview-card"><h3>نسبة الاكتمال</h3><p>${safe(completion)}%</p><span class="metric-meta">متوسط الإنجاز ${safe(avgProgress)}%</span></div>
         <div class="metric metric-rich dashboard-overview-card"><h3>مهام تشغيلية</h3><p>${safe(total)}</p><span class="metric-meta">بعد تنظيف المتأخرات القديمة</span></div>
         <div class="metric metric-rich dashboard-overview-card"><h3>تنبيهات غير مقروءة</h3><p>${safe(notifications.getUnreadCount())}</p><span class="metric-meta">مع ${safe(activityCount)} نشاط حديث</span></div>
