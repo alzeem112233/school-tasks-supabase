@@ -8909,6 +8909,23 @@ textarea:focus {
   margin-bottom: 12px;
 }
 
+.secretary-modal-print {
+  position: fixed;
+  inset-inline-start: 18px;
+  bottom: 18px;
+  z-index: calc(var(--z-modal, 100) + 4);
+  min-height: 42px;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--primary, #2563eb);
+  color: #fff;
+  font-weight: 900;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, .18);
+}
+
+@media print { .secretary-modal-print { display: none !important; } }
+
 .dashboard-welcome-card strong {
   display: block;
   font-size: clamp(22px, 3vw, 34px);

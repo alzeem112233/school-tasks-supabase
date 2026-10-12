@@ -437,7 +437,7 @@ export function createAdminModule(getContext) {
     if (state.modal.type === "staff_evaluation") return staffEvaluations.renderModal(state.modal.id);
     if (state.modal.type === "teacher_directory_edit") return staffEvaluations.renderTeacherModal(state.modal.id);
     if (state.modal.type === "administrative_report") return administrativeReports.renderReportModal();
-    if (state.modal.type === "secretary_report") return secretaryReports.renderModal();
+    if (state.modal.type === "secretary_report") return `${secretaryReports.renderModal()}<button class="secretary-modal-print" type="button" onclick="actions.printSecretaryReport()">${getContext().icons.print || ""} طباعة التقرير</button>`;
     if (state.modal.type === "vice_principal_report") return vicePrincipalReports.renderModal();
     if (state.modal.type === "social_specialist_report") return socialSpecialistReports.renderModal();
     if (state.modal.type === "activity_supervisor_report") return activitySupervisorReports.renderModal();

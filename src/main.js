@@ -901,6 +901,7 @@ window.actions = {
   approveSecretaryReport: modules.secretaryReports.approveReport,
   setSecretaryReportFilter: modules.secretaryReports.setFilter,
   printSecretaryMonthlyReport: modules.secretaryReports.printMonthlyReport,
+  printSecretaryReport: modules.secretaryReports.printReport,
   openVicePrincipalReport: modules.vicePrincipalReports.openReport,
   saveVicePrincipalReport: modules.vicePrincipalReports.saveReport,
   approveVicePrincipalReport: modules.vicePrincipalReports.approveReport,
