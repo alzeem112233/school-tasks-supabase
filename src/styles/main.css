@@ -12152,6 +12152,13 @@ body.offline-mode .floating-sync {
   .secretary-task-table td:nth-child(5)::before { content: "سبب الترحيل"; }
   .secretary-task-table td:nth-child(6)::before { content: "الحل والمعالجة"; }
   .secretary-task-table td:nth-child(7)::before { content: "ملاحظات"; }
+  .secretary-task-table td:nth-child(1)::before,
+  .secretary-task-table td:nth-child(3)::before,
+  .secretary-task-table td:nth-child(4)::before,
+  .secretary-task-table td:nth-child(5)::before,
+  .secretary-task-table td:nth-child(6)::before,
+  .secretary-task-table td:nth-child(7)::before { display:block!important; visibility:visible!important; color:var(--muted)!important; font-size:12px!important; font-weight:800!important; opacity:1!important; }
+  .secretary-task-table td:nth-child(1),.secretary-task-table td:nth-child(3),.secretary-task-table td:nth-child(4),.secretary-task-table td:nth-child(5),.secretary-task-table td:nth-child(6),.secretary-task-table td:nth-child(7) { display:grid!important; grid-template-columns:minmax(96px,42%) minmax(0,1fr); align-items:center; gap:8px; }
   .secretary-task-table td:nth-child(2) { display: block; padding: 8px 0; color: var(--text); font-size: 15px; font-weight: 800; border-bottom: 1px solid var(--line); }
   .secretary-task-table td:nth-child(2)::before { display: block; margin-bottom: 5px; font-size: 11px; }
   .secretary-task-table td input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--primary); }
