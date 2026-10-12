@@ -1,6 +1,6 @@
 import { userStatusLabel } from "./userPresentation.js";
 import { isGeneralSchoolId } from "../../utils/schoolUtils.js";
-import { isSuperAdmin } from "../../utils/permissionUtils.js";
+import { isSuperAdmin, roleRank } from "../../utils/permissionUtils.js";
 
 export function createUserView(getContext) {
   function linkedSchoolsLabel(user) {
@@ -120,14 +120,19 @@ export function createUserView(getContext) {
     const mayChangeRole = canChangeUserRole();
     const availableRoles = getContext().roles.filter((role) => canAssignUserRole(role, editing ? user.role : null));
     const selectedRole = user.role || (availableRoles.includes("school_secretary") ? "school_secretary" : availableRoles[0] || "");
-    const roleOptions = availableRoles.map((role) => `<option value="${role}" ${selectedRole === role ? "selected" : ""}>${safe(roleLabel(role))}</option>`).join("");
+    const principalRank = roleRank("school_principal");
+    const isAbovePrincipal = (role) => roleRank(role) > principalRank;
+    const roleOptions = availableRoles.map((role) => `<option value="${role}" data-rank="${roleRank(role)}" ${selectedRole === role ? "selected" : ""}>${safe(roleLabel(role))}</option>`).join("");
     const roleField = editing && !mayChangeRole
       ? `<input value="${safe(roleLabel(user.role))}" readonly /><input type="hidden" name="role" value="${safe(user.role)}" />`
-      : `<select name="role" required>${roleOptions}</select>`;
+      : `<select name="role" required onchange="const panel=this.form.querySelector('[data-linked-school-panel]');if(panel){const enabled=Number(this.options[this.selectedIndex]?.dataset.rank||0)>${principalRank};panel.hidden=!enabled;panel.querySelectorAll('input[name=linkedSchoolIds]').forEach((input)=>{input.disabled=!enabled;if(enabled) input.checked=true;});}">${roleOptions}</select>`;
     const selectedSchoolId = user.schoolId || (state.activeSchoolId !== "all" ? state.activeSchoolId : "");
-    const schoolOptions = `<option value="">اختر الفرع</option>${schools.map((school) => `<option value="${safe(school.id)}" ${selectedSchoolId === school.id ? "selected" : ""}>${safe(school.name)}</option>`).join("")}`;
-    const managerRole = ["general_manager", "branch_manager", "finance_manager", "development_supervision_manager", "general_secretary"].includes(selectedRole);
+    const schoolOptions = `<option value="">\u0627\u062e\u062a\u0631 \u0627\u0644\u0641\u0631\u0639</option>${schools.map((school) => `<option value="${safe(school.id)}" ${selectedSchoolId === school.id ? "selected" : ""}>${safe(school.name)}</option>`).join("")}`;
+    const branchSchools = schools.filter((school) => !isGeneralSchoolId(school.id)).sort((a, b) => String(a.name).localeCompare(String(b.name), "ar"));
+    const managerRole = isAbovePrincipal(selectedRole);
     const linkedIds = Array.isArray(user.linkedSchoolIds) ? user.linkedSchoolIds : [];
+    const selectedLinkedIds = new Set(managerRole && !linkedIds.length ? branchSchools.map((school) => school.id) : linkedIds);
+    const linkedBranchesField = currentIsSuperAdmin ? `<div class="field field-wide linked-branches-panel" data-linked-school-panel ${managerRole ? "" : "hidden"}><span>\u0627\u0644\u0641\u0631\u0648\u0639 \u0627\u0644\u0645\u0631\u062a\u0628\u0637\u0629 \u0628\u0627\u0644\u062d\u0633\u0627\u0628</span><div class="linked-branches-list">${branchSchools.map((school) => `<label class="linked-branch-option"><input type="checkbox" name="linkedSchoolIds" value="${safe(school.id)}" ${selectedLinkedIds.has(school.id) ? "checked" : ""} ${managerRole ? "" : "disabled"} /><span>${safe(school.name)}</span></label>`).join("")}</div></div>` : "";
     const accessValue = (key) => user.accessFlags?.[key] === true ? "allow" : user.accessFlags?.[key] === false ? "deny" : "inherit";
     const accessSelect = (name, label, key) => `
       <label class="field">
@@ -153,7 +158,7 @@ export function createUserView(getContext) {
             <label class="field"><span>البريد الإلكتروني</span><input name="email" type="email" value="${safe(user.email || "")}" ${editing && cloud.enabled ? "readonly" : ""} required /></label>
             <label class="field"><span>الدور</span>${roleField}</label>
             <label class="field"><span>الفرع / النطاق</span>${currentIsSuperAdmin ? `<select name="schoolId">${schoolOptions}</select>` : `<input name="schoolId" value="${safe(user.schoolId || state.currentUser.schoolId || "")}" readonly required />`}</label>
-            ${currentIsSuperAdmin && managerRole ? `<label class="field field-wide"><span>الفروع المسموح للمدير بالعمل معها</span><select name="linkedSchoolIds" multiple size="${Math.min(Math.max(schools.length - 1, 3), 6)}">${schools.filter((school) => !isGeneralSchoolId(school.id)).map((school) => `<option value="${safe(school.id)}" ${linkedIds.includes(school.id) ? "selected" : ""}>${safe(school.name)}</option>`).join("")}</select></label>` : ""}
+            ${linkedBranchesField}
             ${passwordField}
           </div>
           <div class="access-panel">
