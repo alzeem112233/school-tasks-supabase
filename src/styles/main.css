@@ -13514,10 +13514,10 @@ body.offline-mode .floating-sync {
 /* Mobile drawer: the menu trigger lives on the right, so the drawer enters from the right. */
 @media (max-width: 1040px) {
   .sidebar {
+    inset: 0 0 0 auto !important;
     right: 0 !important;
     left: auto !important;
-    inset-inline-start: auto !important;
-    inset-inline-end: 0 !important;
+    direction: rtl !important;
     width: min(86vw, 350px) !important;
     max-width: calc(100vw - 16px) !important;
     border-radius: 18px 0 0 18px !important;
@@ -13528,7 +13528,7 @@ body.offline-mode .floating-sync {
   .sidebar:not(.open) {
     visibility: hidden !important;
     pointer-events: none !important;
-    transform: translate3d(106%, 0, 0) !important;
+    transform: translate3d(110%, 0, 0) !important;
   }
 
   .sidebar.open {

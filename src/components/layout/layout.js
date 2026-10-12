@@ -518,14 +518,6 @@ export function createAdminModule(getContext) {
                 </label>`
               : ""
           }
-          <label class="field sidebar-field sidebar-search-field">
-            <span>البحث المتقدم</span>
-            <span class="sidebar-search-box">
-              ${icons.search}
-              <input value="${safe(state.search)}" placeholder="ابحث في المهام والأرقام والمدارس والمكلفين" oninput="actions.setSearch(this.value)" />
-              ${state.search ? `<button class="icon-btn search-clear" type="button" aria-label="مسح البحث" onclick="actions.clearSearch()">${icons.close}</button>` : ""}
-            </span>
-          </label>
             <div class="theme-setting-row">
               <button class="theme-switch-row" type="button" onclick="actions.toggleTheme()" aria-label="تبديل المظهر">
                 <span class="theme-setting-icon">${resolvedTheme === "dark" ? icons.moon : icons.sun}</span>
