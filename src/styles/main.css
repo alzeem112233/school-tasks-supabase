@@ -12141,6 +12141,23 @@ body.offline-mode .floating-sync {
   }
 }
 
+@media (max-width: 700px) {
+  .secretary-task-table { width: 100%; min-width: 0; }
+  .secretary-task-table tr { gap: 10px; padding: 14px; border-radius: 14px; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06); }
+  .secretary-task-table td { align-items: center; min-height: 34px; }
+  .secretary-task-table td:nth-child(1)::before { content: "رقم المهمة"; }
+  .secretary-task-table td:nth-child(2)::before { content: "المهمة"; }
+  .secretary-task-table td:nth-child(3)::before { content: "نفّذ"; }
+  .secretary-task-table td:nth-child(4)::before { content: "مرحّلة"; }
+  .secretary-task-table td:nth-child(5)::before { content: "سبب الترحيل"; }
+  .secretary-task-table td:nth-child(6)::before { content: "الحل والمعالجة"; }
+  .secretary-task-table td:nth-child(7)::before { content: "ملاحظات"; }
+  .secretary-task-table td:nth-child(2) { display: block; padding: 8px 0; color: var(--text); font-size: 15px; font-weight: 800; border-bottom: 1px solid var(--line); }
+  .secretary-task-table td:nth-child(2)::before { display: block; margin-bottom: 5px; font-size: 11px; }
+  .secretary-task-table td input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--primary); }
+  .secretary-task-table td input:not([type="checkbox"]) { width: min(58%, 230px); min-height: 38px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); }
+}
+
 @media (max-width: 720px) {
   .dashboard-hero {
     padding: 14px;
