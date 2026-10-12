@@ -711,7 +711,15 @@ async function boot() {
       render();
     }
   });
-  capacitorPlatform = await initializeCapacitorPlatform({ state, actions: () => window.actions, render, showToast });
+  try {
+    capacitorPlatform = await Promise.race([
+      initializeCapacitorPlatform({ state, actions: () => window.actions, render, showToast }),
+      new Promise((resolve) => window.setTimeout(() => resolve({ native: false, hideSplash: async () => {} }), 7000)),
+    ]);
+  } catch (error) {
+    console.error("Capacitor platform initialization failed", error);
+    capacitorPlatform = { native: false, hideSplash: async () => {} };
+  }
   if (typeof window.addEventListener === "function") {
     window.addEventListener("offline", () => setConnectivityState(true, true));
     window.addEventListener("online", () => setConnectivityState(false, true));
@@ -720,7 +728,10 @@ async function boot() {
     registerAppServiceWorker().catch((error) => console.warn("Service worker registration failed", error));
   }
   try {
-    if (await modules.supabase.initCloud()) {
+    if (await Promise.race([
+      modules.supabase.initCloud(),
+      new Promise((resolve) => window.setTimeout(() => resolve(false), 15000)),
+    ])) {
       render();
       await capacitorPlatform.hideSplash();
       return;
