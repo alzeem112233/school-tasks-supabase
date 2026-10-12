@@ -465,7 +465,7 @@ export function createAdminModule(getContext) {
     const selectableSchools = schools;
     const unread = notifications.getUnreadCount();
     const offlineCount = state.offlineQueue?.length || 0;
-    const latestViceReportId = (state.administrativeReports || []).find((item) => item.reportKind?.startsWith("vice_"))?.id || "";
+    const latestViceReportId = (state.administrativeReports || []).find((item) => item.reportKind?.startsWith("vice_principal_"))?.id || "";
     const latestActivityReportId = (state.administrativeReports || []).find((item) => item.reportKind?.startsWith("activity_"))?.id || "";
     const latestSocialReportId = (state.administrativeReports || []).find((item) => item.reportKind?.startsWith("social_"))?.id || "";
     const reportPrintToolbar = state.view === "vicePrincipalReports"

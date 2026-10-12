@@ -8926,6 +8926,34 @@ textarea:focus {
 
 @media print { .secretary-modal-print { display: none !important; } }
 
+.report-print-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-inline-start: 4px solid var(--primary, #2563eb);
+  border-radius: 10px;
+  background: linear-gradient(90deg, #eff6ff, #ffffff);
+  color: #1e3a8a;
+  font-weight: 900;
+}
+
+.report-print-toolbar .btn { min-height: 38px; }
+
+@media (max-width: 760px) {
+  .report-print-toolbar { align-items: stretch; flex-direction: column; padding: 9px 10px; }
+  .report-print-toolbar .btn { width: 100%; }
+}
+
+:root[data-theme="dark"] .report-print-toolbar {
+  border-color: #334155;
+  background: linear-gradient(90deg, #172554, #0f172a);
+  color: #dbeafe;
+}
+
 .dashboard-welcome-card strong {
   display: block;
   font-size: clamp(22px, 3vw, 34px);
