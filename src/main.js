@@ -56,7 +56,7 @@ import { createGradeAdjustmentsModule } from "./services/gradeAdjustmentService.
 import { createStaffEvaluationsModule } from "./services/staffEvaluationService.js";
 import { createAdministrativeReportsModule } from "./services/administrativeReportService.js";
 import { createSecretaryReportModule } from "./services/secretaryReportService.js";
-import { createVicePrincipalReportModule } from "./services/vicePrincipalReportService.js";
+import { createVicePrincipalReportModule } from "./services/vicePrincipalReportCleanService.js";
 import { createExamScheduleModule } from "./services/examScheduleService.js";
 import { createCircularsModule } from "./services/circularService.js";
 import { createMeetingsModule } from "./services/meetingService.js";
