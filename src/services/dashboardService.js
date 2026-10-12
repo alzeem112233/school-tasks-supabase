@@ -992,6 +992,7 @@ export function createDashboardModule(getContext) {
 
   function renderDashboard() {
     const { tasks, state, roleLabel, canCreateTasks, canCreateUsers, icons, notifications, scopedSchoolId, schoolName, audit } = getContext();
+    const safe = getContext().safe;
     const allVisible = dashboardTasks();
     const visible = operationalDashboardTasks(allVisible);
     const staleOverdue = staleOverdueTasks(allVisible);
@@ -1005,6 +1006,10 @@ export function createDashboardModule(getContext) {
     const completed = Number(summary.completedTasks || 0);
     const notebookStats = tasks.dailyNotebookStats?.() || { activeEmployees: 0, shortcomingEmployees: 0 };
     const activityCount = remoteDashboardData()?.recentActivity?.length ?? audit.visibleActivityLogs().length;
+    const currentUser = state.currentUser || {};
+    const scopeLabel = scopedSchoolId() === "all" ? "جميع المدارس" : schoolName(scopedSchoolId());
+    const userName = currentUser.name || "المستخدم";
+    const userRole = roleLabel(currentUser.role || "");
     return `
       <div class="topbar dashboard-topbar">
         <div class="section-title">
@@ -1018,28 +1023,30 @@ export function createDashboardModule(getContext) {
         </div>
       </div>
       ${state.dashboardError ? `<div class="feedback error"><strong>تعذر جلب مؤشرات Supabase</strong><p class="muted">يُعرض مؤقتًا ملخص محلي حتى يعود الاتصال.</p></div>` : ""}
-      <div class="dashboard-hero">
-        <div class="dashboard-hero-copy">
-          <strong>${getContext().safe(scopedSchoolId() === "all" ? "جميع المدارس" : schoolName(scopedSchoolId()))}</strong>
-          <p class="muted">يعرض النظام ${getContext().safe(total)} مهمة تشغيلية بعد تنظيف المتأخرات القديمة، مع ${getContext().safe(notifications.getUnreadCount())} تنبيه غير مقروء و${getContext().safe(activityCount)} نشاط حديث.</p>
-        </div>
-        <div class="dashboard-hero-metrics">
-          <div><span>الاكتمال</span><strong>${getContext().safe(completion)}%</strong></div>
-          <div><span>التشغيلية</span><strong>${getContext().safe(total)}</strong></div>
-          <div><span>للتنظيف</span><strong>${getContext().safe(staleCount)}</strong></div>
-        </div>
-      </div>
-      <div class="grid metrics dashboard-summary-grid task-dashboard-primary-grid">
-        ${metric("مهام تشغيلية", total, "بعد تنظيف المتأخرات القديمة")}
+      <div class="dashboard-overview-grid">
+        <article class="dashboard-welcome-card dashboard-overview-card">
+          <span class="dashboard-welcome-eyebrow">مرحبا بك</span>
+          <strong>${safe(userName)}</strong>
+          <p>${safe(userRole || "حساب إداري")}</p>
+          <small>${safe(scopeLabel)}</small>
+        </article>
+        <div class="metric metric-rich dashboard-overview-card"><h3>نسبة الاكتمال</h3><p>${safe(completion)}%</p><span class="metric-meta">متوسط الإنجاز ${safe(avgProgress)}%</span></div>
+        <div class="metric metric-rich dashboard-overview-card"><h3>مهام تشغيلية</h3><p>${safe(total)}</p><span class="metric-meta">بعد تنظيف المتأخرات القديمة</span></div>
+        <div class="metric metric-rich dashboard-overview-card"><h3>تنبيهات غير مقروءة</h3><p>${safe(notifications.getUnreadCount())}</p><span class="metric-meta">مع ${safe(activityCount)} نشاط حديث</span></div>
         ${metric("مكتملة", completed, `معدل اكتمال ${completion}%`)}
         ${metric("بانتظار البدء", pending, "لم يبدأ تنفيذها بعد")}
-        ${metric("متأخرة للمتابعة", overdue, overdue ? "ضمن آخر 30 يومًا" : "ضمن المسار")}
-      </div>
-      <div class="grid metrics dashboard-summary-grid" style="margin-bottom:16px;">
+        ${metric("متأخرة للمتابعة", overdue, overdue ? "ضمن آخر 30 يوما" : "ضمن المسار")}
         ${metric("المستخدمون ضمن النطاق", state.users.length, "بحسب صلاحيات الدور الحالي")}
         ${metric("المتأخرات القديمة", staleCount, staleCount ? "تحتاج مراجعة أو أرشفة" : "لا توجد متأخرات قديمة")}
         ${metric("الدفاتر المفعلة", notebookStats.activeEmployees, "موظفون لديهم دفتر مهام يومي")}
-        ${metric("المقصرين", notebookStats.shortcomingEmployees, "موظفون لم يفعّلوا دفتر المهام")}
+        ${metric("المقصرون", notebookStats.shortcomingEmployees, "موظفون لم يفعلوا دفتر المهام")}
+        <div class="metric metric-rich dashboard-overview-card"><h3>النطاق الحالي</h3><p>${safe(scopeLabel)}</p><span class="metric-meta">حسب الفرع أو الصلاحية المحددة</span></div>
+      </div>
+      <div class="dashboard-hero dashboard-insight-strip">
+        <div class="dashboard-hero-copy">
+          <strong>${safe(scopeLabel)}</strong>
+          <p class="muted">يعرض النظام ${safe(total)} مهمة تشغيلية بعد تنظيف المتأخرات القديمة، مع ${safe(notifications.getUnreadCount())} تنبيه غير مقروء و${safe(activityCount)} نشاط حديث.</p>
+        </div>
       </div>
       <div class="grid dashboard-split">
         ${renderStatusChart(visible)}
