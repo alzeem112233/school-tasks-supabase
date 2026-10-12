@@ -90,7 +90,7 @@ let reloadingForServiceWorkerUpdate = false;
 let capacitorPlatform = { native: false, hideSplash: async () => {} };
 let systemThemeQuery = null;
 const OFFLINE_QUEUE_KEY = "schoolTaskOfflineQueueV1";
-const APP_RELEASE = "20261012-secretary-status-and-vice-encoding-150";
+const APP_RELEASE = "20261012-vice-print-teacher-directory-151";
 
 let state = {
   currentUser: null,
@@ -868,6 +868,8 @@ window.actions = {
   selectStaffEvaluationTeacher: modules.staffEvaluations.selectTeacher,
   toggleStaffEvaluationAccess: modules.staffEvaluations.toggleAccess,
   toggleStaffEvaluationTeacher: modules.staffEvaluations.toggleTeacherVisibility,
+  openTeacherDirectoryEditor: modules.staffEvaluations.openTeacherEditor,
+  saveTeacherDirectoryEntry: modules.staffEvaluations.saveTeacher,
   saveStaffEvaluation: modules.staffEvaluations.saveEvaluation,
   deleteStaffEvaluation: modules.staffEvaluations.deleteEvaluation,
   setStaffEvaluationFilter: modules.staffEvaluations.setFilter,
@@ -891,6 +893,8 @@ window.actions = {
   openVicePrincipalReport: modules.vicePrincipalReports.openReport,
   saveVicePrincipalReport: modules.vicePrincipalReports.saveReport,
   approveVicePrincipalReport: modules.vicePrincipalReports.approveReport,
+  selectVicePrincipalReportTeacher: modules.vicePrincipalReports.selectTeacher,
+  printVicePrincipalReport: modules.vicePrincipalReports.printReport,
   deleteAdministrativeReportGroup: modules.administrativeReports.deleteAdministrativeReportGroup,
   setAdministrativeReportFilter: modules.administrativeReports.setFilter,
   setAdministrativeReportTab: modules.administrativeReports.setTab,

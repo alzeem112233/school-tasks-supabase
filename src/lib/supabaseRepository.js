@@ -117,7 +117,7 @@ const COLUMN_MAPS = {
     receivedAt: "received_at", completedAt: "completed_at", createdAt: "created_at", updatedAt: "updated_at",
   },
   teacherDirectory: {
-    schoolId: "school_id", teacherName: "teacher_name", subjectName: "subject_name", active: "active", createdBy: "created_by", createdAt: "created_at", updatedAt: "updated_at",
+    schoolId: "school_id", teacherName: "teacher_name", subjectName: "subject_name", className: "class_name", active: "active", createdBy: "created_by", createdAt: "created_at", updatedAt: "updated_at",
   },
   staffEvaluations: {
     schoolId: "school_id", teacherId: "teacher_id", teacherName: "teacher_name", subjectName: "subject_name", sequenceKey: "sequence_key", assessmentPeriod: "assessment_period", evaluatedAt: "evaluated_at", scores: "scores", total: "total", maxTotal: "max_total", notes: "notes", evaluatedBy: "evaluated_by", createdAt: "created_at", updatedAt: "updated_at",

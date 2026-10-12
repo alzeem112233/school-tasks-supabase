@@ -1,4 +1,4 @@
-const CACHE_NAME = "school-tasks-supabase-v150";
+const CACHE_NAME = "school-tasks-supabase-v151";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -7,9 +7,9 @@ const APP_SHELL = [
   "/icon-192.png",
   "/icon-512.png",
   "/school-tasks-logo.jpeg",
-  "/assets/app-v150.js",
-  "/assets/index-v150.css",
-  "/assets/supabase-vendor-v150.js",
+  "/assets/app-v151.js",
+  "/assets/index-v151.css",
+  "/assets/supabase-vendor-v151.js",
 ];
 
 self.addEventListener("install", (event) => {

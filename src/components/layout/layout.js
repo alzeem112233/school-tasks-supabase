@@ -428,6 +428,7 @@ export function createAdminModule(getContext) {
     if (state.modal.type === "finance") return finance.renderFinanceModal(state.modal.id);
     if (state.modal.type === "grade_adjustment") return gradeAdjustments.renderModal(state.modal.id);
     if (state.modal.type === "staff_evaluation") return staffEvaluations.renderModal(state.modal.id);
+    if (state.modal.type === "teacher_directory_edit") return staffEvaluations.renderTeacherModal(state.modal.id);
     if (state.modal.type === "administrative_report") return administrativeReports.renderReportModal();
     if (state.modal.type === "secretary_report") return secretaryReports.renderModal();
     if (state.modal.type === "vice_principal_report") return vicePrincipalReports.renderModal();
