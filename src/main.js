@@ -56,6 +56,7 @@ import { createGradeAdjustmentsModule } from "./services/gradeAdjustmentService.
 import { createStaffEvaluationsModule } from "./services/staffEvaluationService.js";
 import { createAdministrativeReportsModule } from "./services/administrativeReportService.js";
 import { createSecretaryReportModule } from "./services/secretaryReportService.js";
+import { createVicePrincipalReportModule } from "./services/vicePrincipalReportService.js";
 import { createExamScheduleModule } from "./services/examScheduleService.js";
 import { createCircularsModule } from "./services/circularService.js";
 import { createMeetingsModule } from "./services/meetingService.js";
@@ -646,6 +647,7 @@ modules.gradeAdjustments = createGradeAdjustmentsModule(getContext);
 modules.staffEvaluations = createStaffEvaluationsModule(getContext);
 modules.administrativeReports = createAdministrativeReportsModule(getContext);
 modules.secretaryReports = createSecretaryReportModule(getContext);
+modules.vicePrincipalReports = createVicePrincipalReportModule(getContext);
 modules.examSchedules = createExamScheduleModule(getContext);
 modules.circulars = createCircularsModule(getContext);
 modules.meetings = createMeetingsModule(getContext);
@@ -843,6 +845,9 @@ window.actions = {
   approveSecretaryReport: modules.secretaryReports.approveReport,
   setSecretaryReportFilter: modules.secretaryReports.setFilter,
   printSecretaryMonthlyReport: modules.secretaryReports.printMonthlyReport,
+  openVicePrincipalReport: modules.vicePrincipalReports.openReport,
+  saveVicePrincipalReport: modules.vicePrincipalReports.saveReport,
+  approveVicePrincipalReport: modules.vicePrincipalReports.approveReport,
   deleteAdministrativeReportGroup: modules.administrativeReports.deleteAdministrativeReportGroup,
   setAdministrativeReportFilter: modules.administrativeReports.setFilter,
   setAdministrativeReportTab: modules.administrativeReports.setTab,

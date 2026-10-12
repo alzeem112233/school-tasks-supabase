@@ -228,6 +228,12 @@ function toDatabaseRow(collectionName, data) {
       row.sections = { secretary: { tasks: data.tasks || [], urgentTasks: data.urgentTasks || [], teacherNotes: data.teacherNotes || [], recommendations: data.recommendations || "", secretaryName: data.secretaryName || "" } };
       delete row.reportKind; delete row.secretaryId; delete row.secretaryName; delete row.tasks; delete row.urgentTasks; delete row.teacherNotes; delete row.recommendations; delete row.approvedAt; delete row.approvedBy;
     }
+    if (String(data.reportKind || "").startsWith("vice_principal_")) {
+      row.type = data.reportKind;
+      row.supervisor_id = data.authorId || null;
+      row.sections = { vicePrincipal: { viceType: data.viceType || "", data: data.data || {}, authorName: data.authorName || "" } };
+      delete row.reportKind; delete row.viceType; delete row.authorId; delete row.authorName; delete row.data; delete row.approvedAt; delete row.approvedBy;
+    }
     const reportDate = String(data.date || "");
     row.report_date = /^\d{4}-\d{2}-\d{2}$/.test(reportDate) ? reportDate : new Date().toISOString().slice(0, 10);
     row.supervisor_id = row.supervisor_id || null;
@@ -275,8 +281,16 @@ function fromDatabaseRow(collectionName, row) {
     value.tasks = secretary.tasks || [];
     value.urgentTasks = secretary.urgentTasks || [];
     value.teacherNotes = secretary.teacherNotes || [];
-    value.recommendations = secretary.recommendations || "";
-  }
+      value.recommendations = secretary.recommendations || "";
+    }
+    if (collectionName === "administrativeReports" && String(row.type || "").startsWith("vice_principal_")) {
+      const vicePrincipal = row.sections?.vicePrincipal || {};
+      value.reportKind = row.type;
+      value.viceType = vicePrincipal.viceType || "";
+      value.authorId = value.supervisorId || "";
+      value.authorName = vicePrincipal.authorName || "";
+      value.data = vicePrincipal.data || {};
+    }
   return value;
 }
 
