@@ -234,6 +234,12 @@ function toDatabaseRow(collectionName, data) {
       row.sections = { vicePrincipal: { viceType: data.viceType || "", data: data.data || {}, authorName: data.authorName || "" } };
       delete row.reportKind; delete row.viceType; delete row.authorId; delete row.authorName; delete row.data; delete row.approvedAt; delete row.approvedBy;
     }
+    if (String(data.reportKind || "").startsWith("social_specialist_")) {
+      row.type = data.reportKind;
+      row.supervisor_id = data.specialistId || null;
+      row.sections = { socialSpecialist: { socialType: data.socialType || "", data: data.data || {}, specialistName: data.specialistName || "" } };
+      delete row.reportKind; delete row.socialType; delete row.specialistId; delete row.specialistName; delete row.data; delete row.approvedAt; delete row.approvedBy;
+    }
     const reportDate = String(data.date || "");
     row.report_date = /^\d{4}-\d{2}-\d{2}$/.test(reportDate) ? reportDate : new Date().toISOString().slice(0, 10);
     row.supervisor_id = row.supervisor_id || null;
@@ -290,6 +296,14 @@ function fromDatabaseRow(collectionName, row) {
       value.authorId = value.supervisorId || "";
       value.authorName = vicePrincipal.authorName || "";
       value.data = vicePrincipal.data || {};
+    }
+    if (collectionName === "administrativeReports" && String(row.type || "").startsWith("social_specialist_")) {
+      const socialSpecialist = row.sections?.socialSpecialist || {};
+      value.reportKind = row.type;
+      value.socialType = socialSpecialist.socialType || "";
+      value.specialistId = value.supervisorId || "";
+      value.specialistName = socialSpecialist.specialistName || "";
+      value.data = socialSpecialist.data || {};
     }
   return value;
 }

@@ -57,6 +57,7 @@ import { createStaffEvaluationsModule } from "./services/staffEvaluationService.
 import { createAdministrativeReportsModule } from "./services/administrativeReportService.js";
 import { createSecretaryReportModule } from "./services/secretaryReportService.js";
 import { createVicePrincipalReportModule } from "./services/vicePrincipalReportCleanService.js";
+import { createSocialSpecialistReportModule } from "./services/socialSpecialistReportService.js";
 import { createExamScheduleModule } from "./services/examScheduleService.js";
 import { createCircularsModule } from "./services/circularService.js";
 import { createMeetingsModule } from "./services/meetingService.js";
@@ -648,6 +649,7 @@ modules.staffEvaluations = createStaffEvaluationsModule(getContext);
 modules.administrativeReports = createAdministrativeReportsModule(getContext);
 modules.secretaryReports = createSecretaryReportModule(getContext);
 modules.vicePrincipalReports = createVicePrincipalReportModule(getContext);
+modules.socialSpecialistReports = createSocialSpecialistReportModule(getContext);
 modules.examSchedules = createExamScheduleModule(getContext);
 modules.circulars = createCircularsModule(getContext);
 modules.meetings = createMeetingsModule(getContext);
@@ -895,6 +897,13 @@ window.actions = {
   approveVicePrincipalReport: modules.vicePrincipalReports.approveReport,
   selectVicePrincipalReportTeacher: modules.vicePrincipalReports.selectTeacher,
   printVicePrincipalReport: modules.vicePrincipalReports.printReport,
+  openSocialSpecialistReport: modules.socialSpecialistReports.openReport,
+  saveSocialSpecialistReport: modules.socialSpecialistReports.saveReport,
+  approveSocialSpecialistReport: modules.socialSpecialistReports.approveReport,
+  addSocialSpecialistRow: modules.socialSpecialistReports.addRow,
+  removeSocialSpecialistRow: modules.socialSpecialistReports.removeRow,
+  selectSocialSpecialistTeacher: modules.socialSpecialistReports.selectTeacher,
+  printSocialSpecialistReport: modules.socialSpecialistReports.printReport,
   deleteAdministrativeReportGroup: modules.administrativeReports.deleteAdministrativeReportGroup,
   setAdministrativeReportFilter: modules.administrativeReports.setFilter,
   setAdministrativeReportTab: modules.administrativeReports.setTab,
