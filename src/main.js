@@ -90,7 +90,7 @@ let reloadingForServiceWorkerUpdate = false;
 let capacitorPlatform = { native: false, hideSplash: async () => {} };
 let systemThemeQuery = null;
 const OFFLINE_QUEUE_KEY = "schoolTaskOfflineQueueV1";
-const APP_RELEASE = "20261012-startup-recovery-01";
+const APP_RELEASE = "20261012-stable-bundle-147";
 
 let state = {
   currentUser: null,
@@ -704,6 +704,7 @@ async function boot() {
   if (!reportTypes.includes(state.reportConfig.type)) state.reportConfig.type = "task";
   state.schoolProfile = { ...schoolProfileDefaults, ...storageGet("schoolTaskSchoolProfile", {}) };
   applyTheme();
+  renderNow();
   systemThemeQuery = window.matchMedia?.("(prefers-color-scheme: dark)") || null;
   systemThemeQuery?.addEventListener?.("change", () => {
     if (state.theme === "system") {
@@ -1265,4 +1266,8 @@ window.actions = {
   },
 };
 
-boot();
+boot().catch((error) => {
+  console.error("Application boot failed", error);
+  state.startupError = "تعذر تشغيل المنصة. أعد تحميل الصفحة، وإذا استمرت المشكلة امسح النسخة المخزنة من المتصفح.";
+  renderNow();
+});
