@@ -509,7 +509,12 @@ export function createAdminModule(getContext) {
             <button class="icon-btn sidebar-close" type="button" aria-label="إغلاق القائمة" onclick="actions.toggleMobileNav()">${icons.close}</button>
           </div>
           <section class="sidebar-section account-section">
-            <h2>الحساب والمدرسة</h2>
+            <div class="sidebar-section-title">
+              <h2>الحساب والمدرسة</h2>
+              <button class="sync-chip sync-${safe(sync.className)} sidebar-sync compact-sync" type="button" ${sync.action} ${sync.action ? "" : "disabled"}>
+                ${sync.icon}<span>${safe(sync.label)}</span>
+              </button>
+            </div>
             <div class="account-summary">
               <div>
                 <strong>${safe(state.currentUser.name)}</strong>
@@ -517,9 +522,6 @@ export function createAdminModule(getContext) {
               </div>
               <button class="btn secondary compact-account-btn" type="button" onclick="actions.openProfile()">${icons.users}<span>الملف</span></button>
             </div>
-            <button class="sync-chip sync-${safe(sync.className)} sidebar-sync compact-sync" type="button" ${sync.action} ${sync.action ? "" : "disabled"}>
-              ${sync.icon}<span>${safe(sync.label)}</span>
-            </button>
           </section>
           <section class="sidebar-section">
             <h2>إعدادات العرض</h2>
@@ -551,7 +553,7 @@ export function createAdminModule(getContext) {
             ${navGroups(allNavItems).map(([groupTitle, groupItems]) => `
               <section class="sidebar-section nav-group">
                 <h2>${safe(groupTitle)}</h2>
-                ${groupItems.map(([id, label, icon, badge]) => `<button class="${state.view === id ? "active" : ""}" onclick="actions.setView('${id}')">${icon} <span>${safe(label)}</span>${badge ? `<span class="nav-badge">${safe(badge)}</span>` : ""}</button>`).join("")}
+                ${groupItems.map(([id, label, icon, badge]) => `<button class="nav-item nav-${safe(id)} ${state.view === id ? "active" : ""}" data-nav-id="${safe(id)}" onclick="actions.setView('${id}')"><span class="nav-icon">${icon}</span><span class="nav-label">${safe(label)}</span>${badge ? `<span class="nav-badge">${safe(badge)}</span>` : ""}</button>`).join("")}
               </section>
             `).join("")}
           </nav>
