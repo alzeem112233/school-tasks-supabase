@@ -359,6 +359,39 @@
   border-color: rgba(109, 166, 255, .34) !important;
 }
 
+:root[data-theme="dark"] :where(.status-completed, .finance-status-completed,
+  .admin-status-approved) {
+  color: #7be3b9 !important;
+  border-color: rgba(77, 211, 155, .34) !important;
+  background: rgba(52, 190, 132, .16) !important;
+}
+
+:root[data-theme="dark"] :where(.status-overdue, .priority-high, .feedback.danger) {
+  color: #ffabb3 !important;
+  border-color: rgba(241, 105, 119, .34) !important;
+  background: rgba(235, 84, 99, .16) !important;
+}
+
+:root[data-theme="dark"] :where(.status-new, .status-in_progress,
+  .status-under_review, .finance-status-received, .admin-status-submitted) {
+  color: #bcd8ff !important;
+  border-color: rgba(109, 166, 255, .34) !important;
+  background: rgba(83, 145, 245, .18) !important;
+}
+
+:root[data-theme="dark"] :where(.priority-medium, .feedback.warning,
+  .finance-status-pending) {
+  color: #ffd98b !important;
+  border-color: rgba(235, 175, 66, .34) !important;
+  background: rgba(218, 143, 20, .16) !important;
+}
+
+:root[data-theme="dark"] :where(.sync-chip, .live-chip) {
+  color: #8ee5bf !important;
+  border-color: rgba(77, 211, 155, .3) !important;
+  background: rgba(52, 190, 132, .13) !important;
+}
+
 :root[data-theme="dark"] .chat-bubble {
   color: var(--platform-text) !important;
   border-color: var(--platform-border) !important;

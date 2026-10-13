@@ -1,0 +1,674 @@
+/* Unified product identity. Dark-specific corrections remain in darkModeFinal.css. */
+:root {
+  --identity-blue: #1769e8;
+  --identity-teal: #078b92;
+  --identity-green: #138a5b;
+  --identity-amber: #c47b08;
+  --identity-rose: #c52b67;
+  --identity-violet: #6d4bd1;
+  --identity-ink: var(--platform-text, #172033);
+  --identity-muted: var(--platform-muted, #667085);
+  --identity-line: var(--platform-border, #d9e2ec);
+  --identity-line-strong: var(--platform-border-strong, #c5d1df);
+  --identity-surface: var(--platform-surface, #fff);
+  --identity-soft: var(--platform-surface-soft, #f7f9fc);
+  --identity-radius: 8px;
+  --identity-shadow: 0 4px 14px rgba(15, 23, 42, .06);
+  --identity-shadow-raised: 0 14px 36px rgba(15, 23, 42, .12);
+  --identity-control: 44px;
+  --identity-space: 14px;
+}
+
+.content[data-view="home"] { --identity-accent: var(--identity-blue); }
+.content[data-view="tasks"],
+.content[data-view="dailyNotebook"] { --identity-accent: var(--identity-teal); }
+.content[data-view="users"],
+.content[data-view="chat"] { --identity-accent: #087fa4; }
+.content[data-view="notifications"],
+.content[data-view="circulars"] { --identity-accent: var(--identity-rose); }
+.content[data-view="meetings"],
+.content[data-view="examSchedules"] { --identity-accent: var(--identity-violet); }
+.content[data-view="reports"],
+.content[data-view="administrativeReports"],
+.content[data-view="vicePrincipalReports"] { --identity-accent: #3457c6; }
+.content[data-view="secretaryReports"] { --identity-accent: #1269a8; }
+.content[data-view="socialSpecialistReports"],
+.content[data-view="staffEvaluations"] { --identity-accent: #a94d1b; }
+.content[data-view="activitySupervisorReports"],
+.content[data-view="notebookRoleTemplates"] { --identity-accent: var(--identity-amber); }
+.content[data-view="finance"] { --identity-accent: var(--identity-green); }
+.content[data-view="gradeAdjustments"] { --identity-accent: #7255c8; }
+.content[data-view="activity"],
+.content[data-view="enterprise"] { --identity-accent: #53627a; }
+
+.content {
+  color: var(--identity-ink);
+}
+
+.content > * {
+  width: min(100%, 1480px);
+  margin-inline: auto;
+}
+
+.content > * + * {
+  margin-top: var(--identity-space);
+}
+
+/* Product shell */
+.brand h1,
+.mobile-header-copy strong {
+  letter-spacing: 0;
+}
+
+.brand-logo,
+.mobile-logo {
+  border: 1px solid color-mix(in srgb, var(--identity-blue) 18%, var(--identity-line));
+  background: #fff;
+  box-shadow: 0 3px 10px rgba(23, 105, 232, .1);
+}
+
+.sidebar-section {
+  border-color: var(--identity-line) !important;
+  border-radius: var(--identity-radius) !important;
+  box-shadow: none !important;
+}
+
+.sidebar-section > h2,
+.sidebar-section-title > h2 {
+  color: var(--identity-muted) !important;
+  font-size: .72rem !important;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.nav-item {
+  min-height: 42px;
+  border: 1px solid transparent !important;
+  border-radius: var(--identity-radius) !important;
+  font-weight: 800;
+  transition: color .16s ease, background-color .16s ease, border-color .16s ease;
+}
+
+.nav-item:hover {
+  border-color: var(--identity-line) !important;
+  background: var(--identity-soft) !important;
+}
+
+.nav-item.active {
+  color: var(--identity-accent, var(--identity-blue)) !important;
+  border-color: color-mix(in srgb, var(--identity-accent, var(--identity-blue)) 22%, var(--identity-line)) !important;
+  background: color-mix(in srgb, var(--identity-accent, var(--identity-blue)) 9%, var(--identity-surface)) !important;
+}
+
+.nav-icon,
+.nav-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.sync-chip,
+.live-chip {
+  min-height: 36px;
+  border: 1px solid color-mix(in srgb, var(--identity-green) 24%, var(--identity-line));
+  border-radius: 999px !important;
+  color: #08724d;
+  background: color-mix(in srgb, var(--identity-green) 9%, var(--identity-surface));
+  box-shadow: none !important;
+}
+
+/* Page headings */
+:where(.topbar, .dashboard-topbar, .finance-page-head, .chat-topbar,
+  .page-heading, .home-hero, .admin-report-hero, .activity-report-hero,
+  .social-report-hero, .notebook-template-hero, .exam-hero,
+  .report-insight-hero, .notebook-report-hero) {
+  min-height: 82px;
+  margin-bottom: var(--identity-space) !important;
+  padding: 15px 17px !important;
+  border: 1px solid var(--identity-line) !important;
+  border-inline-start: 4px solid var(--identity-accent, var(--identity-blue)) !important;
+  border-radius: var(--identity-radius) !important;
+  color: var(--identity-ink) !important;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--identity-accent, var(--identity-blue)) 7%, var(--identity-surface)),
+    var(--identity-surface) 70%) !important;
+  box-shadow: var(--identity-shadow) !important;
+}
+
+:where(.section-title, .page-heading, .finance-page-head,
+  .admin-report-hero, .activity-report-hero, .social-report-hero,
+  .notebook-template-hero, .exam-hero) h1,
+:where(.section-title, .page-heading, .finance-page-head,
+  .admin-report-hero, .activity-report-hero, .social-report-hero,
+  .notebook-template-hero, .exam-hero) h2 {
+  margin: 0;
+  color: var(--identity-ink) !important;
+  font-size: clamp(1.2rem, 1.7vw, 1.55rem) !important;
+  font-weight: 900;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+:where(.section-title, .page-heading, .finance-page-head,
+  .admin-report-hero, .activity-report-hero, .social-report-hero,
+  .notebook-template-hero, .exam-hero) p {
+  margin: 4px 0 0;
+  color: var(--identity-muted) !important;
+  font-size: .84rem;
+  line-height: 1.65;
+}
+
+:where(.eyebrow, .finance-eyebrow, .dashboard-welcome-eyebrow,
+  .admin-report-hero > div > span, .activity-report-hero > div > span,
+  .social-report-hero > div > span, .notebook-template-hero > div > span) {
+  color: var(--identity-accent, var(--identity-blue)) !important;
+  font-size: .73rem !important;
+  font-weight: 900;
+  letter-spacing: 0 !important;
+}
+
+/* Cards and work surfaces */
+:where(.panel, .dashboard-panel, .module-card, .task-card, .task-card-pro,
+  .notification-item, .log-item, .finance-row, .finance-card,
+  .grade-adjustment-card, .evaluation-card, .teacher-directory-card,
+  .exam-panel, .exam-period-card, .chat-contacts, .chat-window,
+  .home-section, .home-message-card, .home-alert-card, .admin-report-card,
+  .admin-monthly-summary, .vice-report-card, .activity-report-card,
+  .social-report-card, .secretary-section, .employee-daily-notebook,
+  .daily-extra-card, .notebook-role-card, .reference-panel) {
+  border: 1px solid var(--identity-line) !important;
+  border-radius: var(--identity-radius) !important;
+  color: var(--identity-ink);
+  background-color: var(--identity-surface) !important;
+  box-shadow: var(--identity-shadow) !important;
+}
+
+:where(.panel, .dashboard-panel, .module-card, .task-card, .task-card-pro,
+  .notification-item, .finance-row, .grade-adjustment-card, .evaluation-card,
+  .exam-panel, .activity-report-card, .social-report-card,
+  .vice-report-card, .reference-panel) :where(.panel, .card, .module-card) {
+  box-shadow: none !important;
+}
+
+.section-title {
+  min-width: 0;
+}
+
+.section-title h2,
+.panel h2,
+.module-card h2 {
+  color: var(--identity-ink);
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.section-title p,
+.muted {
+  color: var(--identity-muted) !important;
+}
+
+/* Metrics */
+:where(.metric, .metric-rich, .content .card, .admin-report-metric,
+  .finance-metric, .exam-progress-card) {
+  position: relative;
+  min-width: 0;
+  min-height: 100px;
+  padding: 13px !important;
+  overflow: hidden;
+  border: 1px solid var(--identity-line) !important;
+  border-block-start: 3px solid var(--identity-accent, var(--identity-blue)) !important;
+  border-radius: var(--identity-radius) !important;
+  color: var(--identity-ink) !important;
+  background: var(--identity-surface) !important;
+  box-shadow: var(--identity-shadow) !important;
+}
+
+:where(.metrics, .dashboard-summary-grid, .dashboard-overview-grid,
+  .compact-metrics, .admin-report-metrics, .finance-metrics,
+  .exam-metrics) > :nth-child(4n + 1) { border-block-start-color: var(--identity-blue) !important; }
+:where(.metrics, .dashboard-summary-grid, .dashboard-overview-grid,
+  .compact-metrics, .admin-report-metrics, .finance-metrics,
+  .exam-metrics) > :nth-child(4n + 2) { border-block-start-color: var(--identity-teal) !important; }
+:where(.metrics, .dashboard-summary-grid, .dashboard-overview-grid,
+  .compact-metrics, .admin-report-metrics, .finance-metrics,
+  .exam-metrics) > :nth-child(4n + 3) { border-block-start-color: var(--identity-amber) !important; }
+:where(.metrics, .dashboard-summary-grid, .dashboard-overview-grid,
+  .compact-metrics, .admin-report-metrics, .finance-metrics,
+  .exam-metrics) > :nth-child(4n) { border-block-start-color: var(--identity-rose) !important; }
+
+:where(.metric, .metric-rich, .admin-report-metric, .finance-metric) h3,
+:where(.metric, .metric-rich, .admin-report-metric, .finance-metric) span {
+  color: var(--identity-muted) !important;
+  font-size: .76rem;
+  font-weight: 800;
+}
+
+:where(.metric, .metric-rich, .admin-report-metric, .finance-metric) p,
+:where(.metric, .metric-rich, .admin-report-metric, .finance-metric) strong {
+  color: var(--identity-ink) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Filters and forms */
+:where(.toolbar, .module-toolbar, .daily-toolbar, .finance-filter-bar,
+  .grade-filter-bar, .admin-report-filters, .exam-toolbar,
+  .task-filter-toolbar, .report-filter-grid, .evaluation-tools,
+  .evaluation-report-actions, .daily-notebook-filter, .report-print-toolbar) {
+  gap: 9px !important;
+  padding: 11px !important;
+  border: 1px solid var(--identity-line) !important;
+  border-radius: var(--identity-radius) !important;
+  background: var(--identity-surface) !important;
+  box-shadow: var(--identity-shadow) !important;
+}
+
+:where(.field, .toolbar label, .module-toolbar label, .admin-report-filters label,
+  .exam-toolbar label, .report-print-fields label) {
+  gap: 5px;
+  min-width: 0;
+}
+
+:where(.field > span, .toolbar label > span, .module-toolbar label > span,
+  .admin-report-filters label > span, .exam-toolbar label > span,
+  .report-print-fields label > span) {
+  color: var(--identity-muted) !important;
+  font-size: .73rem !important;
+  font-weight: 850;
+  line-height: 1.4;
+}
+
+:where(input:not([type="checkbox"]):not([type="radio"]), select, textarea, .input) {
+  min-height: var(--identity-control);
+  border: 1px solid var(--identity-line-strong) !important;
+  border-radius: var(--identity-radius) !important;
+  color: var(--identity-ink) !important;
+  background: var(--identity-surface) !important;
+  box-shadow: none !important;
+}
+
+:where(input:not([type="checkbox"]):not([type="radio"]), select, textarea, .input):focus {
+  border-color: var(--identity-accent, var(--identity-blue)) !important;
+  outline: 0;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--identity-accent, var(--identity-blue)) 16%, transparent) !important;
+}
+
+:where(input, textarea)::placeholder {
+  color: color-mix(in srgb, var(--identity-muted) 78%, transparent) !important;
+  opacity: 1;
+}
+
+fieldset {
+  border-color: var(--identity-line) !important;
+  border-radius: var(--identity-radius) !important;
+}
+
+/* Buttons and commands */
+:where(.btn, .button) {
+  min-height: var(--identity-control);
+  border-radius: var(--identity-radius) !important;
+  font-weight: 850;
+  letter-spacing: 0;
+  box-shadow: none !important;
+}
+
+:where(.btn:not(.secondary):not(.danger):not(.success), .button.primary) {
+  color: #fff !important;
+  border-color: var(--identity-accent, var(--identity-blue)) !important;
+  background: var(--identity-accent, var(--identity-blue)) !important;
+  background-image: none !important;
+}
+
+:where(.btn.secondary, .button.ghost, .icon-btn, .mini-button, .file-button) {
+  color: var(--identity-ink) !important;
+  border: 1px solid var(--identity-line) !important;
+  border-radius: var(--identity-radius) !important;
+  background: var(--identity-surface) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+:where(.btn, .button, .icon-btn, .mini-button):hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--identity-accent, var(--identity-blue)) 42%, var(--identity-line)) !important;
+  transform: translateY(-1px);
+}
+
+:where(.btn, .button, .icon-btn, .mini-button):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--identity-accent, var(--identity-blue)) 24%, transparent);
+  outline-offset: 2px;
+}
+
+:where(.btn, .button, .icon-btn) svg {
+  flex: 0 0 auto;
+  width: 19px;
+  height: 19px;
+}
+
+/* Lists and tables */
+:where(.dashboard-item, .module-table-cards > *, .teacher-directory-row,
+  .activity-report-history > button, .social-report-history > button,
+  .vice-history-row, .exam-entry-row, .meeting-point-row,
+  .attachment-card, .notification-preview-head) {
+  border: 1px solid var(--identity-line) !important;
+  border-radius: var(--identity-radius) !important;
+  color: var(--identity-ink) !important;
+  background: var(--identity-soft) !important;
+  box-shadow: none !important;
+}
+
+:where(table, .responsive-table, .report-table, .exam-table) {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: var(--identity-ink);
+  border: 1px solid var(--identity-line) !important;
+  border-radius: var(--identity-radius);
+  background: var(--identity-surface);
+}
+
+:where(th, td) {
+  padding: 10px 11px;
+  border-color: var(--identity-line) !important;
+  line-height: 1.5;
+}
+
+:where(th, .task-table-head, .exam-table-head, .finance-table-head) {
+  color: var(--identity-ink) !important;
+  background: var(--identity-soft) !important;
+  font-size: .76rem;
+  font-weight: 900;
+}
+
+tbody tr:hover {
+  background: color-mix(in srgb, var(--identity-accent, var(--identity-blue)) 4%, var(--identity-surface));
+}
+
+/* Status language */
+:where(.role-pill, .status-pill, .priority-pill, .badge, .tag, .nav-badge,
+  .live-chip, .task-card-number, .reference-status) {
+  border-radius: 999px !important;
+  font-size: .72rem;
+  font-weight: 850;
+}
+
+:where(.status-completed, .finance-status-completed, .admin-status-approved) {
+  color: #08724d !important;
+  border-color: color-mix(in srgb, var(--identity-green) 28%, var(--identity-line)) !important;
+  background: color-mix(in srgb, var(--identity-green) 10%, var(--identity-surface)) !important;
+}
+
+:where(.status-overdue, .priority-high, .feedback.danger) {
+  color: #b4233c !important;
+  border-color: color-mix(in srgb, var(--identity-rose) 28%, var(--identity-line)) !important;
+  background: color-mix(in srgb, var(--identity-rose) 9%, var(--identity-surface)) !important;
+}
+
+:where(.status-new, .status-in_progress, .status-under_review,
+  .finance-status-received, .admin-status-submitted) {
+  color: #155ab6 !important;
+  border-color: color-mix(in srgb, var(--identity-blue) 26%, var(--identity-line)) !important;
+  background: color-mix(in srgb, var(--identity-blue) 9%, var(--identity-surface)) !important;
+}
+
+:where(.priority-medium, .feedback.warning, .finance-status-pending) {
+  color: #955b00 !important;
+  border-color: color-mix(in srgb, var(--identity-amber) 30%, var(--identity-line)) !important;
+  background: color-mix(in srgb, var(--identity-amber) 10%, var(--identity-surface)) !important;
+}
+
+/* Feature pages */
+:where(.activity-report-grid, .social-report-grid, .vice-report-grid,
+  .notebook-role-grid, .module-card-list) {
+  align-items: stretch;
+  gap: 12px !important;
+}
+
+:where(.activity-report-card, .social-report-card, .vice-report-card,
+  .notebook-role-card) {
+  min-height: 100%;
+  padding: 14px !important;
+}
+
+:where(.activity-report-card, .social-report-card, .vice-report-card,
+  .notebook-role-card) > header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--identity-line);
+}
+
+:where(.activity-report-card, .social-report-card, .vice-report-card,
+  .notebook-role-card) > header > span,
+:where(.activity-form-section, .social-entry-card) > header > span,
+.module-form-section-title > span {
+  border-radius: var(--identity-radius) !important;
+}
+
+:where(.activity-form-section, .activity-entry-card, .social-entry-card,
+  .vice-form-card, .vice-subcard, .admin-report-entry,
+  .admin-report-section, .notebook-template-item,
+  .evaluation-criterion-card, .grade-score-board,
+  .exam-settings-block, .exam-tracking-card, .module-form-section) {
+  border: 1px solid var(--identity-line) !important;
+  border-radius: var(--identity-radius) !important;
+  background: var(--identity-soft) !important;
+  box-shadow: none !important;
+}
+
+:where(.activity-form-section, .activity-entry-card, .social-entry-card,
+  .admin-report-section, .module-form-section) > header,
+:where(.activity-entry-card, .social-entry-card) > header {
+  border-color: var(--identity-line) !important;
+  background: color-mix(in srgb, var(--identity-accent, var(--identity-blue)) 7%, var(--identity-surface)) !important;
+}
+
+/* Modals and feedback */
+:where(.modal-box, .modal-card, .module-modal, .exam-modal,
+  .admin-report-modal, .finance-modal, .staff-evaluation-modal,
+  .grade-adjustment-modal, .notebook-template-modal,
+  .activity-report-modal, .social-report-modal, .vice-report-modal,
+  .secretary-redesign-modal) {
+  border: 1px solid var(--identity-line-strong) !important;
+  border-radius: var(--identity-radius) !important;
+  color: var(--identity-ink) !important;
+  background: var(--identity-surface) !important;
+  box-shadow: var(--identity-shadow-raised) !important;
+}
+
+:where(.modal-head, .modal-header, .activity-modal-head, .social-modal-head,
+  .secretary-report-top, .notebook-template-modal-head,
+  .staff-evaluation-modal > header) {
+  border-color: var(--identity-line) !important;
+  color: var(--identity-ink) !important;
+  background: color-mix(in srgb, var(--identity-accent, var(--identity-blue)) 6%, var(--identity-surface)) !important;
+  background-image: none !important;
+}
+
+:where(.modal-actions, .admin-report-sticky-actions, .secretary-actions,
+  .staff-evaluation-modal > form > footer, .notebook-template-modal > footer,
+  .grade-modal-footer) {
+  border-color: var(--identity-line) !important;
+  background: color-mix(in srgb, var(--identity-surface) 95%, transparent) !important;
+  background-image: none !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+:where(.feedback, .empty, .empty-state, .offline-banner,
+  .phone-notification-prompt, .evaluation-private-note) {
+  border-radius: var(--identity-radius) !important;
+  line-height: 1.65;
+}
+
+:where(.empty, .empty-state) {
+  color: var(--identity-muted) !important;
+  border: 1px dashed var(--identity-line-strong) !important;
+  background: var(--identity-soft) !important;
+}
+
+.pagination-bar {
+  border: 1px solid var(--identity-line) !important;
+  border-radius: var(--identity-radius) !important;
+  background: var(--identity-soft) !important;
+}
+
+/* Preserve the approved dashboard identity while sharing the platform rhythm. */
+.reference-dashboard {
+  --identity-accent: var(--identity-blue);
+}
+
+.reference-panel,
+.reference-action,
+.reference-stat,
+.reference-task-row,
+.reference-quick-grid button {
+  border-radius: 10px !important;
+  box-shadow: var(--identity-shadow) !important;
+}
+
+.reference-panel-head h2 {
+  font-size: 1.08rem !important;
+}
+
+@media (max-width: 1040px) {
+  .content {
+    padding-inline: 8px !important;
+  }
+
+  .mobile-header {
+    border-color: var(--identity-line) !important;
+    border-radius: 0 0 var(--identity-radius) var(--identity-radius) !important;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, .08) !important;
+  }
+
+  .sidebar {
+    border-radius: var(--identity-radius) 0 0 var(--identity-radius) !important;
+  }
+
+  :where(.topbar, .dashboard-topbar, .finance-page-head, .chat-topbar,
+    .page-heading, .home-hero, .admin-report-hero, .activity-report-hero,
+    .social-report-hero, .notebook-template-hero, .exam-hero,
+    .report-insight-hero, .notebook-report-hero) {
+    min-height: 0;
+    padding: 12px 13px !important;
+  }
+
+  :where(.topbar, .dashboard-topbar, .finance-page-head, .chat-topbar,
+    .page-heading, .home-hero, .admin-report-hero, .activity-report-hero,
+    .social-report-hero, .notebook-template-hero, .exam-hero) h1,
+  :where(.topbar, .dashboard-topbar, .finance-page-head, .chat-topbar,
+    .page-heading, .home-hero, .admin-report-hero, .activity-report-hero,
+    .social-report-hero, .notebook-template-hero, .exam-hero) h2 {
+    font-size: 1.12rem !important;
+  }
+
+  :where(.panel, .dashboard-panel, .module-card, .task-card, .task-card-pro,
+    .notification-item, .finance-row, .grade-adjustment-card,
+    .evaluation-card, .exam-panel, .activity-report-card,
+    .social-report-card, .vice-report-card, .secretary-section,
+    .reference-panel) {
+    padding: 11px !important;
+  }
+
+  :where(.form-grid, .two-column, .dashboard-split, .dashboard-focus-row,
+    .dashboard-workload-row, .report-filter-grid, .grade-form-grid,
+    .social-report-grid, .activity-report-grid, .vice-report-grid,
+    .exam-grid, .meeting-grid, .circular-grid, .notebook-role-grid) {
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+  }
+
+  :where(.toolbar, .module-toolbar, .daily-toolbar, .finance-filter-bar,
+    .grade-filter-bar, .admin-report-filters, .exam-toolbar,
+    .task-filter-toolbar, .report-filter-grid, .evaluation-tools,
+    .evaluation-report-actions) {
+    gap: 7px !important;
+    padding: 8px !important;
+  }
+
+  :where(input:not([type="checkbox"]):not([type="radio"]), select, textarea, .input) {
+    min-height: 44px;
+    font-size: 16px !important;
+  }
+
+  :where(.btn, .button) {
+    min-height: 44px;
+    padding-inline: 9px;
+    white-space: normal;
+  }
+
+  :where(.modal-box, .modal-card, .module-modal, .exam-modal,
+    .admin-report-modal, .finance-modal, .staff-evaluation-modal,
+    .grade-adjustment-modal, .notebook-template-modal,
+    .activity-report-modal, .social-report-modal, .vice-report-modal,
+    .secretary-redesign-modal) {
+    width: calc(100vw - 12px) !important;
+    max-width: calc(100vw - 12px) !important;
+    max-height: calc(100dvh - max(8px, env(safe-area-inset-top))) !important;
+    border-radius: 12px 12px 0 0 !important;
+  }
+}
+
+@media (max-width: 560px) {
+  :root { --identity-space: 10px; }
+
+  .content {
+    padding-inline: 7px !important;
+  }
+
+  :where(.metrics, .dashboard-summary-grid, .dashboard-overview-grid,
+    .compact-metrics, .admin-report-metrics, .finance-metrics,
+    .exam-metrics) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  :where(.metric, .metric-rich, .content .card, .admin-report-metric,
+    .finance-metric, .exam-progress-card) {
+    min-height: 88px;
+    padding: 10px !important;
+  }
+
+  :where(.topbar, .dashboard-topbar, .finance-page-head, .chat-topbar) > .actions,
+  .evaluation-head-actions,
+  .exam-hero-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px !important;
+  }
+
+  :where(.topbar, .dashboard-topbar, .finance-page-head, .chat-topbar) > .actions > *,
+  .evaluation-head-actions > *,
+  .exam-hero-actions > * {
+    width: 100%;
+    min-width: 0;
+  }
+
+  :where(th, td) {
+    padding: 8px;
+  }
+
+  .reference-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .reference-stat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media print {
+  .sidebar,
+  .mobile-header,
+  .mobile-nav,
+  .floating-refresh,
+  .floating-sync {
+    display: none !important;
+  }
+
+  .content,
+  .content > * {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+}
