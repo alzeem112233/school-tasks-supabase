@@ -1,0 +1,416 @@
+/* Last-loaded dark theme contract for every workspace and modal. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --platform-bg: #080f1c;
+  --platform-surface: #111c2e;
+  --platform-surface-soft: #0d1727;
+  --platform-text: #f5f8fc;
+  --platform-muted: #acb9cc;
+  --platform-border: #2b3b54;
+  --platform-border-strong: #3b4d68;
+  --ui-bg: var(--platform-bg);
+  --ui-surface: var(--platform-surface);
+  --ui-soft: var(--platform-surface-soft);
+  --ui-text: var(--platform-text);
+  --ui-muted: var(--platform-muted);
+  --ui-line: var(--platform-border);
+  --ui-line-strong: var(--platform-border-strong);
+  --bg-app: var(--platform-bg);
+  --bg-surface: var(--platform-surface);
+  --bg-surface-elevated: #17243a;
+  --bg-muted: var(--platform-surface-soft);
+  --bg-input: #0a1423;
+  --input-bg: #0a1423;
+  --surface: var(--platform-surface);
+  --surface-soft: var(--platform-surface-soft);
+  --surface-muted: var(--platform-surface-soft);
+  --panel: var(--platform-surface);
+  --card: var(--platform-surface);
+  --soft: var(--platform-surface-soft);
+  --text: var(--platform-text);
+  --text-primary: var(--platform-text);
+  --text-secondary: #c4cede;
+  --text-muted: var(--platform-muted);
+  --muted: var(--platform-muted);
+  --ink: var(--platform-text);
+  --border: var(--platform-border);
+  --line: var(--platform-border);
+  --reference-ink: #f5f8fc;
+  --reference-muted: #acb9cc;
+  --reference-line: #2b3b54;
+  --reference-surface: #111c2e;
+  --reference-soft: #0d1727;
+}
+
+:root[data-theme="dark"],
+:root[data-theme="dark"] body,
+:root[data-theme="dark"] #app,
+:root[data-theme="dark"] .shell,
+:root[data-theme="dark"] .content {
+  color: var(--platform-text) !important;
+  background: var(--platform-bg) !important;
+}
+
+:root[data-theme="dark"] :where(h1, h2, h3, h4, h5, h6, legend) {
+  color: var(--platform-text) !important;
+}
+
+:root[data-theme="dark"] :where(.muted, small, .section-title p, .page-heading p,
+  .field > span, .metric-meta, .task-card-title-block p, .module-card p,
+  .notification-copy p, .reference-panel-head p, .reference-stat small,
+  .reference-task-main small, .reference-task-department, .reference-task-row time,
+  .reference-updates-list small, .reference-updates-list time) {
+  color: var(--platform-muted) !important;
+}
+
+/* Navigation and persistent shell. */
+:root[data-theme="dark"] :where(.sidebar, .mobile-header, .mobile-nav,
+  .sidebar-section, .account-summary, .theme-switch-row) {
+  color: var(--platform-text) !important;
+  border-color: var(--platform-border) !important;
+  background: #0d1727 !important;
+}
+
+:root[data-theme="dark"] .nav-item {
+  color: #c4cede !important;
+  background: transparent !important;
+}
+
+:root[data-theme="dark"] .nav-item:hover {
+  color: #ffffff !important;
+  background: #17263d !important;
+}
+
+:root[data-theme="dark"] .nav-item.active,
+:root[data-theme="dark"] .mobile-nav button.active {
+  color: #eaf2ff !important;
+  border-color: rgba(104, 163, 255, .35) !important;
+  background: #1a3154 !important;
+}
+
+:root[data-theme="dark"] :where(.nav-icon, .theme-setting-icon, .mobile-notification-button) {
+  color: #8db8ff !important;
+}
+
+/* Shared surfaces loaded after feature styles. */
+:root[data-theme="dark"] :where(.panel, .dashboard-panel, .module-card, .task-card,
+  .task-card-pro, .notification-item, .log-item, .finance-row, .finance-card,
+  .grade-adjustment-card, .evaluation-card, .teacher-directory-card,
+  .exam-panel, .exam-period-card, .chat-contacts, .chat-window, .chat-contact,
+  .home-section, .home-message-card, .home-alert-card, .admin-report-card,
+  .admin-monthly-summary, .vice-report-card, .activity-report-card,
+  .social-report-card, .secretary-section, .employee-daily-notebook,
+  .daily-extra-card, .notebook-role-card, .notebook-template-item) {
+  color: var(--platform-text) !important;
+  border-color: var(--platform-border) !important;
+  background-color: var(--platform-surface) !important;
+  background-image: none !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .22) !important;
+}
+
+:root[data-theme="dark"] :where(.toolbar, .module-toolbar, .daily-toolbar,
+  .finance-filter-bar, .grade-filter-bar, .admin-report-filters, .exam-toolbar,
+  .task-filter-toolbar, .report-filter-grid, .evaluation-tools,
+  .evaluation-report-actions, .daily-notebook-filter, .report-print-toolbar) {
+  color: var(--platform-text) !important;
+  border-color: var(--platform-border) !important;
+  background: var(--platform-surface) !important;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .18) !important;
+}
+
+:root[data-theme="dark"] :where(input:not([type="checkbox"]):not([type="radio"]),
+  select, textarea, .input) {
+  color: var(--platform-text) !important;
+  border-color: var(--platform-border-strong) !important;
+  background: #0a1423 !important;
+  caret-color: #8db8ff;
+}
+
+:root[data-theme="dark"] :where(input, textarea)::placeholder {
+  color: #8190a6 !important;
+  opacity: 1;
+}
+
+:root[data-theme="dark"] :where(input, select, textarea):focus {
+  border-color: #6fa5ff !important;
+  box-shadow: 0 0 0 3px rgba(83, 145, 245, .22) !important;
+}
+
+:root[data-theme="dark"] :where(input, select, textarea):disabled,
+:root[data-theme="dark"] :where(input, select, textarea)[readonly] {
+  color: #a7b4c7 !important;
+  background: #111c2d !important;
+  opacity: 1;
+}
+
+:root[data-theme="dark"] select option,
+:root[data-theme="dark"] select optgroup {
+  color: var(--platform-text);
+  background: #0a1423;
+}
+
+:root[data-theme="dark"] :where(.btn.secondary, .button.ghost, .icon-btn,
+  .mini-button, .file-button, .reference-link) {
+  color: #e1e9f5 !important;
+  border-color: var(--platform-border-strong) !important;
+  background: #17243a !important;
+  background-image: none !important;
+}
+
+:root[data-theme="dark"] :where(.btn.secondary, .button.ghost, .icon-btn,
+  .mini-button, .file-button, .reference-link):hover:not(:disabled) {
+  color: #ffffff !important;
+  border-color: #6fa5ff !important;
+  background: #203352 !important;
+}
+
+/* Dashboard and home workspace. */
+:root[data-theme="dark"] .reference-dashboard {
+  color: var(--reference-ink) !important;
+}
+
+:root[data-theme="dark"] .reference-welcome {
+  color: #f7fbff !important;
+  border-color: #31527d !important;
+  background: linear-gradient(135deg, #102946 0%, #143456 52%, #0f2138 100%) !important;
+}
+
+:root[data-theme="dark"] .reference-eyebrow {
+  color: #bcd8ff !important;
+  background: rgba(83, 145, 245, .2) !important;
+}
+
+:root[data-theme="dark"] :where(.reference-welcome h1, .reference-welcome-art strong,
+  .reference-stat b, .reference-stat strong, .reference-panel-head h2,
+  .reference-task-main strong, .reference-quick-grid strong,
+  .reference-updates-list strong, .reference-progress-card strong,
+  .reference-donut strong) {
+  color: #f5f8fc !important;
+}
+
+:root[data-theme="dark"] :where(.reference-action, .reference-panel,
+  .reference-task-row, .reference-progress-card, .reference-empty,
+  .reference-quick-grid button) {
+  color: var(--reference-ink) !important;
+  border-color: var(--reference-line) !important;
+  background: linear-gradient(150deg, #111c2e 0%, #152943 100%) !important;
+}
+
+:root[data-theme="dark"] .reference-stat {
+  color: var(--reference-ink) !important;
+  border-color: var(--reference-line) !important;
+  background: linear-gradient(180deg, #111c2e 0%, #10233d 100%) !important;
+}
+
+:root[data-theme="dark"] :where(.reference-stat-icon, .reference-task-icon,
+  .reference-quick-grid button > span, .reference-updates-list article > span) {
+  color: #91bcff !important;
+  background: #1a3154 !important;
+}
+
+:root[data-theme="dark"] .reference-donut::before {
+  background: var(--reference-surface) !important;
+}
+
+:root[data-theme="dark"] .reference-updates-list article {
+  border-color: var(--reference-line) !important;
+}
+
+:root[data-theme="dark"] .reference-status.completed {
+  color: #7be3b9 !important;
+  background: rgba(52, 190, 132, .16) !important;
+}
+
+:root[data-theme="dark"] .reference-status.overdue {
+  color: #ffabb3 !important;
+  background: rgba(235, 84, 99, .16) !important;
+}
+
+:root[data-theme="dark"] :where(.reference-status.new, .reference-status.in_progress,
+  .reference-status.under_review, .reference-status.approved) {
+  color: #bcd8ff !important;
+  background: rgba(83, 145, 245, .18) !important;
+}
+
+/* Tasks, notebook, reports, and specialized modules. */
+:root[data-theme="dark"] :where(.task-card-info-grid > div, .task-card-more,
+  .dashboard-kpi, .status-bar-card, .department-card, .grade-card-grid > div,
+  .grade-change > div, .grade-score-board, .grade-score-tile,
+  .evaluation-criterion-card, .evaluation-form-grid, .activity-entry-card,
+  .social-entry-card, .vice-form-card, .vice-subcard, .admin-report-entry,
+  .admin-report-section > label, .notebook-check-option,
+  .notebook-template-warning, .exam-settings-block, .exam-tracking-card,
+  .exam-progress-card, .module-form-section, .meeting-point-row,
+  .circular-ack-panel) {
+  color: var(--platform-text) !important;
+  border-color: var(--platform-border) !important;
+  background: var(--platform-surface-soft) !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme="dark"] :where(.activity-modal-head, .social-modal-head,
+  .notebook-template-modal-head, .grade-modal-header, .modal-head,
+  .modal-header, .admin-report-section summary, .activity-form-section > header,
+  .activity-entry-card > header, .social-entry-card > header,
+  .exam-section-head, .exam-mobile-titlebar, .exam-day-head,
+  .module-form-section-title) {
+  color: var(--platform-text) !important;
+  border-color: var(--platform-border) !important;
+  background: #17243a !important;
+  background-image: none !important;
+}
+
+:root[data-theme="dark"] :where(.activity-modal-head h2, .social-modal-head h2,
+  .activity-form-section > header h3, .activity-entry-card > header > strong,
+  .social-entry-card > header > strong, .notebook-template-modal-head h2,
+  .exam-section-head h3, .module-form-section-title strong) {
+  color: #edf4ff !important;
+}
+
+:root[data-theme="dark"] :where(.activity-report-hero, .social-report-hero,
+  .notebook-template-hero, .exam-hero, .admin-report-hero, .finance-page-head,
+  .page-heading, .home-hero) {
+  color: var(--platform-text) !important;
+  border-color: var(--platform-border) !important;
+  background: linear-gradient(135deg, #111f34 0%, #172a46 100%) !important;
+  background-image: linear-gradient(135deg, #111f34 0%, #172a46 100%) !important;
+}
+
+:root[data-theme="dark"] :where(.activity-report-hero p, .social-report-hero p,
+  .notebook-template-hero p, .exam-hero p, .admin-report-hero p,
+  .finance-page-head p) {
+  color: #b4c1d3 !important;
+}
+
+:root[data-theme="dark"] :where(.notebook-template-modal, .activity-report-modal,
+  .social-report-modal, .vice-report-modal, .secretary-redesign-modal,
+  .admin-report-modal, .exam-modal, .finance-modal, .grade-adjustment-modal,
+  .staff-evaluation-modal, .module-modal, .modal-box, .modal-card) {
+  color: var(--platform-text) !important;
+  border-color: var(--platform-border-strong) !important;
+  background: var(--platform-surface) !important;
+  background-image: none !important;
+  box-shadow: 0 28px 76px rgba(0, 0, 0, .58) !important;
+}
+
+:root[data-theme="dark"] :where(.modal-actions, .admin-report-sticky-actions,
+  .secretary-actions, .notebook-template-modal > footer,
+  .staff-evaluation-modal > form > footer, .grade-modal-footer) {
+  border-color: var(--platform-border) !important;
+  background: rgba(17, 28, 46, .97) !important;
+  background-image: none !important;
+}
+
+:root[data-theme="dark"] :where(.activity-report-history > button,
+  .social-report-history > button, .vice-history-row, .teacher-directory-row,
+  .exam-entry-row, .exam-grade-setting-row, .attachment-card,
+  .attachment-mini, .notification-preview-head) {
+  color: var(--platform-text) !important;
+  border-color: var(--platform-border) !important;
+  background: var(--platform-surface-soft) !important;
+}
+
+/* Tables and data density. */
+:root[data-theme="dark"] :where(table, .responsive-table, .report-table,
+  .exam-table, .finance-table-head) {
+  color: var(--platform-text) !important;
+  border-color: var(--platform-border) !important;
+  background: transparent !important;
+}
+
+:root[data-theme="dark"] :where(thead, th, .task-table-head, .exam-table-head,
+  .finance-table-head) {
+  color: #dfe9f7 !important;
+  border-color: var(--platform-border) !important;
+  background: #17243a !important;
+}
+
+:root[data-theme="dark"] :where(tbody tr, .task-table-row, .exam-slot-cell,
+  .grade-score-cell) {
+  color: var(--platform-text) !important;
+  border-color: var(--platform-border) !important;
+  background: var(--platform-surface) !important;
+}
+
+:root[data-theme="dark"] tbody tr:nth-child(even) {
+  background: #0f1a2b !important;
+}
+
+:root[data-theme="dark"] tbody tr:hover {
+  background: #192941 !important;
+}
+
+/* Messages, notices, status chips, and overlays. */
+:root[data-theme="dark"] :where(.empty, .empty-state, .reference-empty) {
+  color: var(--platform-muted) !important;
+  border-color: var(--platform-border-strong) !important;
+  background: var(--platform-surface-soft) !important;
+}
+
+:root[data-theme="dark"] :where(.offline-banner, .feedback, .phone-notification-prompt,
+  .evaluation-private-note, .notebook-expiry-alert, .notebook-lock-alert) {
+  color: var(--platform-text) !important;
+  border-color: var(--platform-border) !important;
+  background: #16243a !important;
+}
+
+:root[data-theme="dark"] :where(.role-pill, .status-pill, .priority-pill,
+  .badge, .tag, .live-chip, .task-card-number) {
+  border-color: rgba(109, 166, 255, .34) !important;
+}
+
+:root[data-theme="dark"] .chat-bubble {
+  color: var(--platform-text) !important;
+  border-color: var(--platform-border) !important;
+  background: #17243a !important;
+}
+
+:root[data-theme="dark"] .chat-message.mine .chat-bubble {
+  color: #ffffff !important;
+  background: #254f88 !important;
+}
+
+:root[data-theme="dark"] :where(.modal, .modal-backdrop, .sidebar-overlay) {
+  background-color: rgba(2, 7, 15, .82) !important;
+}
+
+:root[data-theme="dark"] .toast {
+  color: #f7faff !important;
+  border-color: var(--platform-border-strong) !important;
+  background: #17243a !important;
+}
+
+@media (max-width: 1040px) {
+  :root[data-theme="dark"] :where(.mobile-header, .mobile-nav) {
+    background: rgba(10, 19, 33, .97) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  :root[data-theme="dark"] .sidebar {
+    background: #0b1524 !important;
+    box-shadow: -24px 0 64px rgba(0, 0, 0, .6) !important;
+  }
+
+  :root[data-theme="dark"] .task-filter-panel.open .task-filter-toolbar {
+    border-color: var(--platform-border) !important;
+    background: rgba(17, 28, 46, .96) !important;
+  }
+
+  :root[data-theme="dark"] :where(.responsive-table tr, .report-table tr) {
+    color: var(--platform-text) !important;
+    border-color: var(--platform-border) !important;
+    background: var(--platform-surface) !important;
+  }
+}
+
+@media print {
+  :root[data-theme="dark"],
+  :root[data-theme="dark"] body,
+  :root[data-theme="dark"] .print-page,
+  :root[data-theme="dark"] .a4-page {
+    color-scheme: light !important;
+    color: #111827 !important;
+    background: #ffffff !important;
+  }
+}
