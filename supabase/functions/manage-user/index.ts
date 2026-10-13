@@ -33,7 +33,10 @@ Deno.serve(async (request) => {
 
     const body = await request.json();
     const id = String(body.id ?? "").trim();
-    const action = body.action === "delete" || body.active === false ? "delete" : "save";
+    const requestedAction = String(body.action ?? "").trim();
+    const action = ["delete", "disable", "enable"].includes(requestedAction)
+      ? requestedAction
+      : body.active === false ? "disable" : "save";
 
     if (action === "delete") {
       if (!id) return jsonResponse({ error: "معرف المستخدم مطلوب للحذف." }, 400);
@@ -68,6 +71,52 @@ Deno.serve(async (request) => {
       const { error: deleteError } = await adminClient.auth.admin.deleteUser(id);
       if (deleteError) throw deleteError;
       return jsonResponse({ ok: true, id, deleted: true });
+    }
+
+    if (action === "disable" || action === "enable") {
+      if (!id) return jsonResponse({ error: "معرف المستخدم مطلوب لتغيير حالة الحساب." }, 400);
+      if (id === requester.id) return jsonResponse({ error: "لا يمكنك تعطيل حسابك الحالي." }, 400);
+      const existingResult = await adminClient.from("profiles").select("*").eq("id", id).single();
+      if (existingResult.error || !existingResult.data) return jsonResponse({ error: "تعذر العثور على المستخدم المطلوب." }, 404);
+      const existing = existingResult.data;
+      const computerUnitCanEditExisting = requester.role === "computer_unit"
+        && existing.school_id === requester.school_id
+        && ![...elevatedRoles, "school_principal"].includes(String(existing.role));
+      if (!isSuperAdminRole(requester.role) && !computerUnitCanEditExisting && (existing.school_id !== requester.school_id || !isHigherRole(requester.role, String(existing.role)))) {
+        return jsonResponse({ error: "لا توجد صلاحية لتغيير حالة هذا المستخدم." }, 403);
+      }
+      const active = action === "enable";
+      const now = new Date().toISOString();
+      const { error: authUpdateError } = await adminClient.auth.admin.updateUserById(id, {
+        ban_duration: active ? "none" : "876000h",
+      });
+      if (authUpdateError) throw authUpdateError;
+      const { error: profileUpdateError } = await adminClient
+        .from("profiles")
+        .update({ status: active ? "active" : "inactive", updated_at: now })
+        .eq("id", id);
+      if (profileUpdateError) {
+        await adminClient.auth.admin.updateUserById(id, { ban_duration: active ? "876000h" : "none" });
+        throw profileUpdateError;
+      }
+      await Promise.all([
+        adminClient.from("activity_logs").insert({
+          school_id: existing.school_id,
+          user_id: requester.id,
+          action: active ? "user_enabled" : "user_disabled",
+          entity_type: "profile",
+          entity_id: id,
+          details: { title: active ? "تم تفعيل مستخدم" : "تم تعطيل مستخدم", description: `${existing.email} (${existing.role})` },
+        }),
+        adminClient.from("audit_logs").insert({
+          school_id: existing.school_id,
+          user_id: requester.id,
+          action: active ? "user_enabled" : "user_disabled",
+          severity: "high",
+          details: { targetType: "profile", targetId: id, message: `${existing.email} (${existing.role})`, changedAt: now },
+        }),
+      ]);
+      return jsonResponse({ ok: true, id, active });
     }
 
     const email = String(body.email ?? "").trim().toLowerCase();

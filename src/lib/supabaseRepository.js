@@ -17,6 +17,7 @@ const TABLES = {
   financeDiscounts: "finance_discounts",
   gradeAdjustments: "grade_adjustments",
   teacherDirectory: "teacher_directory",
+  teacherEvaluatorLinks: "teacher_evaluator_links",
   staffEvaluations: "staff_evaluations",
   staffEvaluationSettings: "staff_evaluation_settings",
   administrativeReports: "administrative_reports",
@@ -119,6 +120,9 @@ const COLUMN_MAPS = {
   },
   teacherDirectory: {
     schoolId: "school_id", teacherName: "teacher_name", subjectName: "subject_name", className: "class_name", active: "active", createdBy: "created_by", createdAt: "created_at", updatedAt: "updated_at",
+  },
+  teacherEvaluatorLinks: {
+    schoolId: "school_id", evaluatorId: "evaluator_id", teacherId: "teacher_id", isVisible: "is_visible", updatedBy: "updated_by", createdAt: "created_at", updatedAt: "updated_at",
   },
   staffEvaluations: {
     schoolId: "school_id", teacherId: "teacher_id", teacherName: "teacher_name", subjectName: "subject_name", sequenceKey: "sequence_key", assessmentPeriod: "assessment_period", evaluatedAt: "evaluated_at", scores: "scores", total: "total", maxTotal: "max_total", notes: "notes", evaluatedBy: "evaluated_by", createdAt: "created_at", updatedAt: "updated_at",
@@ -591,6 +595,7 @@ export function createSupabaseModule(getContext) {
     state.gradeAdjustmentBusy = {};
     state.gradeAdjustmentFilters = { search: "", status: "all", month: "", from: "", to: "" };
     state.teacherDirectory = [];
+    state.teacherEvaluatorLinks = [];
     state.staffEvaluations = [];
     state.staffEvaluationSettings = [];
     state.staffEvaluationDraftSequence = "";
@@ -677,7 +682,7 @@ export function createSupabaseModule(getContext) {
         console.warn("Chat messages table is not ready yet", error);
         return [name, []];
       }
-      if (error && ["teacherDirectory", "staffEvaluations", "staffEvaluationSettings"].includes(name) && (String(error.message || "").includes("schema cache") || String(error.message || "").includes(TABLES[name]))) {
+      if (error && ["teacherDirectory", "teacherEvaluatorLinks", "staffEvaluations", "staffEvaluationSettings"].includes(name) && (String(error.message || "").includes("schema cache") || String(error.message || "").includes(TABLES[name]))) {
         console.warn(`${name} table is not ready yet`, error);
         return [name, []];
       }
@@ -785,7 +790,7 @@ export function createSupabaseModule(getContext) {
     let core = null;
     let cachedSnapshot = null;
     try {
-      core = await fetchScopedCollections(["schools", "users", "tasks", "notifications", "financeDiscounts", "gradeAdjustments", "teacherDirectory", "staffEvaluations", "staffEvaluationSettings", "administrativeReports", "chatMessages", "notebookRoleTemplates"], profile);
+      core = await fetchScopedCollections(["schools", "users", "tasks", "notifications", "financeDiscounts", "gradeAdjustments", "teacherDirectory", "teacherEvaluatorLinks", "staffEvaluations", "staffEvaluationSettings", "administrativeReports", "chatMessages", "notebookRoleTemplates"], profile);
     } catch (error) {
       cachedSnapshot = readScopedDataCache(profile);
       if (!cachedSnapshot?.data?.core) throw error;
@@ -808,6 +813,7 @@ export function createSupabaseModule(getContext) {
     state.financeDiscounts = core.financeDiscounts.map(finance.normalizeDiscount);
     state.gradeAdjustments = core.gradeAdjustments.map(getContext().gradeAdjustments.normalizeAdjustment);
     state.teacherDirectory = (core.teacherDirectory || []).map((item) => ({ ...item, active: item.active !== false }));
+    state.teacherEvaluatorLinks = core.teacherEvaluatorLinks || [];
     state.staffEvaluations = (core.staffEvaluations || []).map(getContext().staffEvaluations.normalizeEvaluation);
     state.staffEvaluationSettings = core.staffEvaluationSettings || [];
     if (state.modal?.type === "staff_evaluation") {
@@ -939,23 +945,29 @@ export function createSupabaseModule(getContext) {
     const { data, error } = await cloud.client.from("profiles").select("*").eq("id", uid).maybeSingle();
     if (error) throw error;
     if (!data) {
+      await cloud.client.auth.signOut({ scope: "local" }).catch(() => {});
       await removeChannel(scopedChannel);
       scopedChannel = null;
       cloud.scopeKey = "";
+      cloud.authUser = null;
       clearProtectedData();
       state.loginBusy = false;
-      state.profileError = "تم تسجيل الدخول بنجاح، لكن لا يوجد ملف مستخدم مطابق داخل جدول profiles.";
+      state.loginError = "الحساب غير متاح أو تم تعطيله. يرجى التواصل مع المسؤول.";
+      state.profileError = "";
       render();
       return;
     }
     const profile = users.normalizeUser(fromDatabaseRow("users", data));
     if (!profile.active) {
+      await cloud.client.auth.signOut({ scope: "local" }).catch(() => {});
       await removeChannel(scopedChannel);
       scopedChannel = null;
       cloud.scopeKey = "";
+      cloud.authUser = null;
       clearProtectedData();
       state.loginBusy = false;
-      state.profileError = "هذا الحساب غير نشط. يرجى التواصل مع المسؤول.";
+      state.loginError = "هذا الحساب معطّل. يرجى التواصل مع المسؤول.";
+      state.profileError = "";
       render();
       return;
     }

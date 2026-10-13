@@ -10,7 +10,8 @@
     "test": "node tests/smoke.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "2.112.4"
+    "@supabase/supabase-js": "2.112.4",
+    "read-excel-file": "9.3.12"
   },
   "devDependencies": {
     "vite": "8.2.2"

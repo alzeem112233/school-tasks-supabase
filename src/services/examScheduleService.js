@@ -1543,7 +1543,7 @@ export function createExamScheduleModule(getContext) {
 
   function renderExamFooter() {
     const { safe, state } = getContext();
-    const principal = state.schoolProfile?.managerName || state.schoolProfile?.principalName || (state.users || []).find((user) => user.schoolId === currentPeriod()?.schoolId && user.role === "school_principal")?.name || "مدير المدرسة";
+    const principal = state.schoolProfile?.managerName || state.schoolProfile?.principalName || (state.users || []).find((user) => user.active !== false && user.schoolId === currentPeriod()?.schoolId && user.role === "school_principal")?.name || "مدير المدرسة";
     return `<footer class="exam-page-footer"><span>${safe(state.schoolProfile?.name || "منصة مهام المدارس")} - للتواصل 772227082</span><strong>${safe(principal)}</strong></footer>`;
   }
 
@@ -1803,7 +1803,7 @@ export function createExamScheduleModule(getContext) {
 
   function openPrintWindow(title, body) {
     const { state, safe } = getContext();
-    const principal = state.schoolProfile?.managerName || state.schoolProfile?.principalName || (state.users || []).find((user) => user.schoolId === currentPeriod()?.schoolId && user.role === "school_principal")?.name || "مدير المدرسة";
+    const principal = state.schoolProfile?.managerName || state.schoolProfile?.principalName || (state.users || []).find((user) => user.active !== false && user.schoolId === currentPeriod()?.schoolId && user.role === "school_principal")?.name || "مدير المدرسة";
     const footer = `<footer><span>${safe(state.schoolProfile?.name || "منصة مهام المدارس")} - للتواصل 772227082</span><strong>${safe(principal)}</strong></footer>`;
     const win = window.open("", "_blank", "width=1200,height=820");
     if (!win) {

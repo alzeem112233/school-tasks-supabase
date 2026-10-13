@@ -1,5 +1,6 @@
 import { createUuid } from "../utils/idUtils.js";
 import { normalizeRole } from "../utils/permissionUtils.js";
+import { isTeacherVisibleFor } from "./teacherDirectoryService.js";
 
 const TYPES = {
   radio: { kind: "activity_supervisor_radio", title: "سجل متابعة الإذاعات المدرسية", hint: "تقييم الإذاعة بخمسة بنود وحساب الدرجة تلقائيًا من 10." },
@@ -24,7 +25,7 @@ export function createActivitySupervisorReportModule(getContext) {
   const allReports = () => (ctx().state.administrativeReports || []).filter((item) => String(item.reportKind || "").startsWith("activity_supervisor_"));
   function canView(user = ctx().state.currentUser) { return role(user) === "activity_supervisor" || canManage(user); }
   function canCreate(user = ctx().state.currentUser) { return role(user) === "activity_supervisor" || canManage(user); }
-  function teacherDirectory(schoolId) { return (ctx().state.teacherDirectory || []).filter((item) => item.active !== false && item.schoolId === schoolId).sort((a, b) => String(a.teacherName || "").localeCompare(String(b.teacherName || ""), "ar")); }
+  function teacherDirectory(schoolId) { const { state } = ctx(); return (state.teacherDirectory || []).filter((item) => item.active !== false && item.schoolId === schoolId && isTeacherVisibleFor(state, item.id, state.currentUser?.id || "")).sort((a, b) => String(a.teacherName || "").localeCompare(String(b.teacherName || ""), "ar")); }
   function statusLabel(status) { return status === "principal_approved" ? "معتمد" : status === "submitted" ? "مرفوع للمدير" : "مسودة"; }
   function scopedReports() { const { state } = ctx(); return allReports().filter((item) => canManage() || item.schoolId === state.currentUser?.schoolId).sort((a, b) => String(b.date || "").localeCompare(String(a.date || ""))); }
 

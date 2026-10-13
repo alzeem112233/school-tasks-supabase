@@ -1,5 +1,6 @@
 import { createUuid } from "../utils/idUtils.js";
 import { normalizeRole } from "../utils/permissionUtils.js";
+import { isTeacherVisibleFor } from "./teacherDirectoryService.js";
 
 const TYPES = {
   grades: { kind: "vice_principal_grade_register", title: "الكشف الأسبوعي لمتابعة سجل الدرجات" },
@@ -28,7 +29,7 @@ export function createVicePrincipalReportModule(getContext) {
   const reports = () => (ctx().state.administrativeReports || []).map(normalizeReport).filter((item) => Object.values(TYPES).some((type) => type.kind === item.reportKind));
   function canView(user = ctx().state.currentUser) { return canManage(user) || role(user) === "deputy_principal"; }
   function canCreate(user = ctx().state.currentUser) { return canView(user); }
-  function teacherDirectory(schoolId = "") { return (ctx().state.teacherDirectory || []).filter((teacher) => teacher.active !== false && teacher.schoolId === schoolId).sort((a, b) => String(a.teacherName || "").localeCompare(String(b.teacherName || ""), "ar")); }
+  function teacherDirectory(schoolId = "") { const { state } = ctx(); return (state.teacherDirectory || []).filter((teacher) => teacher.active !== false && teacher.schoolId === schoolId && isTeacherVisibleFor(state, teacher.id, state.currentUser?.id || "")).sort((a, b) => String(a.teacherName || "").localeCompare(String(b.teacherName || ""), "ar")); }
   function replaceAndSave(report) {
     const { state, supabase, showToast, render } = ctx();
     state.administrativeReports = [report, ...(state.administrativeReports || []).filter((item) => item.id !== report.id)];

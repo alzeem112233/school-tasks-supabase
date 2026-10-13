@@ -1,6 +1,7 @@
 import { createUuid } from "../utils/idUtils.js";
 import { normalizeRole } from "../utils/permissionUtils.js";
 import { today as localToday } from "../utils/dateUtils.js";
+import { isTeacherVisibleFor } from "./teacherDirectoryService.js";
 
 const REPORTS_KEY = "schoolTasksAdministrativeReportsV1";
 const COLORS_KEY = "schoolTasksStageSupervisorColorsV1";
@@ -427,7 +428,7 @@ export function createAdministrativeReportsModule(getContext) {
 
   function supervisorUsers() {
     const { state } = getContext();
-    return (state.users || []).filter((user) => normalizeRole(user.role) === "stage_supervisor" && user.status !== "inactive");
+    return (state.users || []).filter((user) => normalizeRole(user.role) === "stage_supervisor" && user.active !== false);
   }
 
   function scopedSchoolIds() {
@@ -524,7 +525,7 @@ export function createAdministrativeReportsModule(getContext) {
 
   function supervisorName(id) {
     const { state, safe } = getContext();
-    return safe((state.users || []).find((user) => user.id === id)?.name || "غير محدد");
+    return safe((state.users || []).find((user) => user.id === id && user.active !== false)?.name || "غير محدد");
   }
 
   function supervisorColor(supervisorId) {
@@ -595,7 +596,7 @@ export function createAdministrativeReportsModule(getContext) {
   function teacherDirectoryForSchool(schoolId = "") {
     const { state } = getContext();
     return (state.teacherDirectory || [])
-      .filter((teacher) => teacher.active !== false && teacher.schoolId === schoolId)
+      .filter((teacher) => teacher.active !== false && teacher.schoolId === schoolId && isTeacherVisibleFor(state, teacher.id, state.currentUser?.id || ""))
       .sort((a, b) => String(a.teacherName || "").localeCompare(String(b.teacherName || ""), "ar"));
   }
 

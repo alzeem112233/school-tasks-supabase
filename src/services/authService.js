@@ -81,6 +81,13 @@ export function createAuthModule(getContext) {
       return false;
     }
     const profile = users.normalizeUser(supabase.fromDatabaseRow("users", data.profile));
+    if (!profile.active) {
+      await cloud.client.auth.signOut({ scope: "local" }).catch(() => {});
+      state.loginBusy = false;
+      state.loginError = "هذا الحساب معطّل. يرجى التواصل مع مسؤول المدرسة.";
+      render();
+      return false;
+    }
     const { data: sessionData, error: sessionError } = await cloud.client.auth.setSession({
       access_token: data.access_token,
       refresh_token: data.refresh_token,

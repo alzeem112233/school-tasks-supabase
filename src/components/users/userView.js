@@ -15,9 +15,13 @@ export function createUserView(getContext) {
     const query = filters.query.trim().toLowerCase();
     const schoolRank = new Map(schools.map((school, index) => [school.id, index]));
     const roleRank = new Map(roles.map((role, index) => [role, index]));
-    return state.users
+    const statusUsers = filters.status === "active"
+      ? state.users.filter((user) => user.active)
+      : filters.status === "inactive"
+        ? state.users.filter((user) => !user.active)
+        : state.users;
+    return statusUsers
       .filter((user) => canViewUser(user))
-      .filter((user) => user.active)
       .filter((user) => filters.role === "all" || user.role === filters.role)
       .filter((user) => filters.schoolId === "all" || user.schoolId === filters.schoolId)
       .filter((user) => !query || [user.name, user.email, roleLabel(user.role), schoolName(user.schoolId), linkedSchoolsLabel(user)].join(" ").toLowerCase().includes(query))
@@ -41,7 +45,7 @@ export function createUserView(getContext) {
       <div class="topbar">
         <div class="section-title">
           <h2>المستخدمون والصلاحيات</h2>
-          <p class="muted">إدارة الحسابات النشطة وتعيين الفرع والدور والصلاحيات.</p>
+          <p class="muted">إدارة الحسابات وتعيين الفرع والدور وتعطيل الدخول عند الحاجة.</p>
         </div>
         <div class="actions">
           ${currentIsSuperAdmin ? `<button class="btn secondary" onclick="actions.openSchool()">${icons.plus} فرع مدرسة جديد</button>` : ""}
@@ -88,6 +92,7 @@ export function createUserView(getContext) {
           </form>
           ${currentIsSuperAdmin ? `<label class="field user-filter-branch"><span>الفرع</span><select onchange="actions.setUserFilter('schoolId', this.value)"><option value="all">كل الفروع</option>${schools.map((school) => `<option value="${safe(school.id)}" ${filters.schoolId === school.id ? "selected" : ""}>${safe(school.name)}</option>`).join("")}</select></label>` : `<label class="field user-filter-branch"><span>الفرع</span><select disabled><option>${safe(schoolName(state.currentUser.schoolId))}</option></select></label>`}
           <label class="field user-filter-role"><span>المنصب</span><select onchange="actions.setUserFilter('role', this.value)"><option value="all">كل المناصب</option>${roles.map((role) => `<option value="${role}" ${filters.role === role ? "selected" : ""}>${safe(roleLabel(role))}</option>`).join("")}</select></label>
+          <label class="field user-filter-status"><span>حالة الحساب</span><select onchange="actions.setUserFilter('status', this.value)"><option value="active" ${filters.status === "active" ? "selected" : ""}>الحسابات النشطة</option><option value="inactive" ${filters.status === "inactive" ? "selected" : ""}>الحسابات المعطلة</option><option value="all" ${filters.status === "all" ? "selected" : ""}>كل الحسابات</option></select></label>
           <button class="btn secondary" type="button" onclick="actions.resetUserFilters()">إعادة الضبط</button>
         </div>
       </div>
@@ -101,11 +106,11 @@ export function createUserView(getContext) {
               <td data-label="البريد الإلكتروني">${safe(user.email)}</td>
               <td data-label="الدور"><span class="role-pill">${safe(roleLabel(user.role))}</span></td>
               <td data-label="الفرع">${safe(schoolName(user.schoolId))}</td>
-              <td data-label="الحالة"><span class="status-pill status-completed">${safe(userStatusLabel(user))}</span></td>
-              <td data-label="الإجراءات">${canEditUser(user) ? `
+              <td data-label="الحالة"><span class="status-pill ${user.active !== false ? "status-completed" : "status-overdue"}">${safe(userStatusLabel(user))}</span></td>
+              <td data-label="الإجراءات">${canEditUser(user) ? `<div class="user-status-actions">
                 <button class="icon-btn" title="تعديل المستخدم" aria-label="تعديل المستخدم" onclick="actions.openUser('${safe(user.id)}')">${icons.edit}</button>
-                ${user.id !== state.currentUser.id ? `<button class="icon-btn danger-icon" title="حذف المستخدم نهائيًا" aria-label="حذف المستخدم نهائيًا" onclick="actions.deleteUser('${safe(user.id)}')">${icons.trash}</button>` : ""}
-              ` : ""}</td>
+                ${user.id !== state.currentUser.id ? `<button class="btn ${user.active !== false ? "danger" : "secondary"} user-status-button" type="button" onclick="actions.toggleUserStatus('${safe(user.id)}')">${user.active !== false ? `${icons.close} تعطيل` : `${icons.check} تفعيل`}</button>` : ""}
+              </div>` : ""}</td>
             </tr>`).join("") : `<tr><td colspan="6"><div class="empty">لا توجد حسابات مطابقة للبحث والفلاتر الحالية.</div></td></tr>`}</tbody>
         </table>
         ${renderPagination(pageInfo, "usersPage")}

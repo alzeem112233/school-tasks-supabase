@@ -1,6 +1,7 @@
 import { nowTimestamp, toDateKey } from "../utils/dateUtils.js";
 import { createUuid } from "../utils/idUtils.js";
 import { isGeneralManager, normalizeRole } from "../utils/permissionUtils.js";
+import { isTeacherVisibleFor } from "./teacherDirectoryService.js";
 
 const statusLabels = { pending: "بانتظار الاستلام", received: "قيد التعديل", completed: "تم تعديل الدرجة" };
 const monthOptions = ["محرم (يوليو)", "صفر (أغسطس)", "نهاية الفصل الأول", "جمادى الأولى (نوفمبر)", "جمادى الآخرة (ديسمبر)", "نهاية الفصل الثاني"];
@@ -69,7 +70,7 @@ export function createGradeAdjustmentsModule(getContext) {
   function teacherDirectoryForSchool(schoolId = "") {
     const { state } = getContext();
     return (state.teacherDirectory || [])
-      .filter((teacher) => teacher.active !== false && teacher.schoolId === schoolId)
+      .filter((teacher) => teacher.active !== false && teacher.schoolId === schoolId && isTeacherVisibleFor(state, teacher.id, state.currentUser?.id || ""))
       .sort((a, b) => String(a.teacherName || "").localeCompare(String(b.teacherName || ""), "ar"));
   }
 

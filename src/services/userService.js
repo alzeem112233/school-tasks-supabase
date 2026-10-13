@@ -137,12 +137,12 @@ export function createUsersModule(getContext) {
     const form = new FormData(event.currentTarget);
     const id = String(form.get("id") || "").trim();
     const email = String(form.get("email")).trim().toLowerCase();
-    const active = true;
+    const previousUser = id ? state.users.find((item) => item.id === id) || null : null;
+    const active = previousUser?.active !== false;
     const selectedRole = String(form.get("role") || "");
     const currentIsSuperAdmin = isSuperAdmin(state.currentUser);
     const selectedSchoolId = currentIsSuperAdmin ? String(form.get("schoolId")).trim() : state.currentUser.schoolId;
     const password = String(form.get("password") || "").trim();
-    const previousUser = id ? state.users.find((item) => item.id === id) || null : null;
     const effectiveRole = selectedRole || previousUser?.role || "school_secretary";
     const canChangePassword = currentIsSuperAdmin || (state.currentUser.role === "computer_unit" && previousUser && canEditUser(previousUser));
     const linkedSchoolIds = [...new Set(form.getAll("linkedSchoolIds").map((item) => String(item || "").trim()).filter(Boolean))];
@@ -258,6 +258,37 @@ export function createUsersModule(getContext) {
     state.modal = null;
     persistLocal();
     showToast("تم حفظ المستخدم.");
+  }
+
+  async function toggleUserStatus(id) {
+    const { canEditUser, state, cloud, showToast, supabase, persistLocal, render } = getContext();
+    const user = (state.users || []).find((item) => item.id === id);
+    if (!user || !canEditUser(user) || id === state.currentUser.id) return;
+    const nextActive = user.active === false;
+    const confirmed = confirm(nextActive
+      ? `هل تريد إعادة تفعيل حساب ${user.name} والسماح له بالدخول؟`
+      : `هل تريد تعطيل حساب ${user.name}؟ سيتم منعه من الدخول وسيختفي من جميع قوائم المنصة.`);
+    if (!confirmed) return;
+    try {
+      if (cloud.enabled) {
+        await supabase.callFunction("manage-user", { id, action: nextActive ? "enable" : "disable" });
+      }
+      state.users = state.users.map((item) => item.id === id ? { ...item, active: nextActive, updatedAt: getContext().toDateKey(new Date().toISOString()) } : item);
+      state.pagination.usersPage = 1;
+      if (!cloud.enabled) persistLocal();
+      render();
+      showToast(nextActive ? "تم تفعيل المستخدم ويمكنه تسجيل الدخول" : "تم تعطيل المستخدم ومنع دخوله إلى المنصة");
+      if (cloud.enabled) {
+        try {
+          await supabase.refreshCloudData?.(false);
+        } catch (refreshError) {
+          console.error(refreshError);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      showToast(error?.message || "تعذر تغيير حالة المستخدم");
+    }
   }
 
   async function deleteUser(id) {
@@ -397,7 +428,8 @@ export function createUsersModule(getContext) {
     saveUser,
     saveSchool,
     deleteSchool,
-    disableUser: deleteUser,
+    disableUser: toggleUserStatus,
+    toggleUserStatus,
     deleteUser,
   };
 }

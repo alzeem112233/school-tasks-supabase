@@ -64,6 +64,12 @@ export default async function handler(request, response) {
     return;
   }
 
+  if (!profile || profile.status !== "active") {
+    await client.auth.signOut({ scope: "local" }).catch(() => {});
+    send(response, 403, { message: "This account is disabled." });
+    return;
+  }
+
   send(response, 200, {
     access_token: data.session.access_token,
     refresh_token: data.session.refresh_token,

@@ -1,5 +1,6 @@
 import { createUuid } from "../utils/idUtils.js";
 import { normalizeRole } from "../utils/permissionUtils.js";
+import { isTeacherVisibleFor } from "./teacherDirectoryService.js";
 
 const F = (key, label, type = "text") => ({ key, label, type });
 const TYPES = {
@@ -30,7 +31,7 @@ export function createSocialSpecialistReportModule(getContext) {
   function canView(user = ctx().state.currentUser) { return canManage(user) || role(user) === "specialist_supervisor"; }
   function canCreate(user = ctx().state.currentUser) { return role(user) === "specialist_supervisor" || canManage(user); }
   function reportType(report) { return report?.socialType || String(report?.reportKind || "").replace("social_specialist_", "") || "guidance"; }
-  function teacherDirectory(schoolId) { return (ctx().state.teacherDirectory || []).filter((item) => item.active !== false && item.schoolId === schoolId).sort((a, b) => String(a.teacherName || "").localeCompare(String(b.teacherName || ""), "ar")); }
+  function teacherDirectory(schoolId) { const { state } = ctx(); return (state.teacherDirectory || []).filter((item) => item.active !== false && item.schoolId === schoolId && isTeacherVisibleFor(state, item.id, state.currentUser?.id || "")).sort((a, b) => String(a.teacherName || "").localeCompare(String(b.teacherName || ""), "ar")); }
   function statusLabel(status) { return status === "principal_approved" ? "معتمد" : status === "submitted" ? "مرفوع للمدير" : "مسودة"; }
   function scopedReports() { const { state } = ctx(); return allReports().filter((item) => canManage() || item.schoolId === state.currentUser?.schoolId).sort((a, b) => String(b.date || "").localeCompare(String(a.date || ""))); }
 

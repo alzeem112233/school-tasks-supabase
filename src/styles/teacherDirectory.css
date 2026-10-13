@@ -1,0 +1,427 @@
+.teacher-directory-page {
+  display: grid;
+  gap: 14px;
+}
+
+.teacher-directory-page .page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.teacher-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.teacher-stats > div {
+  position: relative;
+  min-height: 86px;
+  padding: 14px 16px;
+  overflow: hidden;
+  border: 1px solid var(--border, #dbe7f5);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 12% 110%, rgba(37, 99, 235, .13) 0 34%, transparent 35%),
+    linear-gradient(145deg, #fff, #f5f9ff);
+}
+
+.teacher-stats span,
+.teacher-stats b {
+  position: relative;
+  z-index: 1;
+  display: block;
+}
+
+.teacher-stats span {
+  color: var(--muted, #64748b);
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+.teacher-stats b {
+  margin-top: 6px;
+  color: #123a73;
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.teacher-toolbar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto auto;
+  align-items: end;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border, #dbe7f5);
+  border-radius: 14px;
+  background: var(--surface, #fff);
+}
+
+.teacher-segments,
+.teacher-import-actions,
+.teacher-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.teacher-segments {
+  min-height: 46px;
+  padding: 4px;
+  border: 1px solid var(--border, #dbe7f5);
+  border-radius: 12px;
+  background: var(--surface-soft, #f4f7fb);
+}
+
+.teacher-segments button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted, #64748b);
+  font: inherit;
+  font-size: .8rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.teacher-segments button.active {
+  background: #2563eb;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, .2);
+}
+
+.teacher-file-button {
+  cursor: pointer;
+}
+
+.teacher-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.teacher-card {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  min-height: 92px;
+  padding: 13px;
+  border: 1px solid var(--border, #dbe7f5);
+  border-inline-start: 4px solid #22c55e;
+  border-radius: 14px;
+  background:
+    linear-gradient(120deg, rgba(219, 234, 254, .72), transparent 42%),
+    var(--surface, #fff);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, .05);
+}
+
+.teacher-card.is-hidden {
+  border-inline-start-color: #94a3b8;
+  opacity: .82;
+}
+
+.teacher-card-index {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border-radius: 12px;
+  background: #e5efff;
+  color: #1d4ed8;
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.teacher-card-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.teacher-card-copy strong,
+.teacher-card-copy span,
+.teacher-card-copy small {
+  overflow-wrap: anywhere;
+}
+
+.teacher-card-copy strong {
+  color: var(--text, #172033);
+  font-size: .95rem;
+}
+
+.teacher-card-copy span {
+  color: #2563eb;
+  font-size: .8rem;
+  font-weight: 800;
+}
+
+.teacher-card-copy small {
+  color: var(--muted, #64748b);
+  font-size: .75rem;
+}
+
+.teacher-link-toggle {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 11px;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font: inherit;
+  font-size: .76rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.teacher-link-toggle.linked {
+  border-color: #bbf7d0;
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.teacher-link-toggle svg {
+  width: 17px;
+  height: 17px;
+}
+
+.teacher-empty-state {
+  display: grid;
+  grid-column: 1 / -1;
+  min-height: 150px;
+  place-content: center;
+  gap: 7px;
+  padding: 24px;
+  border: 1px dashed var(--border, #cbd5e1);
+  border-radius: 14px;
+  background: var(--surface, #fff);
+  color: var(--muted, #64748b);
+  text-align: center;
+}
+
+.teacher-empty-state strong {
+  color: var(--text, #172033);
+  font-size: 1rem;
+}
+
+.teacher-empty-state select {
+  min-width: min(320px, 78vw);
+  margin-top: 10px;
+}
+
+.teacher-editor-modal {
+  width: min(680px, calc(100vw - 24px));
+}
+
+.teacher-editor-modal > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px;
+  border-bottom: 1px solid var(--border, #dbe7f5);
+}
+
+.teacher-editor-modal > header h2 {
+  margin: 4px 0;
+}
+
+.teacher-editor-modal form {
+  padding: 18px;
+}
+
+.teacher-editor-modal footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.user-status-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.user-status-button {
+  min-height: 36px;
+  padding: 0 10px;
+  font-size: .76rem;
+}
+
+@media (max-width: 820px) {
+  .teacher-toolbar {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .teacher-import-actions > *,
+  .teacher-segments > * {
+    flex: 1 1 0;
+  }
+}
+
+@media (max-width: 620px) {
+  .teacher-directory-page {
+    gap: 10px;
+  }
+
+  .teacher-directory-page .page-heading {
+    align-items: stretch;
+  }
+
+  .teacher-directory-page .page-heading .btn {
+    width: 100%;
+  }
+
+  .teacher-stats {
+    gap: 6px;
+  }
+
+  .teacher-stats > div {
+    min-height: 76px;
+    padding: 11px 9px;
+    text-align: center;
+  }
+
+  .teacher-stats span {
+    min-height: 32px;
+    font-size: .68rem;
+    line-height: 1.45;
+  }
+
+  .teacher-stats b {
+    margin-top: 2px;
+    font-size: 1.35rem;
+  }
+
+  .teacher-toolbar {
+    gap: 8px;
+    padding: 9px;
+  }
+
+  .teacher-segments button {
+    padding-inline: 5px;
+    font-size: .7rem;
+  }
+
+  .teacher-import-actions .btn {
+    min-width: 0;
+    padding-inline: 7px;
+    font-size: .72rem;
+  }
+
+  .teacher-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .teacher-card {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    min-height: 82px;
+    gap: 9px;
+    padding: 10px;
+  }
+
+  .teacher-card-index {
+    width: 40px;
+    height: 40px;
+  }
+
+  .teacher-card-actions {
+    gap: 5px;
+  }
+
+  .teacher-link-toggle {
+    width: 40px;
+    min-width: 40px;
+    padding: 0;
+  }
+
+  .teacher-link-toggle span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .teacher-editor-modal {
+    align-self: end;
+    width: 100%;
+    max-height: 94dvh;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .teacher-editor-modal footer {
+    position: sticky;
+    bottom: 0;
+    padding-top: 10px;
+    background: var(--surface, #fff);
+  }
+
+  .teacher-editor-modal footer .btn {
+    flex: 1;
+  }
+}
+
+:root[data-theme="dark"] .teacher-stats > div {
+  border-color: #334155;
+  background:
+    radial-gradient(circle at 12% 110%, rgba(59, 130, 246, .22) 0 34%, transparent 35%),
+    linear-gradient(145deg, #172033, #111827);
+}
+
+:root[data-theme="dark"] .teacher-stats b,
+:root[data-theme="dark"] .teacher-card-copy span {
+  color: #93c5fd;
+}
+
+:root[data-theme="dark"] .teacher-toolbar,
+:root[data-theme="dark"] .teacher-card,
+:root[data-theme="dark"] .teacher-empty-state,
+:root[data-theme="dark"] .teacher-editor-modal {
+  border-color: #334155;
+  background-color: #111827;
+  color: #e5edf8;
+}
+
+:root[data-theme="dark"] .teacher-card {
+  background:
+    linear-gradient(120deg, rgba(30, 64, 175, .2), transparent 44%),
+    #111827;
+}
+
+:root[data-theme="dark"] .teacher-segments {
+  border-color: #334155;
+  background: #0f172a;
+}
+
+:root[data-theme="dark"] .teacher-card-index {
+  background: #1e3a5f;
+  color: #bfdbfe;
+}
+
+:root[data-theme="dark"] .teacher-link-toggle {
+  border-color: #315b8a;
+  background: #172b48;
+  color: #bfdbfe;
+}
+
+:root[data-theme="dark"] .teacher-link-toggle.linked {
+  border-color: #166534;
+  background: #12372f;
+  color: #a7f3d0;
+}
+
+:root[data-theme="dark"] .teacher-editor-modal footer {
+  background: #111827;
+}

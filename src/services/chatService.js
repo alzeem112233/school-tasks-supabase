@@ -36,7 +36,7 @@ export function createChatModule(getContext) {
     const currentRole = normalizeRole(current.role, "");
     const search = String(state.chatSearch || "").trim().toLowerCase();
     const contacts = state.users
-      .filter((user) => user.id !== current.id && isSameVisibleSchool(user))
+      .filter((user) => user.active !== false && user.id !== current.id && isSameVisibleSchool(user))
       .filter((user) => {
         const role = normalizeRole(user.role, "");
         if (centralChatRoles.includes(currentRole)) return !centralChatRoles.includes(role);

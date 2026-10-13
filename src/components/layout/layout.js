@@ -24,7 +24,10 @@ export function createAdminModule(getContext) {
     }
     if (canViewFinance()) items.push(["finance", "المالية والتخفيضات", icons.finance, 0]);
     if (canViewGradeAdjustments()) items.push(["gradeAdjustments", "تعديل الدرجات", icons.grades || icons.edit, 0]);
-    if (canViewStaffEvaluations()) items.push(["staffEvaluations", "تقييم المعلمين", icons.reports || icons.users, 0]);
+    if (canViewStaffEvaluations()) {
+      items.push(["teachers", "المعلمون", icons.users, 0]);
+      items.push(["staffEvaluations", "تقييم المعلمين", icons.reports || icons.users, 0]);
+    }
     if (notebookRoleTemplates?.canManage()) items.push(["notebookRoleTemplates", "عناوين دفتر المهام", icons.notebook || icons.tasks, 0]);
     if (canViewReports()) items.push(["reports", "التقارير", icons.reports, 0]);
     if (canViewAuditLogs() || canCreateBackups()) items.push(["enterprise", "مركز المؤسسة", icons.database, 0]);
@@ -36,7 +39,7 @@ export function createAdminModule(getContext) {
     return [
       ["الأعمال اليومية", pick("home", "tasks", "dailyNotebook", "chat", "notifications")],
       ["الاختبارات والتعاميم والاجتماعات", pick("administrativeReports", "secretaryReports", "vicePrincipalReports", "socialSpecialistReports", "activitySupervisorReports", "examSchedules", "circulars", "meetings")],
-      ["الإدارة والمتابعة", pick("users", "finance", "gradeAdjustments", "staffEvaluations", "notebookRoleTemplates")],
+      ["الإدارة والمتابعة", pick("users", "finance", "gradeAdjustments", "teachers", "staffEvaluations", "notebookRoleTemplates")],
       ["التقارير والسجلات", pick("reports", "activity")],
       ["إعدادات النظام", pick("enterprise")],
     ].filter(([, groupItems]) => groupItems.length);
@@ -398,7 +401,7 @@ export function createAdminModule(getContext) {
   }
 
   function renderView() {
-    const { state, canViewUsers, canViewAuditLogs, canCreateBackups, canViewReports, canViewFinance, canViewGradeAdjustments, canViewStaffEvaluations, users, dashboard, notifications, tasks, finance, gradeAdjustments, staffEvaluations, administrativeReports, secretaryReports, vicePrincipalReports, socialSpecialistReports, activitySupervisorReports, notebookRoleTemplates, examSchedules, circulars, meetings, chat } = getContext();
+    const { state, canViewUsers, canViewAuditLogs, canCreateBackups, canViewReports, canViewFinance, canViewGradeAdjustments, canViewStaffEvaluations, users, dashboard, notifications, tasks, finance, gradeAdjustments, teacherDirectory, staffEvaluations, administrativeReports, secretaryReports, vicePrincipalReports, socialSpecialistReports, activitySupervisorReports, notebookRoleTemplates, examSchedules, circulars, meetings, chat } = getContext();
     if (state.view === "dashboard" && getContext().canViewDashboard()) return dashboard.renderDashboard();
     if (state.view === "home") return getContext().canViewDashboard() ? dashboard.renderDashboard() : renderHome();
     if (state.view === "users" && canViewUsers()) return users.renderUsers();
@@ -408,6 +411,7 @@ export function createAdminModule(getContext) {
     if (state.view === "enterprise" && (canViewAuditLogs() || canCreateBackups())) return renderEnterprise();
     if (state.view === "finance" && canViewFinance()) return finance.renderFinance();
     if (state.view === "gradeAdjustments" && canViewGradeAdjustments()) return gradeAdjustments.renderPage();
+    if (state.view === "teachers" && canViewStaffEvaluations()) return teacherDirectory.renderPage();
     if (state.view === "staffEvaluations" && canViewStaffEvaluations()) return staffEvaluations.renderPage();
     if (state.view === "secretaryReports" && secretaryReports?.canView()) return secretaryReports.renderPage();
     if (state.view === "vicePrincipalReports" && vicePrincipalReports?.canView()) return vicePrincipalReports.renderPage();
@@ -425,7 +429,7 @@ export function createAdminModule(getContext) {
   }
 
   function renderModal() {
-    const { state, users, tasks, notifications, finance, gradeAdjustments, staffEvaluations, administrativeReports, secretaryReports, vicePrincipalReports, socialSpecialistReports, activitySupervisorReports, notebookRoleTemplates, examSchedules, circulars, meetings } = getContext();
+    const { state, users, tasks, notifications, finance, gradeAdjustments, teacherDirectory, staffEvaluations, administrativeReports, secretaryReports, vicePrincipalReports, socialSpecialistReports, activitySupervisorReports, notebookRoleTemplates, examSchedules, circulars, meetings } = getContext();
     if (state.modal.type === "profile") return users.renderProfileModal();
     if (state.modal.type === "user") return users.renderUserModal(state.modal.id);
     if (state.modal.type === "school") return users.renderSchoolModal(state.modal.id);
@@ -435,7 +439,7 @@ export function createAdminModule(getContext) {
     if (state.modal.type === "finance") return finance.renderFinanceModal(state.modal.id);
     if (state.modal.type === "grade_adjustment") return gradeAdjustments.renderModal(state.modal.id);
     if (state.modal.type === "staff_evaluation") return staffEvaluations.renderModal(state.modal.id);
-    if (state.modal.type === "teacher_directory_edit") return staffEvaluations.renderTeacherModal(state.modal.id);
+    if (state.modal.type === "teacher_directory_edit") return teacherDirectory.renderModal(state.modal.id);
     if (state.modal.type === "administrative_report") return administrativeReports.renderReportModal();
     if (state.modal.type === "secretary_report") return `${secretaryReports.renderModal()}<button class="secretary-modal-print" type="button" onclick="actions.printSecretaryReport()">${getContext().icons.print || ""} طباعة التقرير</button>`;
     if (state.modal.type === "vice_principal_report") return vicePrincipalReports.renderModal();

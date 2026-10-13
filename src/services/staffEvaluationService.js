@@ -1,5 +1,6 @@
 import { nowTimestamp } from "../utils/dateUtils.js";
 import { createUuid } from "../utils/idUtils.js";
+import { isTeacherVisibleFor, teacherDetailsFor, visibleTeachersFor } from "./teacherDirectoryService.js";
 
 const SEQUENCES = {
   principal: { label: "مدير المدرسة", criteria: [["relationships", "علاقات المعلم الإنسانية مع زملائه وإدارة المدرسة", 2], ["cooperation", "التعاون مع إدارة المدرسة والكادر الإداري وتنفيذ التوجيهات", 3], ["meetings", "حضور الاجتماعات والدورات", 2], ["complaints", "شكاوى أولياء الأمور أو المتعلمين", 3]] },
@@ -37,7 +38,7 @@ export function createStaffEvaluationsModule(getContext) {
     printing_unit: "printing_unit",
   }[String(role || "")] || "");
   const evaluationMatchesEvaluatorRole = (item) => {
-    const evaluator = (getContext().state.users || []).find((user) => user.id === item.evaluatedBy);
+    const evaluator = (getContext().state.users || []).find((user) => user.id === item.evaluatedBy && user.active !== false);
     const assignedSequence = sequenceForRole(evaluator?.role);
     return !evaluator || !assignedSequence || assignedSequence === item.sequenceKey || String(evaluator.role) === "superadmin";
   };
@@ -50,8 +51,11 @@ export function createStaffEvaluationsModule(getContext) {
   const allowedSequenceKeys = () => isSuperAdmin() ? Object.keys(SEQUENCES) : [sequenceForRole(getContext().state.currentUser?.role)].filter(Boolean);
   const canEvaluateSequence = (sequenceKey) => isSuperAdmin() || allowedSequenceKeys().includes(String(sequenceKey || ""));
   const branchId = () => { const { state, scopedSchoolId } = getContext(); const selected = scopedSchoolId(); return selected && selected !== "all" ? selected : (state.currentUser?.schoolId || ""); };
-  const hiddenKey = () => `staffEvaluationHiddenTeachers:${getContext().state.currentUser?.id || "anonymous"}`;
-  const hiddenTeachers = () => { try { return new Set(JSON.parse(localStorage.getItem(hiddenKey()) || "[]")); } catch { return new Set(); } };
+  const hiddenTeachers = (evaluatorId = getContext().state.currentUser?.id || "") => {
+    const { state } = getContext();
+    return new Set((state.teacherDirectory || []).filter((teacher) => !isTeacherVisibleFor(state, teacher.id, evaluatorId)).map((teacher) => teacher.id));
+  };
+  const evaluationIsVisible = (item) => isTeacherVisibleFor(getContext().state, item.teacherId, item.evaluatedBy || getContext().state.currentUser?.id || "");
   const currentSetting = () => (getContext().state.staffEvaluationSettings || []).find((item) => item.schoolId === branchId()) || { id: "", schoolId: branchId(), openToAll: false };
   const canSubmitEvaluation = () => currentSetting().openToAll === true;
   const canEditTeacherDirectory = () => ["general_manager", "school_principal", "deputy_principal", "school_secretary", "computer_unit"].includes(String(getContext().state.currentUser?.role || ""));
@@ -76,13 +80,15 @@ export function createStaffEvaluationsModule(getContext) {
   }
   function normalizeEvaluation(item = {}) {
     const get = (a, b) => item[a] ?? item[b];
-    return { id: get("id", "id") || createUuid(), schoolId: get("schoolId", "school_id") || "", teacherId: get("teacherId", "teacher_id") || "", teacherName: get("teacherName", "teacher_name") || "", subjectName: get("subjectName", "subject_name") || "", sequenceKey: get("sequenceKey", "sequence_key") || "principal", assessmentPeriod: normalizeAssessmentPeriod(get("assessmentPeriod", "assessment_period")), evaluatedAt: normalizeEvaluationCycleDate(get("evaluatedAt", "evaluated_at") || currentEvaluationCycleDate()), scores: get("scores", "scores") || {}, total: Number(get("total", "total") || 0), maxTotal: Number(get("maxTotal", "max_total") || 0), notes: get("notes", "notes") || "", evaluatedBy: get("evaluatedBy", "evaluated_by") || "", createdAt: get("createdAt", "created_at") || "", updatedAt: get("updatedAt", "updated_at") || "" };
+    const teacherId = get("teacherId", "teacher_id") || "";
+    const details = teacherDetailsFor(getContext().state, teacherId, { teacherName: get("teacherName", "teacher_name"), subjectName: get("subjectName", "subject_name") });
+    return { id: get("id", "id") || createUuid(), schoolId: get("schoolId", "school_id") || "", teacherId, teacherName: details.teacherName, subjectName: details.subjectName, sequenceKey: get("sequenceKey", "sequence_key") || "principal", assessmentPeriod: normalizeAssessmentPeriod(get("assessmentPeriod", "assessment_period")), evaluatedAt: normalizeEvaluationCycleDate(get("evaluatedAt", "evaluated_at") || currentEvaluationCycleDate()), scores: get("scores", "scores") || {}, total: Number(get("total", "total") || 0), maxTotal: Number(get("maxTotal", "max_total") || 0), notes: get("notes", "notes") || "", evaluatedBy: get("evaluatedBy", "evaluated_by") || "", createdAt: get("createdAt", "created_at") || "", updatedAt: get("updatedAt", "updated_at") || "" };
   }
   function openEvaluation(id = "") { const { state, render, showToast } = getContext(); if (!canSubmitEvaluation()) { showToast("التقييم مغلق حاليًا. يجب فتح القفل أولًا."); return; } const old = state.staffEvaluations.find((item) => item.id === id); const nextSequence = old?.sequenceKey || sequenceForRole(state.currentUser?.role); if (!nextSequence || !canEvaluateSequence(nextSequence)) { showToast("لا يوجد تسلسل تقييم مسموح لهذا الحساب"); return; } state.staffEvaluationDraftSequence = nextSequence; state.staffEvaluationDraftTeacherId = old?.teacherId || ""; state.staffEvaluationDraftAssessmentPeriod = normalizeAssessmentPeriod(old?.assessmentPeriod || state.staffEvaluationDraftAssessmentPeriod); state.modal = { type: "staff_evaluation", id }; render(); }
   function changeSequence(value, assessmentPeriod = "") { const { state, render } = getContext(); const nextSequence = canEvaluateSequence(value) ? String(value) : (sequenceForRole(state.currentUser?.role) || "principal"); state.staffEvaluationDraftSequence = nextSequence; state.staffEvaluationDraftAssessmentPeriod = normalizeAssessmentPeriod(assessmentPeriod || state.staffEvaluationDraftAssessmentPeriod); const teacherId = state.staffEvaluationDraftTeacherId || state.staffEvaluations.find((item) => item.id === state.modal?.id)?.teacherId || ""; if (teacherId) { state.staffEvaluationDraftTeacherId = teacherId; state.modal.id = previousEvaluation(teacherId, state.staffEvaluationDraftSequence, state.staffEvaluationDraftAssessmentPeriod)?.id || ""; } render(); }
   function selectTeacher(teacherId, assessmentPeriod = "") { const { state, render } = getContext(); const sequenceKey = state.staffEvaluationDraftSequence || state.staffEvaluations.find((item) => item.id === state.modal?.id)?.sequenceKey || "principal"; state.staffEvaluationDraftTeacherId = String(teacherId || ""); state.staffEvaluationDraftAssessmentPeriod = normalizeAssessmentPeriod(assessmentPeriod || state.staffEvaluationDraftAssessmentPeriod); state.modal.id = previousEvaluation(state.staffEvaluationDraftTeacherId, sequenceKey, state.staffEvaluationDraftAssessmentPeriod)?.id || ""; render(); }
   async function toggleAccess() { const { state, canControlStaffEvaluationAccess, supabase, render, showToast } = getContext(); if (!canControlStaffEvaluationAccess()) return; const old = currentSetting(); const id = old.id || createUuid(); const data = { schoolId: branchId(), openToAll: !old.openToAll, updatedBy: state.currentUser?.id || "", updatedAt: nowTimestamp(), createdAt: old.createdAt || nowTimestamp() }; state.staffEvaluationSettings = [...state.staffEvaluationSettings.filter((item) => item.schoolId !== data.schoolId), { id, ...data }]; if (!data.openToAll && state.modal?.type === "staff_evaluation") state.modal = null; render(); try { await supabase.saveCloudDoc("staffEvaluationSettings", id, data, Boolean(old.id)); showToast(data.openToAll ? "تم فتح التقييم لجميع المستخدمين" : "تم إغلاق التقييم ومنع الحفظ والتعديل"); } catch (error) { console.error(error); state.staffEvaluationSettings = [...state.staffEvaluationSettings.filter((item) => item.schoolId !== old.schoolId), old]; render(); showToast("تعذر حفظ حالة القفل"); } }
-  function toggleTeacherVisibility(id) { const hidden = hiddenTeachers(); hidden.has(id) ? hidden.delete(id) : hidden.add(id); localStorage.setItem(hiddenKey(), JSON.stringify([...hidden])); getContext().render(); }
+  async function toggleTeacherVisibility(id) { return getContext().teacherDirectory.toggleVisibility(id); }
   function openTeacherEditor(id) {
     const { state, render, showToast } = getContext();
     const teacher = (state.teacherDirectory || []).find((item) => item.id === id);
@@ -131,26 +137,25 @@ export function createStaffEvaluationsModule(getContext) {
     }
   }
   function renderPage() {
-    const { state, safe, icons, roleLabel, canManageStaffEvaluations, canViewStaffEvaluationReports, canControlStaffEvaluationAccess } = getContext(); const branch = branchId(); const hidden = hiddenTeachers(); const setting = currentSetting(); const canReports = canViewStaffEvaluationReports(); const permittedSequences = allowedSequenceKeys(); const canAdd = canSubmitEvaluation() && permittedSequences.length > 0; const canViewRoleRows = canManageStaffEvaluations(); const currentRoleSequence = sequenceForRole(state.currentUser?.role);
+    const { state, safe, icons, roleLabel, canManageStaffEvaluations, canViewStaffEvaluationReports, canControlStaffEvaluationAccess } = getContext(); const branch = branchId(); const setting = currentSetting(); const canReports = canViewStaffEvaluationReports(); const permittedSequences = allowedSequenceKeys(); const canAdd = canSubmitEvaluation() && permittedSequences.length > 0; const canViewRoleRows = canManageStaffEvaluations(); const currentRoleSequence = sequenceForRole(state.currentUser?.role);
     const filters = state.staffEvaluationFilters || {};
     const selectedPeriod = normalizeAssessmentPeriod(filters.assessmentPeriod);
     const rows = (state.staffEvaluations || []).filter((x) => x.schoolId === branch).filter((x) => normalizeAssessmentPeriod(x.assessmentPeriod) === selectedPeriod).filter(evaluationMatchesEvaluatorRole).filter(isIncludedEvaluation).filter((x) => isSuperAdmin() || canReports || permittedSequences.includes(x.sequenceKey)).filter((x) => filters.roleKey === "all" || x.sequenceKey === filters.roleKey).filter((x) => !filters.search || `${x.teacherName} ${x.subjectName}`.includes(filters.search)).sort((a, b) => Number(b.total) - Number(a.total));
-    const reportRows = rows.filter((item) => !hidden.has(item.teacherId));
-    const visibleRows = canReports ? reportRows : rows.filter((item) => item.sequenceKey === currentRoleSequence && !hidden.has(item.teacherId));
+    const reportRows = rows.filter(evaluationIsVisible);
+    const visibleRows = canReports ? reportRows : rows.filter((item) => item.sequenceKey === currentRoleSequence && evaluationIsVisible(item));
     const teachers = (state.teacherDirectory || []).filter((x) => x.schoolId === branch && x.active !== false);
-    const visibleTeachers = teachers.filter((teacher) => !hidden.has(teacher.id));
+    const visibleTeachers = visibleTeachersFor(state, state.currentUser?.id || "", branch);
     const visibleTeacherIds = new Set(visibleTeachers.map((teacher) => teacher.id));
     const userEvaluations = (state.staffEvaluations || []).filter((item) => item.schoolId === branch && item.evaluatedBy === state.currentUser?.id && normalizeAssessmentPeriod(item.assessmentPeriod) === selectedPeriod && (isSuperAdmin() || permittedSequences.includes(item.sequenceKey)));
     const enteredTeacherIds = new Set(userEvaluations.map((item) => item.teacherId).filter((teacherId) => visibleTeacherIds.has(teacherId)));
     const enteredCount = enteredTeacherIds.size;
     const remainingCount = Math.max(0, visibleTeachers.length - enteredCount);
     const evaluatorIds = new Set((state.staffEvaluations || []).filter((item) => item.schoolId === branch && normalizeAssessmentPeriod(item.assessmentPeriod) === selectedPeriod && evaluationMatchesEvaluatorRole(item) && isIncludedEvaluation(item)).map((item) => item.evaluatedBy).filter(Boolean));
-    const evaluatorOptions = (state.users || []).filter((user) => evaluatorIds.has(user.id) && user.status !== "inactive").sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "ar"));
+    const evaluatorOptions = (state.users || []).filter((user) => evaluatorIds.has(user.id) && user.active !== false).sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "ar"));
     return `<main class="staff-evaluation-page page-shell"><div class="page-heading"><div><span class="eyebrow">تقييم الأداء</span><h1>تقييم الموظفين والمعلمين</h1><p>استمارات مبنية على بنود التقييم الإداري التفصيلي.</p></div><div class="evaluation-head-actions"><button class="evaluation-lock ${setting.openToAll ? "is-open" : "is-closed"}" type="button" ${canControlStaffEvaluationAccess() ? `onclick="actions.toggleStaffEvaluationAccess()"` : "disabled"} title="${setting.openToAll ? "الإضافة متاحة لجميع المستخدمين" : "الإضافة العامة مغلقة"}"><span>${setting.openToAll ? "🔓" : "🔒"}</span><small>${setting.openToAll ? "مفتوح" : "مغلق"}</small></button>${canAdd ? `<button class="button primary" onclick="actions.openStaffEvaluation('')">${icons.plus || "+"} إضافة تقييم</button>` : ""}</div></div>
       <section class="evaluation-progress" aria-label="إحصاءات التقييم"><div><span>المعلمون في التقييم</span><b>${visibleTeachers.length}</b></div><div><span>تقييماتك المدخلة</span><b>${enteredCount}</b></div><div><span>المعلمون المتبقون</span><b>${remainingCount}</b></div></section>
-      <section class="evaluation-tools"><input class="input" placeholder="ابحث باسم المعلم أو المادة" value="${esc(filters.search, safe)}" oninput="actions.setStaffEvaluationFilter('search', this.value)"><select class="input" onchange="actions.setStaffEvaluationFilter('roleKey', this.value)"><option value="all">${isSuperAdmin() ? "كل التسلسلات" : "تسلسلي فقط"}</option>${Object.entries(SEQUENCES).filter(([key]) => isSuperAdmin() || permittedSequences.includes(key)).map(([key, value]) => `<option value="${key}" ${filters.roleKey === key ? "selected" : ""}>${safe(value.label)}</option>`).join("")}</select><select class="input" onchange="actions.setStaffEvaluationFilter('assessmentPeriod', this.value)">${assessmentPeriodOptions(selectedPeriod).map((option) => `<option value="${option.value}" ${option.selected ? "selected" : ""}>${safe(option.label)}</option>`).join("")}</select>${canManageStaffEvaluations() ? `<button class="button ghost" onclick="actions.exportTeacherTemplate()">تصدير نموذج المعلمين</button><label class="button ghost file-button">استيراد المعلمين<input type="file" accept=".csv,.xlsx,.xls" hidden onchange="actions.importTeacherDirectory(this.files[0])"></label>` : ""}</section>
+      <section class="evaluation-tools"><input class="input" placeholder="ابحث باسم المعلم أو المادة" value="${esc(filters.search, safe)}" oninput="actions.setStaffEvaluationFilter('search', this.value)"><select class="input" onchange="actions.setStaffEvaluationFilter('roleKey', this.value)"><option value="all">${isSuperAdmin() ? "كل التسلسلات" : "تسلسلي فقط"}</option>${Object.entries(SEQUENCES).filter(([key]) => isSuperAdmin() || permittedSequences.includes(key)).map(([key, value]) => `<option value="${key}" ${filters.roleKey === key ? "selected" : ""}>${safe(value.label)}</option>`).join("")}</select><select class="input" onchange="actions.setStaffEvaluationFilter('assessmentPeriod', this.value)">${assessmentPeriodOptions(selectedPeriod).map((option) => `<option value="${option.value}" ${option.selected ? "selected" : ""}>${safe(option.label)}</option>`).join("")}</select><button class="button ghost" type="button" onclick="actions.setView('teachers')">${icons.users || ""} إدارة المعلمين</button></section>
       ${canReports ? `<section class="evaluation-report-actions"><strong>التقارير</strong><button class="button ghost" onclick="actions.printStaffEvaluationReport('ranked')">ترتيب الأعلى</button><button class="button ghost" onclick="actions.printStaffEvaluationReport('summary')">ملخص النتائج</button><button class="button ghost" onclick="actions.printStaffEvaluationReport('full')">التقرير العام</button><button class="button ghost" onclick="actions.printStaffEvaluationUsersReport()">من قيّم؟</button><select id="staff-evaluator-report-select" class="input"><option value="">اختر الموظف المقيّم</option>${evaluatorOptions.map((user) => `<option value="${safe(user.id)}">${safe(user.name)} · ${safe(roleLabel(user.role || ""))}</option>`).join("")}</select><button class="button ghost" onclick="actions.printStaffEvaluatorReport(document.getElementById('staff-evaluator-report-select').value)">تقرير المقيّم المحدد</button></section>` : ""}
-      <section class="teacher-directory-card"><h3>معلمو الفرع الحالي</h3><div class="teacher-directory-list">${teachers.length ? teachers.map((teacher) => `<div class="teacher-directory-row"><span><b>${safe(teacher.teacherName)}</b><small>${safe(teacher.subjectName)}${teacher.className ? ` · ${safe(teacher.className)}` : ""}</small></span><div class="teacher-directory-actions">${canEditTeacherDirectory() ? `<button class="button ghost" type="button" onclick="actions.openTeacherDirectoryEditor('${teacher.id}')">${icons.edit || "✎"} تعديل</button>` : ""}<button class="button ${hidden.has(teacher.id) ? "primary" : "ghost"}" type="button" onclick="actions.toggleStaffEvaluationTeacher('${teacher.id}')">${hidden.has(teacher.id) ? "إظهار لي" : "إخفاء لي"}</button></div></div>`).join("") : `<span class="empty">لم يتم استيراد معلمين لهذا الفرع.</span>`}</div></section>
       ${(canReports || canViewRoleRows) ? `<section class="evaluation-list">${visibleRows.length ? visibleRows.map((item) => `<article class="evaluation-card ${Number(item.total) > 100 ? "evaluation-over-limit" : ""}"><div><strong>${safe(item.teacherName)}${Number(item.total) > 100 ? " ⚠️" : ""}</strong><span>${safe(item.subjectName)} · ${safe(definition(item.sequenceKey).label)}</span></div><b>${safe(item.total)} / ${safe(item.maxTotal)}</b><button class="icon-btn" onclick="actions.openStaffEvaluation('${item.id}')">${icons.edit || "✎"}</button></article>`).join("") : `<div class="empty">لا توجد تقييمات ظاهرة وفق الإعدادات الحالية.</div>`}</section>` : `<div class="evaluation-private-note">يمكنك إضافة تقييم عندما يكون القفل مفتوحًا. النتائج والتقارير متاحة للإدارة فقط.</div>`}</main>`;
   }
   function renderModal(id = "") {
@@ -199,7 +204,7 @@ export function createStaffEvaluationsModule(getContext) {
     const rating = (value) => value >= 90 ? "ممتاز" : value >= 80 ? "جيد جدًا" : value >= 70 ? "جيد" : value >= 60 ? "مقبول" : "يحتاج متابعة";
     const selectedPeriod = normalizeAssessmentPeriod(filters.assessmentPeriod);
     const evaluationRows = [...state.staffEvaluations]
-      .filter((item) => item.schoolId === branchId() && !hidden.has(item.teacherId))
+      .filter((item) => item.schoolId === branchId() && evaluationIsVisible(item))
       .filter((item) => normalizeAssessmentPeriod(item.assessmentPeriod) === selectedPeriod)
       .filter(evaluationMatchesEvaluatorRole)
       .filter(isIncludedEvaluation)
@@ -251,11 +256,11 @@ export function createStaffEvaluationsModule(getContext) {
     const { state, canViewStaffEvaluationReports, showToast, safe, schoolName, roleLabel, getUser } = getContext();
     if (!canViewStaffEvaluationReports()) { showToast("التقارير متاحة للإدارة فقط"); return; }
     const selectedId = String(evaluatorId || "");
-    const evaluator = (state.users || []).find((user) => user.id === selectedId);
+    const evaluator = (state.users || []).find((user) => user.id === selectedId && user.active !== false);
     if (!evaluator) { showToast("اختر الموظف المقيّم أولًا"); return; }
     const filters = state.staffEvaluationFilters || {};
     const selectedPeriod = normalizeAssessmentPeriod(filters.assessmentPeriod);
-    const hidden = hiddenTeachers();
+    const hidden = hiddenTeachers(selectedId);
     const evaluations = (state.staffEvaluations || []).filter((item) => item.schoolId === branchId() && item.evaluatedBy === selectedId).filter((item) => normalizeAssessmentPeriod(item.assessmentPeriod) === selectedPeriod).filter((item) => !hidden.has(item.teacherId)).filter(evaluationMatchesEvaluatorRole).filter(isIncludedEvaluation);
     const grouped = new Map();
     evaluations.forEach((item) => { const key = item.teacherId || `${item.teacherName}::${item.subjectName}`; const current = grouped.get(key) || { teacherName: item.teacherName || "", subjectName: item.subjectName || "", evaluations: [], total: 0, maxTotal: 0 }; current.evaluations.push(item); current.total += Number(item.total || 0); current.maxTotal += Number(item.maxTotal || 0); grouped.set(key, current); });
@@ -275,15 +280,14 @@ export function createStaffEvaluationsModule(getContext) {
     const selectedPeriod = normalizeAssessmentPeriod(filters.assessmentPeriod);
     const branch = branchId();
     const activeUsers = (state.users || [])
-      .filter((user) => user.schoolId === branch && user.status !== "inactive")
+      .filter((user) => user.schoolId === branch && user.active !== false)
       .sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "ar"));
     const users = activeUsers.filter((user) => filters.roleKey === "all" || sequenceForRole(user.role) === filters.roleKey);
     const userIds = new Set(users.map((user) => user.id));
-    const hidden = hiddenTeachers();
     const evaluations = (state.staffEvaluations || [])
       .filter((item) => item.schoolId === branch)
       .filter((item) => normalizeAssessmentPeriod(item.assessmentPeriod) === selectedPeriod)
-      .filter((item) => !hidden.has(item.teacherId))
+      .filter(evaluationIsVisible)
       .filter(evaluationMatchesEvaluatorRole)
       .filter(isIncludedEvaluation)
       .filter((item) => userIds.has(item.evaluatedBy));

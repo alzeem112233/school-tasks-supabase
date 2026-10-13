@@ -54,6 +54,7 @@ import { createBackupModule } from "./services/backupService.js";
 import { createFinanceModule } from "./services/financeService.js";
 import { createGradeAdjustmentsModule } from "./services/gradeAdjustmentService.js";
 import { createStaffEvaluationsModule } from "./services/staffEvaluationService.js";
+import { createTeacherDirectoryModule } from "./services/teacherDirectoryService.js";
 import { createAdministrativeReportsModule } from "./services/administrativeReportService.js";
 import { createSecretaryReportModule } from "./services/secretaryReportService.js";
 import { createVicePrincipalReportModule } from "./services/vicePrincipalReportCleanService.js";
@@ -107,6 +108,8 @@ let state = {
   gradeAdjustmentBusy: {},
   gradeAdjustmentFilters: { search: "", status: "all", month: "", from: "", to: "" },
   teacherDirectory: [],
+  teacherEvaluatorLinks: [],
+  teacherDirectoryFilters: { search: "", visibility: "all" },
   staffEvaluations: [],
   staffEvaluationFilters: { search: "", roleKey: "all", assessmentPeriod: "first_term", from: "", to: "", sort: "total_desc" },
   staffEvaluationBusy: {},
@@ -369,7 +372,7 @@ function paginate(items, page, size) {
 }
 
 function getUser(id) {
-  return state.users.find((user) => user.id === id) || null;
+  return state.users.find((user) => user.id === id && user.active !== false) || null;
 }
 
 function getSchoolProfile() {
@@ -652,6 +655,7 @@ modules.audit = createAuditService(getContext);
 modules.backup = createBackupModule(getContext);
 modules.finance = createFinanceModule(getContext);
 modules.gradeAdjustments = createGradeAdjustmentsModule(getContext);
+modules.teacherDirectory = createTeacherDirectoryModule(getContext);
 modules.staffEvaluations = createStaffEvaluationsModule(getContext);
 modules.administrativeReports = createAdministrativeReportsModule(getContext);
 modules.secretaryReports = createSecretaryReportModule(getContext);
@@ -795,7 +799,7 @@ window.actions = {
   retryProfileLoad,
   saveUser: modules.users.saveUser,
   saveMyProfile: modules.users.saveMyProfile,
-  disableUser: modules.users.disableUser,
+  toggleUserStatus: modules.users.toggleUserStatus,
   deleteUser: modules.users.deleteUser,
   deleteSchool: modules.users.deleteSchool,
   saveTask: modules.tasks.saveTask,
@@ -878,17 +882,18 @@ window.actions = {
   changeStaffEvaluationSequence: modules.staffEvaluations.changeSequence,
   selectStaffEvaluationTeacher: modules.staffEvaluations.selectTeacher,
   toggleStaffEvaluationAccess: modules.staffEvaluations.toggleAccess,
-  toggleStaffEvaluationTeacher: modules.staffEvaluations.toggleTeacherVisibility,
-  openTeacherDirectoryEditor: modules.staffEvaluations.openTeacherEditor,
-  saveTeacherDirectoryEntry: modules.staffEvaluations.saveTeacher,
+  toggleStaffEvaluationTeacher: modules.teacherDirectory.toggleVisibility,
+  openTeacherDirectoryEditor: modules.teacherDirectory.openEditor,
+  saveTeacherDirectoryEntry: modules.teacherDirectory.saveTeacher,
+  setTeacherDirectoryFilter: modules.teacherDirectory.setFilter,
   saveStaffEvaluation: modules.staffEvaluations.saveEvaluation,
   deleteStaffEvaluation: modules.staffEvaluations.deleteEvaluation,
   setStaffEvaluationFilter: modules.staffEvaluations.setFilter,
   printStaffEvaluationReport: modules.staffEvaluations.printReport,
   printStaffEvaluatorReport: modules.staffEvaluations.printEvaluatorReport,
   printStaffEvaluationUsersReport: modules.staffEvaluations.printUsersReport,
-  importTeacherDirectory: modules.staffEvaluations.importTeachers,
-  exportTeacherTemplate: modules.staffEvaluations.exportTeacherTemplate,
+  importTeacherDirectory: modules.teacherDirectory.importTeachers,
+  exportTeacherTemplate: modules.teacherDirectory.exportTemplate,
   filterFinanceAssignees: modules.finance.filterFinanceAssignees,
   openAdministrativeReport: modules.administrativeReports.openReport,
   openAdministrativeReportMerged: modules.administrativeReports.openMergedReport,
@@ -1213,7 +1218,7 @@ window.actions = {
     queueDashboardRefresh(0);
   },
   openUser(id = "") {
-    const targetUser = id ? getUser(id) : null;
+    const targetUser = id ? state.users.find((user) => user.id === id) || null : null;
     if (id ? !canEditUser(targetUser) : !canCreateUsers()) return;
     state.mobileNavOpen = false;
     state.modal = { type: "user", id };
