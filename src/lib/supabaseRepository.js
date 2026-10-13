@@ -928,7 +928,10 @@ export function createSupabaseModule(getContext) {
 
   function handleDataError(label, error) {
     console.error(`${label} failed`, error);
-    getContext().showToast(`تعذر ${label}. تحقق من الاتصال وسياسات Supabase.`);
+    const message = label === "تحميل البيانات الإضافية"
+      ? "تعذر تحديث بعض التفاصيل مؤقتًا. يمكنك متابعة العمل، وسيحاول النظام مجددًا تلقائيًا."
+      : `تعذر ${label} مؤقتًا. ما زالت آخر بيانات محفوظة متاحة.`;
+    getContext().showToast(message);
   }
 
   async function loadProfile(uid) {

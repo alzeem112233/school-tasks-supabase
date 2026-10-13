@@ -542,11 +542,6 @@ export function createAdminModule(getContext) {
                 <span class="theme-setting-text"><strong>المظهر</strong><small>${safe(themeLabel)}</small></span>
                 <span class="theme-switch ${resolvedTheme === "dark" ? "checked" : ""}" aria-hidden="true"><i></i></span>
               </button>
-              <select class="theme-mode-select" aria-label="اختيار المظهر" onchange="actions.setThemeMode(this.value)">
-                <option value="system" ${state.theme === "system" ? "selected" : ""}>حسب النظام</option>
-                <option value="light" ${state.theme === "light" ? "selected" : ""}>فاتح</option>
-                <option value="dark" ${state.theme === "dark" ? "selected" : ""}>داكن</option>
-              </select>
             </div>
           </section>
           <nav class="nav grouped-nav">

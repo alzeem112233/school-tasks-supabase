@@ -7,10 +7,10 @@ export default defineConfig({
       // Keep them optional so the Vercel web build does not require native plugins.
       external: /^@capacitor\//,
       output: {
-        entryFileNames: "assets/app-v169.js",
-        chunkFileNames: "assets/[name]-v169.js",
+        entryFileNames: "assets/app-v170.js",
+        chunkFileNames: "assets/[name]-v170.js",
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name?.endsWith(".css")) return "assets/index-v169.css";
+          if (assetInfo.name?.endsWith(".css")) return "assets/index-v170.css";
           return "assets/[name][extname]";
         },
         manualChunks(id) {

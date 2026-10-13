@@ -1028,7 +1028,7 @@ export function createDashboardModule(getContext) {
           ${canCreateUsers() ? `<button class="btn secondary" onclick="actions.openUser()">${icons.users} مستخدم جديد</button>` : ""}
         </div>
       </div>
-      ${state.dashboardError ? `<div class="feedback error"><strong>تعذر جلب مؤشرات Supabase</strong><p class="muted">يُعرض مؤقتًا ملخص محلي حتى يعود الاتصال.</p></div>` : ""}
+      ${state.dashboardError ? `<div class="feedback warning dashboard-data-notice"><strong>تعذر تحديث بعض المؤشرات الآن</strong><p class="muted">نعرض آخر بيانات محفوظة، وسيحدّثها النظام تلقائيًا عند استقرار الاتصال.</p></div>` : ""}
       <div class="dashboard-overview-grid">
         <div class="metric metric-rich dashboard-overview-card"><h3>نسبة الاكتمال</h3><p>${safe(completion)}%</p><span class="metric-meta">متوسط الإنجاز ${safe(avgProgress)}%</span></div>
         <div class="metric metric-rich dashboard-overview-card"><h3>مهام تشغيلية</h3><p>${safe(total)}</p><span class="metric-meta">بعد تنظيف المتأخرات القديمة</span></div>
