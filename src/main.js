@@ -885,6 +885,7 @@ window.actions = {
   toggleStaffEvaluationTeacher: modules.teacherDirectory.toggleVisibility,
   openTeacherDirectoryEditor: modules.teacherDirectory.openEditor,
   saveTeacherDirectoryEntry: modules.teacherDirectory.saveTeacher,
+  deleteTeacherDirectoryEntry: modules.teacherDirectory.deleteTeacher,
   setTeacherDirectoryFilter: modules.teacherDirectory.setFilter,
   saveStaffEvaluation: modules.staffEvaluations.saveEvaluation,
   deleteStaffEvaluation: modules.staffEvaluations.deleteEvaluation,

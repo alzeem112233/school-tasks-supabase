@@ -50,6 +50,7 @@ export function createTeacherDirectoryModule(getContext) {
     return "";
   };
   const canEdit = () => ["superadmin", "general_manager", "school_principal", "deputy_principal", "school_secretary", "computer_unit"].includes(String(getContext().state.currentUser?.role || ""));
+  const canDelete = () => ["superadmin", "general_manager", "branch_manager", "school_principal"].includes(String(getContext().state.currentUser?.role || ""));
   const currentEvaluatorId = () => getContext().state.currentUser?.id || "";
   const allTeachers = () => (getContext().state.teacherDirectory || [])
     .filter((teacher) => teacher.schoolId === currentSchoolId() && teacher.active !== false)
@@ -133,6 +134,27 @@ export function createTeacherDirectoryModule(getContext) {
     }
   }
 
+  async function deleteTeacher(teacherId) {
+    const { state, supabase, render, showToast } = getContext();
+    const teacher = (state.teacherDirectory || []).find((item) => item.id === teacherId && item.schoolId === currentSchoolId());
+    if (!teacher || !canDelete()) {
+      showToast("حذف المعلم متاح للحساب الرئيسي والمدير فقط");
+      return;
+    }
+    const confirmed = window.confirm(`هل تريد حذف المعلم "${teacher.teacherName}"؟\n\nستبقى جميع التقييمات السابقة ودرجاتها محفوظة.`);
+    if (!confirmed) return;
+    try {
+      await supabase.deleteCloudDoc("teacherDirectory", teacher.id);
+      state.teacherDirectory = state.teacherDirectory.filter((item) => item.id !== teacher.id);
+      state.teacherEvaluatorLinks = (state.teacherEvaluatorLinks || []).filter((item) => item.teacherId !== teacher.id);
+      render();
+      showToast("تم حذف المعلم مع الحفاظ على التقييمات السابقة");
+    } catch (error) {
+      console.error(error);
+      showToast(supabase.formatCloudError(error, "تعذر حذف المعلم من قاعدة البيانات"));
+    }
+  }
+
   function setFilter(key, value) {
     const { state, render } = getContext();
     if (!['search', 'visibility'].includes(key)) return;
@@ -206,8 +228,8 @@ export function createTeacherDirectoryModule(getContext) {
       if (filters.visibility === "hidden" && linked) return false;
       return !filters.search || `${teacher.teacherName} ${teacher.subjectName} ${teacher.className || ""}`.toLowerCase().includes(filters.search.toLowerCase());
     });
-    return `<main class="teacher-directory-page page-shell"><div class="page-heading"><div><span class="eyebrow">قاعدة البيانات</span><h1>المعلمون</h1><p>${safe(schoolName(schoolId))} · مصدر موحد للأسماء والمواد والصفوف في جميع النماذج.</p></div>${canEdit() ? `<button class="btn" type="button" onclick="actions.openTeacherDirectoryEditor()">${icons.plus || "+"} إضافة معلم</button>` : ""}</div><section class="teacher-stats"><div><span>إجمالي المعلمين</span><b>${teachers.length}</b></div><div><span>مرتبطون بحسابي</span><b>${linkedCount}</b></div><div><span>غير مرتبطين</span><b>${teachers.length - linkedCount}</b></div></section><section class="teacher-toolbar"><label class="field teacher-search"><span>البحث</span><input value="${safe(filters.search || "")}" placeholder="اسم المعلم أو المادة أو الصف" oninput="actions.setTeacherDirectoryFilter('search',this.value)"></label><div class="teacher-segments" role="group" aria-label="حالة الربط">${[["all","الكل"],["linked","مربوط بي"],["hidden","غير مربوط"]].map(([value,label]) => `<button type="button" class="${filters.visibility === value ? "active" : ""}" onclick="actions.setTeacherDirectoryFilter('visibility','${value}')">${label}</button>`).join("")}</div>${canEdit() ? `<div class="teacher-import-actions"><button class="btn secondary" type="button" onclick="actions.exportTeacherTemplate()">${icons.save || ""} نموذج Excel</button><label class="btn secondary teacher-file-button">${icons.upload || ""} استيراد ملف<input type="file" accept=".xlsx,.csv,text/csv" hidden onchange="actions.importTeacherDirectory(this.files[0]);this.value=''"></label></div>` : ""}</section><section class="teacher-grid">${visibleRows.length ? visibleRows.map((teacher) => { const linked = isTeacherVisibleFor(state, teacher.id, evaluatorId); return `<article class="teacher-card ${linked ? "is-linked" : "is-hidden"}"><div class="teacher-card-index">${safe(teacher.teacherName.slice(0, 1))}</div><div class="teacher-card-copy"><strong>${safe(teacher.teacherName)}</strong><span>${safe(teacher.subjectName)}</span><small>${safe(teacher.className || "لم يحدد الصف")}</small></div><div class="teacher-card-actions"><button class="teacher-link-toggle ${linked ? "linked" : "hidden"}" type="button" onclick="actions.toggleStaffEvaluationTeacher('${teacher.id}')" aria-pressed="${linked}">${linked ? `${icons.check || ""}<span>مربوط بي</span>` : `${icons.plus || "+"}<span>إظهار وربط</span>`}</button>${canEdit() ? `<button class="icon-btn" type="button" title="تعديل المعلم" aria-label="تعديل المعلم" onclick="actions.openTeacherDirectoryEditor('${teacher.id}')">${icons.edit || "✎"}</button>` : ""}</div></article>`; }).join("") : `<div class="teacher-empty-state"><strong>لا توجد نتائج</strong><span>غيّر البحث أو حالة الربط، أو أضف معلمًا جديدًا.</span></div>`}</section></main>`;
+    return `<main class="teacher-directory-page page-shell"><div class="page-heading"><div><span class="eyebrow">قاعدة البيانات</span><h1>المعلمون</h1><p>${safe(schoolName(schoolId))} · مصدر موحد للأسماء والمواد والصفوف في جميع النماذج.</p></div>${canEdit() ? `<button class="btn" type="button" onclick="actions.openTeacherDirectoryEditor()">${icons.plus || "+"} إضافة معلم</button>` : ""}</div><section class="teacher-stats"><div><span>إجمالي المعلمين</span><b>${teachers.length}</b></div><div><span>مرتبطون بحسابي</span><b>${linkedCount}</b></div><div><span>غير مرتبطين</span><b>${teachers.length - linkedCount}</b></div></section><section class="teacher-toolbar"><label class="field teacher-search"><span>البحث</span><input value="${safe(filters.search || "")}" placeholder="اسم المعلم أو المادة أو الصف" oninput="actions.setTeacherDirectoryFilter('search',this.value)"></label><div class="teacher-segments" role="group" aria-label="حالة الربط">${[["all","الكل"],["linked","مربوط بي"],["hidden","غير مربوط"]].map(([value,label]) => `<button type="button" class="${filters.visibility === value ? "active" : ""}" onclick="actions.setTeacherDirectoryFilter('visibility','${value}')">${label}</button>`).join("")}</div>${canEdit() ? `<div class="teacher-import-actions"><button class="btn secondary" type="button" onclick="actions.exportTeacherTemplate()">${icons.save || ""} نموذج Excel</button><label class="btn secondary teacher-file-button">${icons.upload || ""} استيراد ملف<input type="file" accept=".xlsx,.csv,text/csv" hidden onchange="actions.importTeacherDirectory(this.files[0]);this.value=''"></label></div>` : ""}</section><section class="teacher-grid">${visibleRows.length ? visibleRows.map((teacher) => { const linked = isTeacherVisibleFor(state, teacher.id, evaluatorId); return `<article class="teacher-card ${linked ? "is-linked" : "is-hidden"}"><div class="teacher-card-index">${safe(teacher.teacherName.slice(0, 1))}</div><div class="teacher-card-copy"><strong>${safe(teacher.teacherName)}</strong><span>${safe(teacher.subjectName)}</span><small>${safe(teacher.className || "لم يحدد الصف")}</small></div><div class="teacher-card-actions"><button class="teacher-link-toggle ${linked ? "linked" : "hidden"}" type="button" onclick="actions.toggleStaffEvaluationTeacher('${teacher.id}')" aria-pressed="${linked}">${linked ? `${icons.check || ""}<span>مربوط بي</span>` : `${icons.plus || "+"}<span>إظهار وربط</span>`}</button>${canEdit() ? `<button class="icon-btn" type="button" title="تعديل المعلم" aria-label="تعديل المعلم" onclick="actions.openTeacherDirectoryEditor('${teacher.id}')">${icons.edit || "✎"}</button>` : ""}${canDelete() ? `<button class="icon-btn danger-icon" type="button" title="حذف المعلم" aria-label="حذف المعلم" onclick="actions.deleteTeacherDirectoryEntry('${teacher.id}')">${icons.trash || "×"}</button>` : ""}</div></article>`; }).join("") : `<div class="teacher-empty-state"><strong>لا توجد نتائج</strong><span>غيّر البحث أو حالة الربط، أو أضف معلمًا جديدًا.</span></div>`}</section></main>`;
   }
 
-  return { renderPage, renderModal, openEditor, saveTeacher, toggleVisibility, setFilter, importTeachers, exportTemplate };
+  return { renderPage, renderModal, openEditor, saveTeacher, deleteTeacher, toggleVisibility, setFilter, importTeachers, exportTemplate };
 }
