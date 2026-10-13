@@ -1,0 +1,336 @@
+/* Shared visual contract for every workspace. Loaded after feature styles. */
+:root {
+  --ui-accent: var(--platform-accent, #2563eb);
+  --ui-bg: var(--platform-bg, #f3f6fa);
+  --ui-surface: var(--platform-surface, #fff);
+  --ui-soft: var(--platform-surface-soft, #f8fafc);
+  --ui-text: var(--platform-text, #172033);
+  --ui-muted: var(--platform-muted, #667085);
+  --ui-line: var(--platform-border, #d9e2ec);
+  --ui-line-strong: var(--platform-border-strong, #c5d1df);
+  --ui-radius: 10px;
+  --ui-radius-sm: 8px;
+  --ui-control: 44px;
+  --ui-shadow: var(--platform-shadow, 0 5px 16px rgba(15, 23, 42, .055));
+}
+
+:root[data-theme="dark"] {
+  --ui-bg: #0b1220;
+  --ui-surface: #111c30;
+  --ui-soft: #0f192b;
+  --ui-text: #f8fafc;
+  --ui-muted: #aebbd0;
+  --ui-line: #2a3a54;
+  --ui-line-strong: #3a4d69;
+}
+
+html,
+body,
+#app,
+.shell,
+.content {
+  background: var(--ui-bg) !important;
+  color: var(--ui-text) !important;
+}
+
+body {
+  font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+  line-height: 1.55;
+}
+
+/* A consistent page rhythm keeps every module scannable. */
+.content > * {
+  min-width: 0;
+}
+
+:where(.topbar, .dashboard-topbar, .finance-page-head, .chat-topbar,
+  .page-heading, .home-hero, .admin-report-hero, .activity-report-hero,
+  .social-report-hero, .notebook-template-hero, .exam-hero,
+  .report-insight-hero, .notebook-report-hero) {
+  position: relative;
+  isolation: isolate;
+  gap: 14px;
+  padding: 18px 20px !important;
+}
+
+:where(.topbar, .dashboard-topbar, .finance-page-head, .chat-topbar,
+  .page-heading, .home-hero, .admin-report-hero, .activity-report-hero,
+  .social-report-hero, .notebook-template-hero, .exam-hero,
+  .report-insight-hero, .notebook-report-hero)::before {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 4px;
+  border-radius: inherit;
+  background: var(--ui-accent);
+  content: "";
+  z-index: -1;
+}
+
+:where(.section-title, .page-heading, .finance-page-head) h1,
+:where(.section-title, .page-heading, .finance-page-head) h2,
+:where(.topbar, .dashboard-topbar, .chat-topbar) h1,
+:where(.topbar, .dashboard-topbar, .chat-topbar) h2 {
+  color: var(--ui-text) !important;
+  font-size: clamp(1.2rem, 1.6vw, 1.55rem) !important;
+  font-weight: 900;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+:where(.section-title, .page-heading, .finance-page-head) p,
+:where(.topbar, .dashboard-topbar, .chat-topbar) p,
+:where(.muted, .empty, .empty-state) {
+  color: var(--ui-muted) !important;
+  line-height: 1.7;
+}
+
+/* One surface, one border, one radius across cards and report sections. */
+:where(.panel, .dashboard-panel, .module-card, .task-card, .task-card-pro,
+  .notification-item, .finance-row, .finance-card, .grade-adjustment-card,
+  .evaluation-card, .teacher-directory-card, .exam-panel, .exam-period-card,
+  .meeting-card, .circular-card, .chat-window, .chat-contacts,
+  .home-message-card, .home-alert-card, .activity-report-card,
+  .social-report-card, .vice-report-card, .secretary-section,
+  .admin-report-card, .admin-monthly-summary, .employee-daily-notebook) {
+  border: 1px solid var(--ui-line) !important;
+  border-radius: var(--ui-radius) !important;
+  color: var(--ui-text);
+  background: var(--ui-surface) !important;
+  background-image: none !important;
+  box-shadow: var(--ui-shadow) !important;
+}
+
+:where(.toolbar, .module-toolbar, .daily-toolbar, .finance-filter-bar,
+  .grade-filter-bar, .admin-report-filters, .exam-toolbar,
+  .task-filter-toolbar, .report-filter-grid, .evaluation-tools,
+  .evaluation-report-actions, .account-summary) {
+  gap: 10px !important;
+  border: 1px solid var(--ui-line) !important;
+  border-radius: var(--ui-radius) !important;
+  background: var(--ui-surface) !important;
+  box-shadow: var(--ui-shadow) !important;
+}
+
+:where(.field, .toolbar label, .module-toolbar label, .admin-report-filters label,
+  .exam-toolbar label, .report-print-fields label) > span {
+  color: var(--ui-muted) !important;
+  font-size: .76rem;
+  font-weight: 850;
+  line-height: 1.4;
+}
+
+:where(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  min-height: var(--ui-control);
+  border: 1px solid var(--ui-line-strong) !important;
+  border-radius: var(--ui-radius-sm) !important;
+  color: var(--ui-text) !important;
+  background: var(--ui-surface) !important;
+  box-shadow: none !important;
+}
+
+:where(input:not([type="checkbox"]):not([type="radio"]), select, textarea):focus {
+  border-color: var(--ui-accent) !important;
+  outline: 0;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-accent) 16%, transparent) !important;
+}
+
+:where(input, textarea)::placeholder {
+  color: var(--ui-muted) !important;
+  opacity: .82;
+}
+
+:where(.btn, .button) {
+  min-height: var(--ui-control);
+  border-radius: var(--ui-radius-sm) !important;
+  font-weight: 850;
+  letter-spacing: 0;
+  line-height: 1.35;
+  transition: background-color .18s ease, border-color .18s ease, transform .18s ease;
+}
+
+:where(.btn:not(.secondary):not(.danger):not(.success), .button.primary) {
+  color: #fff !important;
+  background: var(--ui-accent) !important;
+  background-image: none !important;
+}
+
+:where(.btn.secondary, .button.ghost, .icon-btn, .mini-button, .file-button) {
+  color: var(--ui-text) !important;
+  border: 1px solid var(--ui-line) !important;
+  background: var(--ui-surface) !important;
+  background-image: none !important;
+}
+
+:where(.btn, .button, .icon-btn, .mini-button):hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+:where(.btn, .button, .icon-btn, .mini-button):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--ui-accent) 28%, transparent);
+  outline-offset: 2px;
+}
+
+:where(.btn, .button, .icon-btn, .mini-button):disabled {
+  transform: none !important;
+}
+
+:where(.actions, .modal-actions, .sticky-actions) {
+  gap: 8px !important;
+}
+
+:where(table, .responsive-table, .report-table) {
+  color: var(--ui-text);
+  border-color: var(--ui-line) !important;
+}
+
+:where(th) {
+  color: var(--ui-text) !important;
+  background: var(--ui-soft) !important;
+  border-color: var(--ui-line) !important;
+}
+
+:where(td) {
+  border-color: var(--ui-line) !important;
+}
+
+:where(.modal-box, .modal-card, .module-modal, .exam-modal,
+  .admin-report-modal, .finance-modal, .staff-evaluation-modal,
+  .grade-adjustment-modal, .notebook-template-modal) {
+  border: 1px solid var(--ui-line) !important;
+  border-radius: var(--ui-radius) !important;
+  color: var(--ui-text) !important;
+  background: var(--ui-surface) !important;
+  background-image: none !important;
+}
+
+:where(.modal-head, .modal-header, .activity-modal-head, .social-modal-head,
+  .secretary-report-top, .notebook-template-modal-head,
+  .staff-evaluation-modal > header) {
+  color: var(--ui-text) !important;
+  border-color: var(--ui-line) !important;
+  background: var(--ui-surface) !important;
+  background-image: none !important;
+}
+
+:where(.modal-actions, .admin-report-sticky-actions, .secretary-actions,
+  .staff-evaluation-modal > form > footer, .notebook-template-modal > footer) {
+  border-color: var(--ui-line) !important;
+  background: color-mix(in srgb, var(--ui-surface) 94%, transparent) !important;
+}
+
+/* Keep reports readable in both themes, including nested custom components. */
+:root[data-theme="dark"] :where(.home-hero, .dashboard-welcome-banner,
+  .activity-report-hero, .social-report-hero, .notebook-template-hero,
+  .exam-hero, .report-insight-hero) {
+  color: var(--ui-text) !important;
+  border-color: var(--ui-line) !important;
+  background: var(--ui-surface) !important;
+}
+
+:root[data-theme="dark"] :where(.status-bar-card, .dashboard-kpi,
+  .notebook-dashboard-bars, .grade-card-grid > div, .task-card-info-grid > div,
+  .evaluation-form-grid, .evaluation-criterion-card, .report-print-fields,
+  .activity-entry-card, .social-entry-card, .vice-report-card section) {
+  border-color: var(--ui-line) !important;
+  background: var(--ui-soft) !important;
+  color: var(--ui-text) !important;
+}
+
+:root[data-theme="dark"] :where(.role-pill, .status-pill, .priority-pill,
+  .tag, .badge) {
+  border-color: var(--ui-line) !important;
+}
+
+@media (max-width: 760px) {
+  .content {
+    padding-inline: 8px !important;
+  }
+
+  :where(.topbar, .dashboard-topbar, .finance-page-head, .chat-topbar,
+    .page-heading, .home-hero, .admin-report-hero, .activity-report-hero,
+    .social-report-hero, .notebook-template-hero, .exam-hero,
+    .report-insight-hero, .notebook-report-hero) {
+    gap: 9px;
+    padding: 12px 13px !important;
+    border-radius: var(--ui-radius) !important;
+  }
+
+  :where(.section-title, .page-heading, .finance-page-head) h1,
+  :where(.section-title, .page-heading, .finance-page-head) h2,
+  :where(.topbar, .dashboard-topbar, .chat-topbar) h1,
+  :where(.topbar, .dashboard-topbar, .chat-topbar) h2 {
+    font-size: 1.08rem !important;
+  }
+
+  :where(.panel, .dashboard-panel, .module-card, .task-card,
+    .notification-item, .finance-row, .finance-card, .grade-adjustment-card,
+    .evaluation-card, .teacher-directory-card, .exam-panel,
+    .exam-period-card, .meeting-card, .circular-card, .chat-window,
+    .chat-contacts, .home-message-card, .home-alert-card,
+    .activity-report-card, .social-report-card, .vice-report-card,
+    .secretary-section, .admin-report-card, .admin-monthly-summary,
+    .employee-daily-notebook) {
+    border-radius: var(--ui-radius-sm) !important;
+  }
+
+  :where(.panel, .dashboard-panel, .module-card, .task-card,
+    .notification-item, .finance-row, .finance-card, .grade-adjustment-card,
+    .evaluation-card, .teacher-directory-card, .exam-panel,
+    .exam-period-card, .meeting-card, .circular-card, .chat-window,
+    .chat-contacts, .home-message-card, .home-alert-card,
+    .activity-report-card, .social-report-card, .vice-report-card,
+    .secretary-section, .admin-report-card, .admin-monthly-summary,
+    .employee-daily-notebook) {
+    padding: 11px !important;
+  }
+
+  :where(.toolbar, .module-toolbar, .daily-toolbar, .finance-filter-bar,
+    .grade-filter-bar, .admin-report-filters, .exam-toolbar,
+    .task-filter-toolbar, .report-filter-grid, .evaluation-tools,
+    .evaluation-report-actions, .account-summary) {
+    gap: 7px !important;
+    padding: 8px !important;
+  }
+
+  :where(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+    min-height: 44px;
+    font-size: 16px !important;
+  }
+
+  :where(.btn, .button) {
+    min-height: 44px;
+    padding-inline: 9px;
+    font-size: .82rem;
+  }
+
+  :where(.actions, .modal-actions, .sticky-actions) {
+    gap: 7px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  :where(.metrics, .dashboard-summary-grid, .dashboard-overview-grid,
+    .home-quick-grid, .compact-metrics, .admin-report-metrics,
+    .notebook-template-stats) {
+    grid-template-columns: 1fr !important;
+  }
+
+  :where(.topbar, .dashboard-topbar, .finance-page-head, .chat-topbar) > .actions,
+  .evaluation-head-actions, .exam-hero-actions,
+  :where(.modal-actions, .admin-report-sticky-actions, .secretary-actions,
+    .staff-evaluation-modal > form > footer, .notebook-template-modal > footer) {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
