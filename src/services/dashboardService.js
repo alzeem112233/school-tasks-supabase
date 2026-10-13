@@ -1077,6 +1077,120 @@ export function createDashboardModule(getContext) {
     `;
   }
 
+  function renderReferenceDashboard() {
+    const { tasks, state, roleLabel, labels, canCreateTasks, canCreateUsers, canViewReports, canViewFinance, canViewGradeAdjustments, canViewStaffEvaluations, icons, notifications, scopedSchoolId, schoolName, formatDate, getUser, audit, today } = getContext();
+    const safe = getContext().safe;
+    const allVisible = dashboardTasks();
+    const visible = operationalDashboardTasks(allVisible);
+    const summary = dashboardSummary(visible);
+    const completion = Number(summary.completionPercentage || 0);
+    const pending = Number(summary.pendingTasks || 0);
+    const completed = Number(summary.completedTasks || 0);
+    const overdue = Number(summary.overdueTasks || 0);
+    const notebook = tasks.permanentDailySummary?.() || { total: 0, completed: 0, notDone: 0, pending: 0, rate: 0 };
+    const currentUser = state.currentUser || {};
+    const scopeLabel = scopedSchoolId() === "all" ? "جميع المدارس" : schoolName(scopedSchoolId());
+    const statusCountsMap = statusCounts(visible);
+    const userName = currentUser.name || "المستخدم";
+    const userRole = roleLabel(currentUser.role || "");
+    const recentTasks = visible
+      .slice()
+      .sort((a, b) => String(b.updatedAt || b.createdAt || b.dueDate || "").localeCompare(String(a.updatedAt || a.createdAt || a.dueDate || "")))
+      .slice(0, 4);
+    const recentActivity = recentActivityItems().slice(0, 3);
+    const statusText = (status) => labels[status] || status;
+    const taskStatus = (task) => tasks.effectiveStatus(task);
+    const quickLinks = [
+      ["tasks", "المهام", icons.tasks, true],
+      ["dailyNotebook", "دفتر المهام", icons.notebook || icons.tasks, true],
+      ["reports", "التقارير", icons.reports, canViewReports?.()],
+      ["users", "المستخدمون والصلاحيات", icons.users, getContext().canViewUsers?.()],
+      ["staffEvaluations", "تقييم المعلمين", icons.users || icons.reports, canViewStaffEvaluations?.()],
+      ["gradeAdjustments", "تعديل الدرجات", icons.grades || icons.edit, canViewGradeAdjustments?.()],
+      ["finance", "المالية والتخفيضات", icons.finance, canViewFinance?.()],
+      ["notifications", "التنبيهات", icons.bell, true],
+    ].filter(([, , , allowed]) => allowed);
+    const stats = [
+      ["تنبيهات غير مقروءة", notifications.getUnreadCount(), "تحتاج متابعة", icons.bell, "rose"],
+      ["مهام مكتملة", completed, `معدل الإكمال ${completion}%`, icons.check, "green"],
+      ["نسبة الاكتمال", `${completion}%`, `متوسط الإنجاز ${Number(summary.averageProgress || 0)}%`, icons.dashboard, "blue"],
+      ["مهام تشغيلية", summary.totalTasks, "ضمن النطاق الحالي", icons.tasks, "violet"],
+      ["مهام متأخرة", overdue, overdue ? "تحتاج إجراء" : "لا توجد متأخرات", icons.calendar, "orange"],
+      ["بانتظار البدء", pending, "لم يبدأ تنفيذها بعد", icons.play || icons.tasks, "teal"],
+      ["المستخدمون", state.users.length, "بحسب الصلاحيات الحالية", icons.users, "cyan"],
+      ["دفاتر المهام", notebook.activeEmployees || notebook.total || 0, "دفاتر مفعلة اليوم", icons.notebook || icons.tasks, "indigo"],
+    ];
+    return `
+      <div class="reference-dashboard">
+        <section class="reference-welcome">
+          <div class="reference-welcome-copy">
+            <span class="reference-eyebrow">مرحباً بك</span>
+            <h1>${safe(userName)}</h1>
+            <p>${safe(userRole || "حساب إداري")}</p>
+            <small>${safe(scopeLabel)}</small>
+          </div>
+          <div class="reference-welcome-art" aria-hidden="true">
+            <span class="reference-art-circle"></span>
+            <span class="reference-art-circle small"></span>
+            <span class="reference-art-icon">${icons.tasks}</span>
+            <strong>منصة مهام المدارس</strong>
+            <small>تنظيم ومتابعة الأعمال المدرسية</small>
+          </div>
+        </section>
+
+        <div class="reference-actions" aria-label="إجراءات سريعة">
+          ${canCreateTasks() ? `<button class="reference-action primary" type="button" onclick="actions.openTask()">${icons.plus}<span>مهمة جديدة</span></button>` : ""}
+          ${canCreateUsers() ? `<button class="reference-action" type="button" onclick="actions.openUser()">${icons.users}<span>مستخدم جديد</span></button>` : ""}
+          ${canViewReports?.() ? `<button class="reference-action" type="button" onclick="actions.setView('reports')">${icons.reports}<span>التقارير</span></button>` : ""}
+        </div>
+
+        <section class="reference-stat-grid" aria-label="إحصائيات المنصة">
+          ${stats.map(([label, value, meta, icon, tone]) => `
+            <article class="reference-stat ${safe(tone)}">
+              <span class="reference-stat-icon">${icon}</span>
+              <div><strong>${safe(label)}</strong><b>${safe(value)}</b><small>${safe(meta)}</small></div>
+            </article>`).join("")}
+        </section>
+
+        <section class="reference-panel reference-performance">
+          <div class="reference-panel-head"><div><h2>ملخص الأداء</h2><p>نظرة سريعة على حالة المهام والإنجاز.</p></div><button class="reference-link" type="button" onclick="actions.setView('tasks')">عرض الكل ${icons.chevron || icons.open || ""}</button></div>
+          <div class="reference-performance-body">
+            <div class="reference-donut" style="--progress:${completion}%"><div><strong>${safe(completion)}%</strong><span>إجمالي المهام</span></div></div>
+            <div class="reference-legend">
+              <div><i class="green"></i><span>مكتملة</span><b>${safe(completed)}</b><small>${safe(Math.round((completed / Math.max(1, summary.totalTasks)) * 100))}%</small></div>
+              <div><i class="blue"></i><span>قيد التنفيذ</span><b>${safe(statusCountsMap.in_progress || 0)}</b><small>${safe(Math.round(((statusCountsMap.in_progress || 0) / Math.max(1, summary.totalTasks)) * 100))}%</small></div>
+              <div><i class="orange"></i><span>متأخرة</span><b>${safe(overdue)}</b><small>${safe(Math.round((overdue / Math.max(1, summary.totalTasks)) * 100))}%</small></div>
+              <div><i class="rose"></i><span>بانتظار البدء</span><b>${safe(pending)}</b><small>${safe(Math.round((pending / Math.max(1, summary.totalTasks)) * 100))}%</small></div>
+            </div>
+            <div class="reference-progress-card"><strong>دفتر المهام اليومي</strong><b>${safe(notebook.rate || 0)}%</b><div><span style="width:${safe(notebook.rate || 0)}%"></span></div><small>${safe(notebook.completed || 0)} مكتملة من ${safe(notebook.total || 0)}</small></div>
+          </div>
+        </section>
+
+        <section class="reference-panel reference-recent-panel">
+          <div class="reference-panel-head"><div><h2>آخر المهام</h2><p>المهام الأحدث ضمن نطاق صلاحياتك.</p></div><button class="reference-link" type="button" onclick="actions.setView('tasks')">عرض الكل ${icons.chevron || icons.open || ""}</button></div>
+          <div class="reference-task-table">
+            ${recentTasks.length ? recentTasks.map((task) => {
+              const status = taskStatus(task);
+              return `<article class="reference-task-row"><span class="reference-task-icon">${icons.tasks}</span><div class="reference-task-main"><strong>${safe(task.title)}</strong><small>${safe(task.taskNumber || "مهمة")} · ${safe(task.assigneeName || getUser(task.assigneeId)?.name || "غير مسندة")}</small></div><span class="reference-task-department">${safe(task.department || "-")}</span><time>${safe(task.dueDate ? formatDate(task.dueDate) : "بدون تاريخ")}</time><span class="reference-status ${safe(status)}">${safe(statusText(status))}</span><button class="reference-open-task" type="button" aria-label="فتح المهمة" title="فتح المهمة" onclick="actions.openTask('${safe(task.id)}')">${icons.open || icons.edit}</button></article>`;
+            }).join("") : `<div class="reference-empty">لا توجد مهام حديثة ضمن النطاق الحالي.</div>`}
+          </div>
+        </section>
+
+        <section class="reference-panel reference-quick-panel">
+          <div class="reference-panel-head"><div><h2>الوصول السريع</h2><p>اختصارات للصفحات الأكثر استخداماً.</p></div></div>
+          <div class="reference-quick-grid">${quickLinks.map(([id, label, icon]) => `<button type="button" onclick="actions.setView('${id}')"><span>${icon}</span><strong>${safe(label)}</strong></button>`).join("")}</div>
+        </section>
+
+        <section class="reference-panel reference-updates-panel">
+          <div class="reference-panel-head"><div><h2>آخر المستجدات</h2><p>أحدث النشاطات والتنبيهات في المنصة.</p></div><button class="reference-link" type="button" onclick="actions.setView('activity')">عرض الكل ${icons.chevron || icons.open || ""}</button></div>
+          <div class="reference-updates-list">
+            ${recentActivity.length ? recentActivity.map((item) => `<article><span>${icons.logs}</span><div><strong>${safe(item.title || "نشاط جديد")}</strong><small>${safe(item.description || "تم تحديث بيانات المنصة")}</small></div><time>${safe(item.createdAt ? formatDate(item.createdAt) : today())}</time></article>`).join("") : `<div class="reference-empty">لا توجد مستجدات حديثة.</div>`}
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
   function csvEscape(value) {
     const text = String(value ?? "");
     if (text.includes(",") || text.includes('"') || text.includes("\n")) return `"${text.replaceAll('"', '""')}"`;
@@ -1553,7 +1667,7 @@ export function createDashboardModule(getContext) {
     metric,
     buildReportModel,
     renderReportTable,
-    renderDashboard,
+    renderDashboard: renderReferenceDashboard,
     renderReports,
     openPrintWindow,
     exportReport,
