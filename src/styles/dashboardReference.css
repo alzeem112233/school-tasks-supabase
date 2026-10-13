@@ -63,9 +63,9 @@
 .reference-action svg { width: 22px; height: 22px; }
 
 .reference-stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
-.reference-stat { position: relative; min-width: 0; min-height: 105px; display: flex; align-items: center; gap: 12px; overflow: hidden; padding: 14px; border-radius: 15px; background-color: var(--reference-surface); }
-.reference-stat::before { content: ""; position: absolute; inset: -35px -28px auto; height: 70px; border: 1px solid rgba(67, 133, 214, .11); border-radius: 50%; transform: rotate(-7deg); pointer-events: none; }
-.reference-stat::after { content: ""; position: absolute; inset: -23px -36px auto; height: 62px; border-bottom: 1px solid rgba(67, 133, 214, .08); border-radius: 50%; transform: rotate(-7deg); pointer-events: none; }
+.reference-stat { position: relative; min-width: 0; min-height: 105px; display: flex; align-items: center; gap: 12px; overflow: hidden; padding: 14px; border-radius: 15px; background: linear-gradient(180deg, var(--reference-surface) 0%, #f6faff 100%); isolation: isolate; }
+.reference-stat::before { content: ""; position: absolute; z-index: 0; right: -18%; bottom: -50px; width: 138%; height: 78px; border-radius: 52% 48% 0 0 / 62% 58% 0 0; background: rgba(61, 142, 239, .10); transform: rotate(-3deg); pointer-events: none; }
+.reference-stat::after { content: ""; position: absolute; z-index: 0; right: -28%; bottom: -58px; width: 150%; height: 82px; border-radius: 46% 54% 0 0 / 68% 52% 0 0; background: rgba(38, 108, 214, .08); transform: rotate(4deg); pointer-events: none; }
 .reference-stat-icon { flex: 0 0 42px; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 13px; color: #1769e8; background: #e9f2ff; }
 .reference-stat-icon svg { width: 23px; height: 23px; }
 .reference-stat > div { min-width: 0; }
@@ -125,6 +125,9 @@
 :root[data-theme="dark"] .reference-welcome-art strong { color: #edf5ff; }
 :root[data-theme="dark"] .reference-link { background: #152f53; }
 :root[data-theme="dark"] .reference-stat-icon, :root[data-theme="dark"] .reference-task-icon, :root[data-theme="dark"] .reference-quick-grid span { background: #172f52; }
+:root[data-theme="dark"] .reference-stat { background: linear-gradient(180deg, #101b2d 0%, #10233d 100%); }
+:root[data-theme="dark"] .reference-stat::before { background: rgba(72, 155, 255, .14); }
+:root[data-theme="dark"] .reference-stat::after { background: rgba(42, 111, 218, .11); }
 :root[data-theme="dark"] .reference-progress-card, :root[data-theme="dark"] .reference-empty { background: #111d30; }
 :root[data-theme="dark"] .reference-action.primary { color: #fff; background: #2878ef; }
 :root[data-theme="dark"] .reference-task-row, :root[data-theme="dark"] .reference-quick-grid button { background: #101b2d; }
