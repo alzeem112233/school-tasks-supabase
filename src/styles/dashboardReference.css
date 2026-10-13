@@ -63,10 +63,13 @@
 .reference-action svg { width: 22px; height: 22px; }
 
 .reference-stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
-.reference-stat { min-width: 0; min-height: 105px; display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 15px; }
+.reference-stat { position: relative; min-width: 0; min-height: 105px; display: flex; align-items: center; gap: 12px; overflow: hidden; padding: 14px; border-radius: 15px; background-color: var(--reference-surface); }
+.reference-stat::before { content: ""; position: absolute; inset: -35px -28px auto; height: 70px; border: 1px solid rgba(67, 133, 214, .11); border-radius: 50%; transform: rotate(-7deg); pointer-events: none; }
+.reference-stat::after { content: ""; position: absolute; inset: -23px -36px auto; height: 62px; border-bottom: 1px solid rgba(67, 133, 214, .08); border-radius: 50%; transform: rotate(-7deg); pointer-events: none; }
 .reference-stat-icon { flex: 0 0 42px; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 13px; color: #1769e8; background: #e9f2ff; }
 .reference-stat-icon svg { width: 23px; height: 23px; }
 .reference-stat > div { min-width: 0; }
+.reference-stat > * { position: relative; z-index: 1; }
 .reference-stat strong, .reference-stat b, .reference-stat small { display: block; }
 .reference-stat strong { overflow: hidden; color: var(--reference-muted); font-size: .82rem; white-space: nowrap; text-overflow: ellipsis; }
 .reference-stat b { margin-top: 3px; color: var(--reference-ink); font-size: 1.65rem; line-height: 1.1; }
@@ -136,8 +139,8 @@
 @media (max-width: 720px) {
   .reference-dashboard { padding: 0 0 28px; font-size: 15px; }
   .reference-welcome { min-height: 145px; padding: 20px; border-radius: 16px; }.reference-welcome h1 { font-size: 1.75rem; }.reference-welcome-art { min-width: 120px; padding: 4px; }.reference-welcome-art strong, .reference-welcome-art small { display: none; }.reference-art-icon { width: 48px; height: 48px; }
-  .reference-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }.reference-action { min-height: 48px; padding: 7px 4px; font-size: .82rem; }.reference-action svg { width: 19px; height: 19px; }
-  .reference-stat-grid { gap: 8px; }.reference-stat { min-height: 94px; gap: 8px; padding: 10px; border-radius: 12px; }.reference-stat-icon { flex-basis: 34px; width: 34px; height: 34px; border-radius: 10px; }.reference-stat-icon svg { width: 19px; height: 19px; }.reference-stat strong { font-size: .72rem; }.reference-stat b { font-size: 1.4rem; }.reference-stat small { font-size: .66rem; }
+  .reference-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }.reference-action { min-height: 48px; padding: 7px 4px; font-size: .82rem; white-space: nowrap; }.reference-action svg { width: 19px; height: 19px; }
+  .reference-stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }.reference-stat { min-height: 88px; display: block; padding: 9px 7px; border-radius: 12px; text-align: center; }.reference-stat-icon { flex-basis: 29px; width: 29px; height: 29px; margin: 0 auto 5px; border-radius: 9px; }.reference-stat-icon svg { width: 16px; height: 16px; }.reference-stat strong { font-size: .65rem; }.reference-stat b { font-size: 1.25rem; }.reference-stat small { margin-top: 3px; font-size: .57rem; }
   .reference-panel { padding: 14px; border-radius: 14px; }.reference-panel-head { align-items: flex-start; }.reference-panel-head h2 { font-size: 1.12rem; }.reference-panel-head p { font-size: .78rem; }.reference-link { flex: 0 0 auto; font-size: .76rem; }
   .reference-performance-body { grid-template-columns: 120px minmax(0, 1fr); gap: 14px; }.reference-donut { width: 112px; height: 112px; }.reference-donut::before { width: 84px; height: 84px; }.reference-donut strong { font-size: 1.45rem; }.reference-donut span { font-size: .68rem; }.reference-legend { gap: 8px; }.reference-legend > div { grid-template-columns: 10px 1fr auto 30px; gap: 5px; }.reference-legend span, .reference-legend b { font-size: .78rem; }.reference-legend small { font-size: .68rem; }.reference-progress-card { padding: 12px; }.reference-progress-card b { font-size: 1.4rem; }
   .reference-task-row { grid-template-columns: 30px minmax(0, 1fr) 30px; gap: 8px; min-height: 61px; padding: 8px; }.reference-task-icon { width: 30px; height: 30px; }.reference-task-department, .reference-task-row time { display: none; }.reference-status { justify-self: end; grid-column: 2; grid-row: 2; padding: 3px 7px; font-size: .68rem; }.reference-open-task { grid-column: 3; grid-row: 1 / span 2; }.reference-task-main small { font-size: .7rem; }.reference-task-main strong { font-size: .86rem; }
@@ -146,5 +149,5 @@
 }
 
 @media (max-width: 420px) {
-  .reference-welcome-art { display: none; }.reference-actions { grid-template-columns: 1fr; }.reference-action { min-height: 44px; }.reference-performance-body { grid-template-columns: 1fr; }.reference-donut { margin-bottom: 3px; }.reference-progress-card { grid-column: auto; }
+  .reference-welcome-art { display: none; }.reference-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }.reference-action { min-height: 44px; padding-inline: 2px; gap: 3px; font-size: .68rem; }.reference-action svg { width: 16px; height: 16px; }.reference-performance-body { grid-template-columns: 1fr; }.reference-donut { margin-bottom: 3px; }.reference-progress-card { grid-column: auto; }
 }
