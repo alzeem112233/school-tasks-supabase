@@ -9,7 +9,7 @@ export function createAdminModule(getContext) {
       ["dailyNotebook", "\u062f\u0641\u062a\u0631 \u0627\u0644\u0645\u0647\u0627\u0645", icons.notebook || icons.tasks, 0],
       ...(chat?.canUseChat() ? [["chat", "الدردشة", icons.message, 0]] : []),
       ...(administrativeReports?.canViewAdministrativeReports() ? [["administrativeReports", "تقارير الإشراف", icons.reports, 0]] : []),
-      ...(secretaryReports?.canView() ? [["secretaryReports", "تقارير السكرتير", icons.reports, 0]] : []),
+      ...(secretaryReports?.canView() ? [["secretaryReports", "تقارير السكرتارية", icons.reports, 0]] : []),
       ...(vicePrincipalReports?.canView() ? [["vicePrincipalReports", "تقارير الوكيل", icons.reports, 0]] : []),
       ...(socialSpecialistReports?.canView() ? [["socialSpecialistReports", "تقارير الأخصائي", icons.users || icons.reports, 0]] : []),
       ...(activitySupervisorReports?.canView() ? [["activitySupervisorReports", "تقارير الأنشطة", icons.calendar || icons.reports, 0]] : []),

@@ -91,14 +91,35 @@ svg {
 
 @media (min-width: 1041px) {
   html {
-    scrollbar-gutter: stable;
+    scrollbar-gutter: stable both-edges;
+    overflow-x: clip;
+  }
+
+  body,
+  #app,
+  .shell {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .shell {
+    padding-inline-start: 280px;
   }
 
   .content {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
     padding: 24px 26px 36px !important;
   }
 
   .content > * {
+    box-sizing: border-box;
+    max-width: 100%;
     width: min(100%, var(--platform-content-width));
     margin-inline: auto;
   }
