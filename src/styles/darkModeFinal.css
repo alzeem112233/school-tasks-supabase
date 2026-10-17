@@ -447,3 +447,72 @@
     background: #ffffff !important;
   }
 }
+/* Desktop wrappers can expose a reduced CSS viewport. Keep their navigation
+   in the desktop layout instead of turning it into a mobile overlay. */
+@media (min-width: 901px) and (max-width: 1040px) {
+  html,
+  body,
+  #app,
+  .shell {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: clip !important;
+  }
+
+  body.mobile-menu-open {
+    overflow: auto !important;
+    touch-action: auto !important;
+  }
+
+  .mobile-header,
+  .mobile-nav,
+  .sidebar-overlay,
+  .sidebar-close {
+    display: none !important;
+  }
+
+  .shell {
+    min-height: 100dvh;
+    padding-inline-start: 280px !important;
+    padding-inline-end: 0 !important;
+  }
+
+  .sidebar,
+  .sidebar:not(.open),
+  .sidebar.open {
+    position: fixed !important;
+    inset-block: 0 !important;
+    inset-inline-start: 0 !important;
+    inset-inline-end: auto !important;
+    display: block !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    width: 280px !important;
+    max-width: 280px !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    padding: 22px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    border-radius: 0 !important;
+  }
+
+  .content {
+    box-sizing: border-box;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 18px 20px 28px !important;
+    overflow-x: clip !important;
+  }
+
+  .content > * {
+    box-sizing: border-box;
+    width: min(100%, var(--platform-content-width)) !important;
+    max-width: 100% !important;
+    margin-inline: auto !important;
+  }
+}
