@@ -765,6 +765,14 @@ function enhanceVicePrincipalReportForm() {
     if (!list || !first || !firstField) return;
     const prefix = firstField.dataset.field.split('.')[0];
     section.dataset.viceCollection = prefix;
+    section.classList.add('admin-report-section');
+    Array.from(list.querySelectorAll('.vice-form-card')).slice(1).forEach((card) => {
+      const hasEnteredValue = Array.from(card.querySelectorAll('[data-field]')).some((input) => {
+        const key = input.dataset.field.split('.').at(-1);
+        return key !== 'stage' && String(input.value || '').trim();
+      });
+      if (!hasEnteredValue) card.remove();
+    });
     const heading = section.querySelector('h4');
     if (heading) {
       heading.classList.add('vice-section-title');
