@@ -13784,6 +13784,27 @@ body.offline-mode .floating-sync {
 
 /* Vice-principal reports: supervision-style mobile layout. */
 .vice-report-modal { overflow:hidden; background:var(--bg-surface,#fff); border:1px solid var(--border,#dbe5ef); box-shadow:0 18px 55px rgba(15,23,42,.16); }
+.vice-supervision-daily-modal { max-width:760px; }
+.vice-supervision-daily-modal .modal-head { padding:18px 20px; }
+.vice-supervision-daily-modal .admin-report-modal-body { padding:14px; }
+.vice-daily-date { display:grid; grid-template-columns:100px minmax(0,1fr); align-items:center; gap:10px; padding:10px 12px; border:1px solid #dbe5ef; border-radius:12px; background:#f8fbff; }
+.vice-supervision-sections { display:grid; gap:10px; margin-top:12px; }
+.vice-supervision-section { margin:0!important; border:1px solid #dbe5ef!important; border-radius:13px!important; background:var(--bg-surface,#fff)!important; overflow:hidden; }
+.vice-supervision-section > summary { display:flex!important; align-items:center!important; justify-content:space-between!important; gap:10px!important; min-height:60px; padding:11px 12px!important; list-style:none; cursor:pointer; background:#f8fafc!important; color:#132c63!important; }
+.vice-supervision-section > summary::-webkit-details-marker { display:none; }
+.vice-supervision-section > summary > span { font-size:.95rem; font-weight:900; }
+.vice-supervision-section > summary > div { display:flex; align-items:center; gap:8px; }
+.vice-supervision-section > summary b { display:grid; place-items:center; width:38px; height:38px; border-radius:12px; background:#e0f2fe; color:#0369a1; font-size:.9rem; }
+.vice-summary-add { display:grid; place-items:center; width:38px; height:38px; border:0; border-radius:12px; background:#ccfbf1; color:#0f766e; font-size:1.35rem; font-weight:900; cursor:pointer; }
+.vice-supervision-section[open] > summary { border-bottom:1px solid #dbe5ef; background:#eff6ff!important; }
+.vice-supervision-records { display:grid; gap:9px; padding:10px; }
+.vice-supervision-record { margin:0!important; padding:11px!important; border-color:#dbe5ef!important; border-radius:11px!important; background:#fff!important; }
+.vice-supervision-record-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
+.vice-supervision-record-head strong { color:#1d4ed8; font-size:.86rem; }
+.vice-record-delete { width:32px; height:32px; min-width:32px; color:#b91c1c; border:1px solid #fecaca; background:#fff1f2; }
+.vice-supervision-record .admin-report-fields { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+.vice-supervision-record .field { margin:0!important; min-width:0; }
+.vice-supervision-record .field input { min-height:42px; }
 .vice-section-toolbar { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; border-bottom:1px solid #d8e5f2; background:#f8fbff; }
 .vice-section-toolbar span { color:var(--text-muted,#64748b); font-size:.76rem; font-weight:800; }
 .vice-section-toolbar .vice-add-row { min-height:34px; padding:5px 10px; border-radius:9px; font-size:.76rem; }
@@ -13830,6 +13851,18 @@ body.offline-mode .floating-sync {
   .vice-report-modal .modal-head { padding:12px 14px; }
   .vice-report-modal .modal-head h3 { font-size:1rem; }
   .vice-report-modal .admin-report-modal-body { padding:9px!important; }
+  .vice-supervision-daily-modal .admin-report-modal-body { padding:9px!important; }
+  .vice-daily-date { grid-template-columns:74px minmax(0,1fr); gap:7px; padding:8px 9px; }
+  .vice-supervision-sections { gap:8px; margin-top:9px; }
+  .vice-supervision-section { border-radius:12px!important; }
+  .vice-supervision-section > summary { min-height:58px; padding:9px 10px!important; }
+  .vice-supervision-section > summary > span { font-size:.87rem; }
+  .vice-supervision-section > summary b,.vice-summary-add { width:34px; height:34px; border-radius:10px; }
+  .vice-supervision-records { gap:7px; padding:8px; }
+  .vice-supervision-record { padding:9px!important; border-radius:10px!important; }
+  .vice-supervision-record .admin-report-fields { grid-template-columns:1fr; gap:7px; }
+  .vice-supervision-record .field span { font-size:.75rem; }
+  .vice-supervision-record .field input { min-height:40px; padding:7px 8px; }
   .vice-report-modal .admin-report-modal-body > .field:first-child { display:grid; grid-template-columns:76px 1fr; align-items:center; gap:7px; padding:9px 10px; margin-bottom:9px; border:1px solid #d8e5f2; border-radius:11px; background:#f8fbff; }
   .vice-report-modal .admin-report-modal-body > .field:first-child input { min-height:40px; }
   .vice-daily-section { margin:8px 0; border-radius:12px; }
@@ -13864,6 +13897,12 @@ body.offline-mode .floating-sync {
 :root[data-theme="dark"] .vice-daily-section > summary::before,
 :root[data-theme="dark"] .vice-daily-section > summary b { background:#21466f; color:#bfdbfe; }
 :root[data-theme="dark"] .vice-daily-section > h4 { background:#172b46; color:#dbeafe; }
+:root[data-theme="dark"] .vice-daily-date,
+:root[data-theme="dark"] .vice-supervision-section > summary { background:#162337!important; border-color:#30445e!important; color:#dbeafe!important; }
+:root[data-theme="dark"] .vice-supervision-section[open] > summary { background:#1b3554!important; }
+:root[data-theme="dark"] .vice-supervision-section,
+:root[data-theme="dark"] .vice-supervision-record { background:#101a2b!important; border-color:#30445e!important; }
+:root[data-theme="dark"] .vice-supervision-record-head strong { color:#bfdbfe; }
 :root[data-theme="dark"] .vice-section-toolbar { background:#142238; border-color:#30445e; }
 :root[data-theme="dark"] .vice-remove-row { background:#3a1e29; border-color:#7f1d1d; color:#fecaca; }
 

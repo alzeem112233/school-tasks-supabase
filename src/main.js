@@ -57,7 +57,7 @@ import { createStaffEvaluationsModule } from "./services/staffEvaluationService.
 import { createTeacherDirectoryModule } from "./services/teacherDirectoryService.js";
 import { createAdministrativeReportsModule } from "./services/administrativeReportService.js";
 import { createSecretaryReportModule } from "./services/secretaryReportService.js";
-import { createVicePrincipalReportModule } from "./services/vicePrincipalReportCleanService.js";
+import { createVicePrincipalReportModule } from "./services/vicePrincipalReportSupervisionStyleService.js";
 import { createSocialSpecialistReportModule } from "./services/socialSpecialistReportService.js";
 import { createActivitySupervisorReportModule } from "./services/activitySupervisorReportService.js";
 import { createNotebookRoleTemplateModule } from "./services/notebookRoleTemplateService.js";
@@ -1030,6 +1030,8 @@ window.actions = {
   printSecretaryMonthlyReport: modules.secretaryReports.printMonthlyReport,
   printSecretaryReport: modules.secretaryReports.printReport,
   openVicePrincipalReport: modules.vicePrincipalReports.openReport,
+  addViceDailyRecord: modules.vicePrincipalReports.addDailyRecord,
+  removeViceDailyRecord: modules.vicePrincipalReports.removeDailyRecord,
   openVicePrincipalMonthlyReport: modules.vicePrincipalReports.openMonthlyReport,
   saveVicePrincipalReport: modules.vicePrincipalReports.saveReport,
   approveVicePrincipalReport: modules.vicePrincipalReports.approveReport,
