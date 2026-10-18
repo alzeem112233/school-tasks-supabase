@@ -90,6 +90,7 @@ let dashboardQueryTimer = null;
 let searchRenderTimer = null;
 let fileSelection = [];
 let renderQueued = false;
+let shellStabilityHandlersInstalled = false;
 let reloadingForServiceWorkerUpdate = false;
 let capacitorPlatform = { native: false, hideSplash: async () => {} };
 let systemThemeQuery = null;
@@ -560,6 +561,55 @@ function requestRenderFrame(callback) {
   window.requestAnimationFrame(callback);
 }
 
+function resetPagePosition() {
+  requestRenderFrame(() => {
+    const content = document.querySelector?.(".content");
+    if (content) content.scrollTop = 0;
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+  });
+}
+
+function installShellStabilityHandlers() {
+  if (shellStabilityHandlersInstalled || typeof window.addEventListener !== "function") return;
+  shellStabilityHandlersInstalled = true;
+
+  window.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (state.modal) {
+      event.preventDefault();
+      window.actions?.closeModal?.();
+      return;
+    }
+    if (state.mobileNavOpen) {
+      event.preventDefault();
+      state.mobileNavOpen = false;
+      render();
+    }
+  });
+
+  const desktopViewport = window.matchMedia?.("(min-width: 1041px)");
+  desktopViewport?.addEventListener?.("change", (event) => {
+    if (!event.matches || !state.mobileNavOpen) return;
+    state.mobileNavOpen = false;
+    render();
+  });
+}
+
+function classifyResponsiveTables() {
+  document.querySelectorAll?.("table.responsive-table, table.report-table").forEach((table) => {
+    const hasMobileLabels = Boolean(table.querySelector("td[data-label]"));
+    table.classList.toggle("mobile-card-table", hasMobileLabels);
+    table.classList.toggle("mobile-scroll-table", !hasMobileLabels);
+    if (!hasMobileLabels && !table.parentElement?.classList?.contains("platform-table-scroll")) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "platform-table-scroll";
+      table.parentNode?.insertBefore(wrapper, table);
+      wrapper.appendChild(table);
+    }
+  });
+}
+
 function getContext() {
   return {
     supabaseClient,
@@ -692,6 +742,7 @@ function renderNow() {
     return;
   }
   modules.admin.renderShell();
+  classifyResponsiveTables();
   document.querySelectorAll(".secretary-task-card").forEach((card) => {
     const done = card.querySelector('input[name^="taskDone"]');
     const deferred = card.querySelector('input[name^="taskDeferred"]');
@@ -735,6 +786,7 @@ function installSecretaryTaskStatusStyles() {
 async function boot() {
   clearLegacyDemoStorage();
   installSecretaryTaskStatusStyles();
+  installShellStabilityHandlers();
   document.addEventListener("change", handleSecretaryTaskStatusChange);
   state.theme = localStorage.getItem("schoolTaskTheme") || "system";
   state.activeSchoolId = localStorage.getItem("schoolTaskActiveSchool") || "all";
@@ -846,6 +898,7 @@ window.actions = {
       state.view = "circulars";
       if (circularId) state.modal = { type: "circular", id: circularId };
       render();
+      resetPagePosition();
       return;
     }
     if (item.type === "meeting_invite") {
@@ -853,6 +906,7 @@ window.actions = {
       state.view = "meetings";
       if (meetingId) state.modal = { type: "meeting", id: meetingId };
       render();
+      resetPagePosition();
     }
   },
   exportReport: modules.dashboard.exportReport,
@@ -909,6 +963,7 @@ window.actions = {
   printSecretaryMonthlyReport: modules.secretaryReports.printMonthlyReport,
   printSecretaryReport: modules.secretaryReports.printReport,
   openVicePrincipalReport: modules.vicePrincipalReports.openReport,
+  openVicePrincipalMonthlyReport: modules.vicePrincipalReports.openMonthlyReport,
   saveVicePrincipalReport: modules.vicePrincipalReports.saveReport,
   approveVicePrincipalReport: modules.vicePrincipalReports.approveReport,
   selectVicePrincipalReportTeacher: modules.vicePrincipalReports.selectTeacher,
@@ -1162,17 +1217,20 @@ window.actions = {
     }
     state.mobileNavOpen = false;
     render();
+    if (previousView !== view) resetPagePosition();
     if (view === "home") queueDashboardRefresh(0);
   },
   openHomeCircular(id) {
     state.view = "circulars";
     state.mobileNavOpen = false;
     modules.circulars.openCircular(id);
+    resetPagePosition();
   },
   openHomeMeeting(id) {
     state.view = "meetings";
     state.mobileNavOpen = false;
     modules.meetings.openMeeting(id);
+    resetPagePosition();
   },
   openHomeTask(id) {
     const task = state.tasks.find((item) => item.id === id);
@@ -1184,6 +1242,7 @@ window.actions = {
     state.mobileNavOpen = false;
     state.modal = { type: "task", id, readOnly: true, source: "home" };
     render();
+    resetPagePosition();
   },
   setFilter(key, value) {
     state.filters[key] = value;

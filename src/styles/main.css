@@ -13756,6 +13756,25 @@ body.offline-mode .floating-sync {
 .vice-report-modal { max-width:1100px; }
 .vice-mobile-list { display:grid; gap:12px; }
 .vice-form-card { border:1px solid var(--border); border-radius:10px; padding:14px; background:var(--surface-muted); display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.vice-daily-section { display:grid; gap:8px; margin:14px 0; }
+.vice-daily-section h4 { margin:0; padding:10px 12px; border-radius:10px; background:var(--primary-soft,#eff6ff); color:var(--primary,#1d4ed8); }
+.vice-wide-field { display:grid; gap:6px; margin-top:14px; }
+.vice-wide-field textarea { min-height:90px; }
+.vice-monthly-card { border-color:#93c5fd; background:linear-gradient(135deg,var(--surface),#eff6ff); }
+.vice-month-picker { display:grid; gap:5px; margin:12px 0; }
+.vice-month-picker input { width:100%; min-height:42px; }
+.vice-monthly-content { display:grid; gap:14px; }
+.vice-monthly-summary { display:flex; align-items:center; gap:10px; padding:12px 14px; border:1px solid #bbf7d0; border-radius:12px; background:#f0fdf4; color:#166534; }
+.vice-monthly-summary strong { font-size:1.4rem; }
+.vice-monthly-section { display:grid; gap:8px; }
+.vice-monthly-section h4 { margin:0; padding:9px 11px; border-radius:9px; background:var(--primary-soft,#eff6ff); color:var(--primary,#1d4ed8); }
+.vice-monthly-table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:10px; }
+.vice-monthly-table-wrap table { min-width:620px; width:100%; border-collapse:collapse; }
+.vice-monthly-table-wrap th,.vice-monthly-table-wrap td { padding:7px; border:1px solid var(--border); text-align:right; vertical-align:top; font-size:.78rem; }
+.vice-monthly-table-wrap th { background:var(--primary-soft,#eff6ff); color:var(--primary,#1d4ed8); }
+.vice-empty-note { margin:0; padding:10px; color:var(--muted); background:var(--surface-muted); border-radius:9px; }
+.vice-monthly-note { padding:10px; border:1px solid var(--border); border-radius:9px; background:var(--surface-muted); }
+.vice-monthly-note p { margin:5px 0 0; }
 .vice-form-card > strong { grid-column:1/-1; color:var(--primary); }
 .vice-subcard { grid-column:1/-1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; padding:10px; border:1px dashed var(--border); border-radius:8px; background:var(--surface); }
 .vice-subcard > b { grid-column:1/-1; }
