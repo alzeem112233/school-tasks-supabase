@@ -608,6 +608,16 @@ export function createDashboardModule(getContext) {
     return getContext().tasks.reportBaseTasks().filter(reportSchoolMatches).filter(activeReportAssignment);
   }
 
+  function reportActiveUsers() {
+    const { state, canViewUser } = getContext();
+    const schoolId = selectedReportSchoolId();
+    return (state.users || [])
+      .filter((user) => user.active !== false)
+      .filter((user) => canViewUser(user))
+      .filter((user) => schoolId === "all" || user.schoolId === schoolId)
+      .sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "ar"));
+  }
+
   function dailyNotebookReportPeriod() {
     const { state } = getContext();
     const fallbackDate = toDateKey(state.permanentTaskDate || today()) || today();
@@ -658,6 +668,9 @@ export function createDashboardModule(getContext) {
         employeeMap.set(key, current);
         return current;
       };
+      reportActiveUsers()
+        .filter((user) => state.filters.assigneeId === "all" || user.id === state.filters.assigneeId)
+        .forEach((user) => ensureEmployee(user.id));
       for (const selectedDate of period.workingDates) {
         const notebookTasks = tasks
           .uniquePermanentTaskRoots(tasks.visibleTasks({ includeSearch: false }))
@@ -761,7 +774,7 @@ export function createDashboardModule(getContext) {
       return [...regularRows, ...extraRows];
     }
     if (type === "employee") {
-      const users = state.users.filter((user) => user.active && baseTasks.some((task) => task.assigneeId === user.id));
+      const users = reportActiveUsers();
       return users.map((user) => {
         const assigned = baseTasks.filter((task) => task.assigneeId === user.id);
         return [
@@ -792,7 +805,7 @@ export function createDashboardModule(getContext) {
         .filter(Boolean);
     }
     if (type === "performance") {
-      const employees = state.users.filter((user) => user.active && baseTasks.some((task) => task.assigneeId === user.id));
+      const employees = reportActiveUsers();
       return employees.map((user) => {
         const assigned = baseTasks.filter((task) => task.assigneeId === user.id);
         const completed = assigned.filter((task) => tasks.effectiveStatus(task) === "completed").length;
@@ -846,7 +859,7 @@ export function createDashboardModule(getContext) {
       if (!period.workingDates.length) return `تقرير دفتر المهام من ${formatDate(period.from)} إلى ${formatDate(period.to)} لا يحتوي أيام عمل، وتم استبعاد الخميس والجمعة.`;
       return `تقرير دفتر المهام من ${formatDate(period.from)} إلى ${formatDate(period.to)} - أيام العمل: ${period.workingDates.length} - المستبعدة: ${period.excludedDates.length} - المهام المستحدثة: ${extraCount}`;
     }
-    if (type === "employee") return `عدد الموظفين المشمولين: ${new Set(baseTasks.map((task) => task.assigneeId)).size}`;
+    if (type === "employee") return `عدد الموظفين المشمولين: ${reportActiveUsers().length}`;
     if (type === "department") return `عدد الأقسام المشمولة: ${new Set(baseTasks.map((task) => task.department)).size}`;
     if (type === "performance") return "نظرة عامة على أداء المكلفين النشطين";
     if (type === "delay") return `عدد المهام المتأخرة: ${baseTasks.filter((task) => tasks.effectiveStatus(task) === "overdue").length}`;
