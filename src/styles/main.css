@@ -13784,6 +13784,11 @@ body.offline-mode .floating-sync {
 
 /* Vice-principal reports: supervision-style mobile layout. */
 .vice-report-modal { overflow:hidden; background:var(--bg-surface,#fff); border:1px solid var(--border,#dbe5ef); box-shadow:0 18px 55px rgba(15,23,42,.16); }
+.vice-section-toolbar { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; border-bottom:1px solid #d8e5f2; background:#f8fbff; }
+.vice-section-toolbar span { color:var(--text-muted,#64748b); font-size:.76rem; font-weight:800; }
+.vice-section-toolbar .vice-add-row { min-height:34px; padding:5px 10px; border-radius:9px; font-size:.76rem; }
+.vice-form-card { position:relative; }
+.vice-remove-row { position:absolute; top:8px; left:8px; width:30px; height:30px; min-width:30px; color:#b91c1c; border:1px solid #fecaca; background:#fff1f2; z-index:1; }
 .vice-report-modal .modal-head { padding:16px 18px; background:linear-gradient(135deg,#eff6ff,#ffffff); border-bottom:1px solid var(--border,#dbe5ef); }
 .vice-report-modal .modal-head h3 { margin:4px 0 0; color:#102b68; }
 .vice-report-modal .admin-report-modal-body { background:var(--bg-surface,#fff); }
@@ -13793,6 +13798,11 @@ body.offline-mode .floating-sync {
 .vice-report-modal .admin-report-sticky-actions { gap:8px; padding:10px 14px; }
 .vice-report-modal .admin-report-sticky-actions .btn { min-height:42px; border-radius:11px; }
 .vice-daily-section { border:1px solid #d8e5f2; border-radius:14px; background:var(--bg-surface,#fff); overflow:hidden; box-shadow:0 5px 16px rgba(30,80,150,.05); }
+.vice-daily-section.is-collapsed .vice-mobile-list,.vice-daily-section.is-collapsed .vice-section-toolbar { display:none; }
+.vice-daily-section > h4 { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:0; padding:12px 14px; cursor:pointer; background:#eef6ff; color:#102b68; font-size:.9rem; }
+.vice-daily-section > h4::before { content:"⌄"; display:grid; place-items:center; order:2; width:25px; height:25px; border-radius:8px; background:#dbeafe; color:#2563eb; font-weight:900; }
+.vice-daily-section:not(.is-collapsed) > h4::before { content:"⌃"; }
+.vice-daily-section > h4:focus-visible { outline:3px solid rgba(37,99,235,.25); outline-offset:-3px; }
 .vice-daily-section > summary { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; cursor:pointer; list-style:none; background:#eef6ff; color:#102b68; font-weight:900; }
 .vice-daily-section > summary::-webkit-details-marker { display:none; }
 .vice-daily-section > summary::before { content:"⌄"; display:grid; place-items:center; width:25px; height:25px; border-radius:8px; background:#dbeafe; color:#2563eb; font-weight:900; }
@@ -13826,6 +13836,9 @@ body.offline-mode .floating-sync {
   .vice-daily-section > summary { padding:10px 11px; font-size:.84rem; }
   .vice-daily-section > .vice-mobile-list { gap:7px; padding:7px; }
   .vice-daily-section .vice-form-card { gap:7px; padding:9px; border-radius:10px; }
+  .vice-section-toolbar { padding:7px 8px; }
+  .vice-section-toolbar .vice-add-row { min-height:36px; font-size:.74rem; }
+  .vice-remove-row { top:7px; left:7px; width:28px; height:28px; min-width:28px; }
   .vice-report-modal .vice-form-card .field { gap:3px; }
   .vice-report-modal .vice-form-card .field input,.vice-report-modal .vice-form-card .field select,.vice-report-modal .vice-form-card .field textarea { min-height:40px; padding:8px 9px; border-radius:9px; }
   .vice-report-modal .vice-form-card .field textarea { min-height:58px; }
@@ -13850,6 +13863,9 @@ body.offline-mode .floating-sync {
 :root[data-theme="dark"] .vice-daily-section > summary { background:#172b46; }
 :root[data-theme="dark"] .vice-daily-section > summary::before,
 :root[data-theme="dark"] .vice-daily-section > summary b { background:#21466f; color:#bfdbfe; }
+:root[data-theme="dark"] .vice-daily-section > h4 { background:#172b46; color:#dbeafe; }
+:root[data-theme="dark"] .vice-section-toolbar { background:#142238; border-color:#30445e; }
+:root[data-theme="dark"] .vice-remove-row { background:#3a1e29; border-color:#7f1d1d; color:#fecaca; }
 
 /* unified mobile-first polish */
 @media (max-width: 760px) {

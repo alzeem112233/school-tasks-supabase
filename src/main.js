@@ -742,6 +742,7 @@ function renderNow() {
     return;
   }
   modules.admin.renderShell();
+  enhanceVicePrincipalReportForm();
   classifyResponsiveTables();
   document.querySelectorAll(".secretary-task-card").forEach((card) => {
     const done = card.querySelector('input[name^="taskDone"]');
@@ -750,6 +751,64 @@ function renderNow() {
       done.checked = false;
       card.classList.remove("is-done");
     }
+  });
+}
+
+function enhanceVicePrincipalReportForm() {
+  const form = document.querySelector('.vice-report-modal form');
+  if (!form || state.modal?.vicePrincipalReport?.viceType !== 'daily' || form.dataset.dynamicRows === 'true') return;
+  form.dataset.dynamicRows = 'true';
+  form.querySelectorAll('.vice-daily-section').forEach((section) => {
+    const list = section.querySelector('.vice-mobile-list');
+    const first = list?.querySelector('.vice-form-card');
+    const firstField = first?.querySelector('[data-field]');
+    if (!list || !first || !firstField) return;
+    const prefix = firstField.dataset.field.split('.')[0];
+    section.dataset.viceCollection = prefix;
+    const heading = section.querySelector('h4');
+    if (heading) {
+      heading.classList.add('vice-section-title');
+      heading.setAttribute('tabindex', '0');
+      heading.setAttribute('role', 'button');
+      heading.setAttribute('aria-expanded', 'false');
+      section.classList.add('is-collapsed');
+      heading.insertAdjacentHTML('afterend', `<div class="vice-section-toolbar"><span>السجلات</span><button type="button" class="btn secondary vice-add-row" data-vice-add="${prefix}">+ إضافة سجل</button></div>`);
+      const toggle = () => { const collapsed = section.classList.toggle('is-collapsed'); heading.setAttribute('aria-expanded', String(!collapsed)); };
+      heading.addEventListener('click', toggle);
+      heading.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggle(); } });
+    }
+    const refresh = () => {
+      list.querySelectorAll('.vice-form-card').forEach((card, index) => {
+        card.querySelectorAll('[data-field]').forEach((input) => {
+          const parts = input.dataset.field.split('.');
+          if (parts.length > 2) input.dataset.field = `${prefix}.${index}.${parts.slice(2).join('.')}`;
+        });
+        const label = card.querySelector('strong');
+        if (label && /^السجل/.test(label.textContent.trim())) label.textContent = `السجل ${index + 1}`;
+        if (!card.querySelector('.vice-remove-row')) card.insertAdjacentHTML('afterbegin', `<button type="button" class="icon-btn vice-remove-row" data-vice-remove="${prefix}" aria-label="حذف السجل" title="حذف السجل">×</button>`);
+      });
+    };
+    refresh();
+    section.addEventListener('click', (event) => {
+      const add = event.target.closest('[data-vice-add]');
+      const remove = event.target.closest('[data-vice-remove]');
+      if (add) {
+        const clone = list.querySelector('.vice-form-card')?.cloneNode(true);
+        if (!clone) return;
+        clone.querySelectorAll('input, textarea, select').forEach((input) => {
+          if (input.type === 'hidden') input.value = '';
+          else input.value = '';
+        });
+        list.appendChild(clone);
+        refresh();
+      }
+      if (remove) {
+        const card = remove.closest('.vice-form-card');
+        if (list.children.length > 1) card?.remove();
+        else card?.querySelectorAll('input, textarea, select').forEach((input) => { if (input.type !== 'hidden') input.value = ''; });
+        refresh();
+      }
+    });
   });
 }
 
