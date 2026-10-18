@@ -43,6 +43,18 @@ export function createVicePrincipalReportModule(getContext) {
   const reports = () => (ctx().state.administrativeReports || []).map(normalizeReport).filter((item) => Object.values(TYPES).some((type) => type.kind === item.reportKind));
   function canView(user = ctx().state.currentUser) { return canManage(user) || role(user) === "deputy_principal"; }
   function canCreate(user = ctx().state.currentUser) { return canView(user); }
+  function reportSchoolScope(user = ctx().state.currentUser) {
+    const { state, scopedSchoolIds } = ctx();
+    if (!user) return [];
+    if (role(user) === "superadmin") return scopedSchoolIds?.() || (state.schools || []).map((school) => school.id);
+    if (Array.isArray(user.linkedSchoolIds) && user.linkedSchoolIds.length) return user.linkedSchoolIds;
+    if (user.schoolId && user.schoolId !== "general") return [user.schoolId];
+    return canManage(user) ? (state.schools || []).map((school) => school.id) : [];
+  }
+  function canAccessReport(report, user = ctx().state.currentUser) {
+    return Boolean(report && canView(user) && reportSchoolScope(user).includes(report.schoolId));
+  }
+  function visibleReports(user = ctx().state.currentUser) { return reports().filter((item) => canAccessReport(item, user)); }
   function teacherDirectory(schoolId = "") { const { state } = ctx(); return (state.teacherDirectory || []).filter((teacher) => teacher.active !== false && teacher.schoolId === schoolId && isTeacherVisibleFor(state, teacher.id, state.currentUser?.id || "")).sort((a, b) => String(a.teacherName || "").localeCompare(String(b.teacherName || ""), "ar")); }
   function replaceAndSave(report) {
     const { state, supabase, showToast, render } = ctx();
@@ -52,7 +64,7 @@ export function createVicePrincipalReportModule(getContext) {
     state.modal = null; render();
   }
   function openReport(type, id = "") {
-    const { state, render } = ctx(); const existing = reports().find((item) => item.id === id);
+    const { state, render } = ctx(); const existing = visibleReports().find((item) => item.id === id);
     const key = existing?.viceType || type; const today = new Date().toISOString().slice(0, 10);
     state.modal = { type: "vice_principal_report", vicePrincipalReport: existing || { id: createUuid(), reportKind: TYPES[key].kind, viceType: key, date: today, schoolId: state.currentUser?.schoolId || "", authorId: state.currentUser?.id || "", authorName: state.currentUser?.name || "", status: "draft", data: blankData(key), updatedAt: new Date().toISOString() } }; render();
   }
@@ -79,13 +91,13 @@ export function createVicePrincipalReportModule(getContext) {
     event.preventDefault(); const { state } = ctx(); const form = new FormData(event.currentTarget); const old = state.modal.vicePrincipalReport; const key = old.viceType; const data = JSON.parse(form.get("payload") || "{}");
     replaceAndSave({ ...old, date: filled(form.get("date")) || old.date, status: submit ? "submitted" : "draft", data, updatedAt: new Date().toISOString(), submittedAt: submit ? new Date().toISOString() : old.submittedAt || "" });
   }
-  function approveReport(id) { const report = reports().find((item) => item.id === id); if (!report || !canManage()) return; replaceAndSave({ ...report, status: "principal_approved", approvedAt: new Date().toISOString(), approvedBy: ctx().state.currentUser?.id || "" }); }
+  function approveReport(id) { const report = visibleReports().find((item) => item.id === id); if (!report || !canManage()) return; replaceAndSave({ ...report, status: "principal_approved", approvedAt: new Date().toISOString(), approvedBy: ctx().state.currentUser?.id || "" }); }
   function renderPage() {
     const { state, safe, icons, schoolName } = ctx(); if (!canView()) return `<section class="empty-state"><h2>لا تملك صلاحية عرض تقارير الوكيل.</h2></section>`;
-    const list = reports().filter((item) => canManage() || item.schoolId === state.currentUser?.schoolId);
+    const list = visibleReports();
     const currentMonth = new Date().toISOString().slice(0, 7);
     const monthlyCard = `<article class="vice-report-card vice-monthly-card"><div><span class="eyebrow">تجميعي تلقائي</span><h3>التقرير الشهري للوكيل</h3><p>يجمع تلقائيًا جميع بيانات التقارير اليومية المحفوظة خلال الشهر المختار.</p></div><label class="field vice-month-picker"><span>الشهر</span><input id="viceMonthlyMonth" type="month" value="${currentMonth}" /></label><button class="btn" onclick="actions.openVicePrincipalMonthlyReport(document.getElementById('viceMonthlyMonth')?.value)">${icons.reports || icons.print || ""} عرض وطباعة التقرير الشهري</button></article>`;
-    const cards = monthlyCard + Object.entries(TYPES).map(([key, type]) => { const items = list.filter((item) => item.reportKind === type.kind); return `<article class="vice-report-card"><div><span class="eyebrow">تقرير الوكيل</span><h3>${type.title}</h3><p>${items.length} تقرير محفوظ · ${items.filter((item) => item.status === "principal_approved").length} معتمد</p></div><button class="btn" onclick="actions.openVicePrincipalReport('${key}','')">${icons.plus || "+"} ${key === "daily" ? "إضافة تقرير يومي" : "فتح تقرير"}</button><div class="vice-report-history">${items.slice(0, 5).map((item) => `<button type="button" class="vice-history-row" onclick="actions.openVicePrincipalReport('${key}','${safe(item.id)}')"><span>${safe(item.date)} · ${safe(schoolName(item.schoolId))}</span><b>${item.status === "principal_approved" ? "معتمد" : item.status === "submitted" ? "مرفوع" : "مسودة"}</b></button>`).join("") || `<small>لا توجد تقارير محفوظة.</small>`}</div></article>`; }).join("");
+    const cards = monthlyCard + Object.entries(TYPES).map(([key, type]) => { const items = list.filter((item) => item.reportKind === type.kind); return `<article class="vice-report-card"><div><span class="eyebrow">تقرير الوكيل</span><h3>${type.title}</h3><p>${items.length} تقرير محفوظ · ${items.filter((item) => item.status === "principal_approved").length} معتمد</p></div><button class="btn" onclick="actions.openVicePrincipalReport('${key}','')">${icons.plus || "+"} ${key === "daily" ? "إضافة تقرير يومي" : "فتح تقرير"}</button><div class="vice-report-history">${items.map((item) => `<button type="button" class="vice-history-row" onclick="actions.openVicePrincipalReport('${key}','${safe(item.id)}')"><span>${safe(item.date)} · ${safe(schoolName(item.schoolId))}</span><b>${item.status === "principal_approved" ? "معتمد" : item.status === "submitted" ? "مرفوع" : "مسودة"}</b></button>`).join("") || `<small>لا توجد تقارير محفوظة.</small>`}</div></article>`; }).join("");
     return `<section class="admin-report-page vice-report-page"><div class="admin-report-hero"><div><span>تقارير الوكيل</span><h2>متابعة السجلات والتقارير</h2><p>كل نموذج مستقل، محفوظ في السحابة، ومهيأ للإدخال من الهاتف.</p></div></div><div class="vice-report-grid">${cards}</div></section>`;
   }
   function field(label, name, value, type = "text", attributes = "") { return `<label class="field"><span>${label}</span><input type="${type}" data-field="${name}" value="${ctx().safe(value)}" ${attributes}/></label>`; }
@@ -107,7 +119,7 @@ export function createVicePrincipalReportModule(getContext) {
     return `<div class="vice-daily-form">${dailyFields("أ) الكادر الإداري والتعليمي - الإيجابيات", data.staffHighlights, [["اسم الموظف", "name"], ["أبرز الإيجابيات", "positive"], ["التعزيز", "reinforcement"]], "staffHighlights")}${dailyFields("أ) الكادر الإداري والتعليمي - الملاحظات", data.staffNotes, [["اسم الموظف", "name"], ["أبرز الملاحظات", "note"], ["الإجراء", "action"]], "staffNotes")}${dailyFields("متابعة تصويب الدفاتر للمعلمين", data.correction, [["المرحلة", "stage"], ["مصحح", "corrected", "number"], ["متأخر", "late", "number"], ["غير مصحح", "notCorrected", "number"], ["الإجمالي", "total", "number"], ["ملاحظات", "notes"]], "correction")}${dailyFields("ب) المتعلمون - الإيجابيات", data.studentHighlights, [["اسم المتعلم", "name"], ["الفصل", "className"], ["أبرز الإيجابيات", "positive"], ["التعزيز", "reinforcement"]], "studentHighlights")}${dailyFields("ب) المتعلمون - المخالفات", data.studentViolations, [["اسم المتعلم", "name"], ["الفصل", "className"], ["المخالفة", "violation"], ["الإجراء", "action"]], "studentViolations")}${dailyFields("التواصل مع الغائبين", data.absenceContacts, [["المرحلة", "stage"], ["عدد الغائبين", "absentCount", "number"], ["تم الرد", "answered", "number"], ["لم يرد", "noAnswer", "number"]], "absenceContacts")}${dailyFields("الغياب التراكمي الشهري", data.cumulativeAbsence, [["المرحلة", "stage"], ["اسم المتعلم", "name"], ["الفصل", "className"], ["عدد الأيام", "days", "number"], ["سبب الغياب", "reason"], ["الإجراء", "action"]], "cumulativeAbsence")}${dailyFields("تفعيل دفاتر متابعة المعلمين", data.teacherNotebooks, [["اسم المعلم", "teacher"], ["الفصل", "className"], ["أهم الملاحظات", "notes"], ["الإجراءات والمعالجات", "action"]], "teacherNotebooks")}${dailyFields("أبرز ملاحظات أولياء الأمور", data.parentNotes, [["المرحلة", "stage"], ["الملاحظات", "note"], ["المعالجات", "action"], ["ملاحظات عامة", "general"]], "parentNotes")}<section class="vice-daily-section"><h4>متابعة مرافق مصادر التعلم والمرافق الأخرى</h4><div class="vice-mobile-list">${data.facilities.map((row, index) => `<article class="vice-form-card"><strong>${facilities[index]}</strong>${field("التفعيل", `facilities.${index}.activation`, row.activation)}${field("الإيجابيات", `facilities.${index}.positives`, row.positives)}${field("الملاحظات", `facilities.${index}.notes`, row.notes)}</article>`).join("")}</div></section><label class="field vice-wide-field"><span>أبرز الملاحظات والمقترحات</span><textarea data-field="recommendations">${ctx().safe(data.recommendations)}</textarea></label></div>`;
   }
   const populated = (row) => Object.values(row || {}).some((value) => String(value || "").trim());
-  function monthlyReports(month) { return reports().filter((item) => item.viceType === "daily" && String(item.date || "").slice(0, 7) === month && (canManage() || item.schoolId === ctx().state.currentUser?.schoolId)); }
+  function monthlyReports(month) { return visibleReports().filter((item) => item.viceType === "daily" && String(item.date || "").slice(0, 7) === month); }
   function monthlyRows(month, key) { return monthlyReports(month).flatMap((report) => (report.data?.[key] || []).filter(populated).map((row) => ({ ...row, date: report.date }))); }
   function monthlySummary(month) {
     const daily = monthlyReports(month);
@@ -135,7 +147,7 @@ export function createVicePrincipalReportModule(getContext) {
   }
   function printReport(id = "", section = "all") {
     const { state, safe, schoolName, showToast } = ctx();
-    const report = reports().find((item) => item.id === id) || state.modal?.vicePrincipalReport;
+    const report = visibleReports().find((item) => item.id === id) || state.modal?.vicePrincipalReport;
     if (!report) { showToast?.("لم يتم العثور على التقرير"); return; }
     if (section === "monthly" || report.viceType === "monthly") {
       const month = report.month || new Date().toISOString().slice(0, 7);
