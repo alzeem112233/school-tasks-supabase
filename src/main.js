@@ -1032,6 +1032,7 @@ window.actions = {
   openVicePrincipalReport: modules.vicePrincipalReports.openReport,
   addViceDailyRecord: modules.vicePrincipalReports.addDailyRecord,
   removeViceDailyRecord: modules.vicePrincipalReports.removeDailyRecord,
+  toggleViceDailySection: modules.vicePrincipalReports.toggleDailySection,
   openVicePrincipalMonthlyReport: modules.vicePrincipalReports.openMonthlyReport,
   saveVicePrincipalReport: modules.vicePrincipalReports.saveReport,
   approveVicePrincipalReport: modules.vicePrincipalReports.approveReport,

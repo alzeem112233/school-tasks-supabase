@@ -22,6 +22,8 @@ export function createVicePrincipalReportModule(getContext) {
   const ctx = () => getContext();
   const currentReport = () => ctx().state.modal?.vicePrincipalReport;
   const editable = (report) => base.canCreate() && report.status !== "principal_approved" && (report.authorId === ctx().state.currentUser?.id || managerRoles.has(normalizeRole(ctx().state.currentUser?.role, "")));
+  const isSuperadmin = () => normalizeRole(ctx().state.currentUser?.role, "") === "superadmin";
+  const deputyUsers = (schoolId) => (ctx().state.users || []).filter((user) => user.active !== false && normalizeRole(user.role, "") === "deputy_principal" && (!schoolId || user.schoolId === schoolId));
 
   function syncDraftFromForm() {
     const form = document.querySelector(".vice-supervision-daily-modal form");
@@ -39,6 +41,12 @@ export function createVicePrincipalReportModule(getContext) {
     const recommendation = form.querySelector('[data-vice-recommendations]');
     data.recommendations = recommendation?.value || "";
     report.data = data;
+    report.viceOpenSections = Array.from(form.querySelectorAll(".vice-supervision-section[open]")).map((section) => section.dataset.sectionKey).filter(Boolean);
+    const deputy = form.querySelector("[data-vice-author]");
+    if (deputy && isSuperadmin()) {
+      const selected = deputyUsers(report.schoolId).find((user) => user.id === deputy.value);
+      if (selected) { report.authorId = selected.id; report.authorName = selected.name; }
+    }
   }
 
   function addDailyRecord(key) {
@@ -60,6 +68,14 @@ export function createVicePrincipalReportModule(getContext) {
     ctx().render();
   }
 
+  function toggleDailySection(key, open) {
+    const report = currentReport();
+    if (!report) return;
+    const values = new Set(report.viceOpenSections || []);
+    if (open) values.add(key); else values.delete(key);
+    report.viceOpenSections = [...values];
+  }
+
   function field(section, row, index, [label, key, type = "text"], canEdit) {
     const safe = ctx().safe;
     const value = row?.[key] || "";
@@ -70,7 +86,8 @@ export function createVicePrincipalReportModule(getContext) {
     const safe = ctx().safe;
     const savedRows = (report.data?.[section.key] || []).filter((row) => hasValue(row, section));
     const rows = report.data?.[section.key]?.length ? report.data[section.key] : [section.blank()];
-    return `<details class="admin-report-section vice-supervision-section"><summary><span>${section.title}</span><div><b>${savedRows.length}</b>${canEdit ? `<button type="button" class="vice-summary-add" onclick="event.preventDefault();event.stopPropagation();actions.addViceDailyRecord('${section.key}')" aria-label="إضافة سجل" title="إضافة سجل">+</button>` : ""}</div></summary><div class="vice-supervision-records">${rows.map((row, index) => `<article class="admin-report-entry vice-supervision-record"><div class="vice-supervision-record-head"><strong>السجل ${index + 1}</strong>${canEdit ? `<button type="button" class="icon-btn vice-record-delete" onclick="actions.removeViceDailyRecord('${section.key}',${index})" aria-label="حذف السجل" title="حذف السجل">×</button>` : ""}</div><div class="admin-report-fields">${section.fields.map((item) => field(section, row, index, item, canEdit)).join("")}</div></article>`).join("")}</div></details>`;
+    const opened = (report.viceOpenSections || []).includes(section.key);
+    return `<details class="admin-report-section vice-supervision-section" data-section-key="${section.key}" ${opened ? "open" : ""} ontoggle="actions.toggleViceDailySection('${section.key}',this.open)"><summary><span>${section.title}</span><div><b>${savedRows.length}</b>${canEdit ? `<button type="button" class="vice-summary-add" onclick="event.preventDefault();event.stopPropagation();actions.addViceDailyRecord('${section.key}')" aria-label="إضافة سجل" title="إضافة سجل">+</button>` : ""}</div></summary><div class="vice-supervision-records">${rows.map((row, index) => `<article class="admin-report-entry vice-supervision-record"><div class="vice-supervision-record-head"><strong>السجل ${index + 1}</strong>${canEdit ? `<button type="button" class="icon-btn vice-record-delete" onclick="actions.removeViceDailyRecord('${section.key}',${index})" aria-label="حذف السجل" title="حذف السجل">×</button>` : ""}</div><div class="admin-report-fields">${section.fields.map((item) => field(section, row, index, item, canEdit)).join("")}</div></article>`).join("")}</div></details>`;
   }
 
   function renderDailyModal() {
@@ -84,7 +101,9 @@ export function createVicePrincipalReportModule(getContext) {
       state.modal.viceDailyPrepared = true;
     }
     const canEdit = editable(report);
-    return `<div class="modal"><form class="modal-box admin-report-modal vice-report-modal vice-supervision-daily-modal" onsubmit="actions.saveVicePrincipalReport(event)"><button type="button" class="icon-btn admin-modal-close" onclick="actions.closeModal()">${icons.close || "×"}</button><div class="modal-head"><div><span class="eyebrow">تقرير الوكيل اليومي</span><h3>${safe(schoolName(report.schoolId))} - ${report.status === "draft" ? "مسودة" : report.status === "submitted" ? "مرفوع" : "معتمد"}</h3></div></div><div class="admin-report-modal-body"><label class="field vice-daily-date"><span>التاريخ</span><input type="date" name="date" value="${safe(report.date)}" ${canEdit ? "" : "readonly"}/></label><div class="vice-supervision-sections">${dailySections.map((section) => sectionCard(section, report, canEdit)).join("")}</div><label class="field vice-wide-field"><span>أبرز الملاحظات والمقترحات</span><textarea data-vice-recommendations ${canEdit ? "" : "readonly"}>${safe(report.data?.recommendations || "")}</textarea></label><input type="hidden" name="payload" /></div><div class="admin-report-sticky-actions"><button type="button" class="btn secondary" onclick="actions.closeModal()">إغلاق</button><button type="button" class="btn secondary" onclick="actions.printVicePrincipalReport('${safe(report.id)}')">${icons.print || ""} طباعة التقرير</button>${canEdit ? `<button type="submit" class="btn">${icons.save || ""} حفظ</button><button type="button" class="btn" onclick="actions.saveVicePrincipalReport(event,true)">${icons.upload || ""} حفظ ورفع للمدير</button>` : ""}${managerRoles.has(normalizeRole(state.currentUser?.role, "")) && report.status !== "principal_approved" ? `<button type="button" class="btn" onclick="actions.approveVicePrincipalReport('${safe(report.id)}')">اعتماد التقرير</button>` : ""}</div></form></div>`;
+    const deputies = deputyUsers(report.schoolId);
+    const authorField = isSuperadmin() ? `<label class="field vice-deputy-field"><span>الوكيل المسؤول عن التقرير</span><select data-vice-author>${deputies.map((user) => `<option value="${safe(user.id)}" ${report.authorId === user.id ? "selected" : ""}>${safe(user.name)}</option>`).join("") || `<option value="">لا يوجد وكيل في هذا الفرع</option>`}</select></label>` : "";
+    return `<div class="modal"><form class="modal-box admin-report-modal vice-report-modal vice-supervision-daily-modal" onsubmit="actions.saveVicePrincipalReport(event)"><button type="button" class="icon-btn admin-modal-close" onclick="actions.closeModal()">${icons.close || "×"}</button><div class="modal-head"><div><span class="eyebrow">تقرير الوكيل اليومي</span><h3>${safe(schoolName(report.schoolId))} - ${report.status === "draft" ? "مسودة" : report.status === "submitted" ? "مرفوع" : "معتمد"}</h3></div></div><div class="admin-report-modal-body"><div class="vice-report-meta"><label class="field vice-daily-date"><span>التاريخ</span><input type="date" name="date" value="${safe(report.date)}" ${canEdit ? "" : "readonly"}/></label>${authorField}</div><div class="vice-supervision-sections">${dailySections.map((section) => sectionCard(section, report, canEdit)).join("")}</div><label class="field vice-wide-field"><span>أبرز الملاحظات والمقترحات</span><textarea data-vice-recommendations ${canEdit ? "" : "readonly"}>${safe(report.data?.recommendations || "")}</textarea></label><input type="hidden" name="payload" /></div><div class="admin-report-sticky-actions"><button type="button" class="btn secondary" onclick="actions.closeModal()">إغلاق</button><button type="button" class="btn secondary" onclick="actions.printVicePrincipalReport('${safe(report.id)}')">${icons.print || ""} طباعة التقرير</button>${canEdit ? `<button type="submit" class="btn">${icons.save || ""} حفظ</button><button type="button" class="btn" onclick="actions.saveVicePrincipalReport(event,true)">${icons.upload || ""} حفظ ورفع للمدير</button>` : ""}${managerRoles.has(normalizeRole(state.currentUser?.role, "")) && report.status !== "principal_approved" ? `<button type="button" class="btn" onclick="actions.approveVicePrincipalReport('${safe(report.id)}')">اعتماد التقرير</button>` : ""}</div></form></div>`;
   }
 
   function saveReport(event, submit = false) {
@@ -98,9 +117,17 @@ export function createVicePrincipalReportModule(getContext) {
     ...base,
     addDailyRecord,
     removeDailyRecord,
+    toggleDailySection,
     saveReport,
     renderModal() {
       return currentReport()?.viceType === "daily" ? renderDailyModal() : base.renderModal();
+    },
+    renderPage() {
+      const safe = ctx().safe;
+      return base.renderPage().replace(/(<button[^>]*openVicePrincipalReport\('[^']+','([^']+)'\)[^>]*><span>)(.*?)(<\/span>)/g, (match, start, id, label, end) => {
+        const report = (ctx().state.administrativeReports || []).find((item) => item.id === id);
+        return report?.authorName ? `${start}${label}<small class="vice-report-author">رفع بواسطة: ${safe(report.authorName)}</small>${end}` : match;
+      });
     },
   };
 }
