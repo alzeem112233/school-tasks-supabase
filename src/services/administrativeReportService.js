@@ -445,7 +445,7 @@ export function createAdministrativeReportsModule(getContext) {
     const filters = state.administrativeReportFilters || {};
     const schoolScope = scopedSchoolIds();
     return reports()
-        .filter((report) => report.reportKind !== "secretary_daily" && !String(report.reportKind || "").startsWith("vice_principal_") && !String(report.reportKind || "").startsWith("social_specialist_") && !String(report.reportKind || "").startsWith("activity_supervisor_"))
+        .filter((report) => report.reportKind !== "secretary_daily" && report.reportKind !== "administrative_supervision_merged" && !String(report.reportKind || "").startsWith("vice_principal_") && !String(report.reportKind || "").startsWith("social_specialist_") && !String(report.reportKind || "").startsWith("activity_supervisor_"))
       .filter((report) => !schoolScope || schoolScope.includes(report.schoolId))
       .filter((report) => reportMatchesPeriod(report, filters))
       .filter((report) => (filters.supervisorId && filters.supervisorId !== "all" ? report.supervisorId === filters.supervisorId : true))
@@ -837,8 +837,9 @@ export function createAdministrativeReportsModule(getContext) {
     const textFields = ["buildingNotes", "suggestions", ...deputyFields.map(([field]) => field)];
     const merged = {
       ...base,
-      id: sortedReports.map((report) => report.id).join(","),
-      status: "merged",
+      id: createUuid(),
+      reportKind: "administrative_supervision_merged",
+      status: "draft",
       sections: mergedSections,
       sourceReportIds: sortedReports.map((report) => report.id),
     };
@@ -847,6 +848,14 @@ export function createAdministrativeReportsModule(getContext) {
       merged[field] = [...new Set(values)].join("\n");
     });
     return merged;
+  }
+
+  function mergedReportForSources(sourceReportIds = []) {
+    const sourceKey = [...sourceReportIds].sort().join(",");
+    return reports()
+      .filter((report) => report.reportKind === "administrative_supervision_merged")
+      .filter((report) => [...(report.sourceReportIds || [])].sort().join(",") === sourceKey)
+      .sort((a, b) => String(b.updatedAt || b.createdAt || "").localeCompare(String(a.updatedAt || a.createdAt || "")))[0] || null;
   }
 
   function groupedStatusLabel(group) {
@@ -1056,11 +1065,13 @@ export function createAdministrativeReportsModule(getContext) {
               const deleteIds = reportIds.join(",");
               const canDeleteGroup = dayGroup.reports.every((report) => canDeleteAdministrativeReport(report));
               const merged = dayGroup.reports.length > 1;
+              const savedMergedReport = merged ? mergedReportForSources(reportIds) : null;
+              const displayedStatus = savedMergedReport ? statusLabel(savedMergedReport.status) : groupedStatusLabel(dayGroup);
               return `
                 <div class="admin-report-group-row">
                   <button class="admin-report-group-link" type="button" onclick="${merged ? `actions.openAdministrativeReportMerged('${safe(deleteIds)}')` : `actions.openAdministrativeReport('${safe(dayGroup.latest?.id || "")}')`}">
                     <span>${safe(merged ? `تقرير مدمج (${dayGroup.reports.length})` : "عرض التقرير")}</span>
-                    <small>${safe(formatDate ? formatDate(dayGroup.date) : dayGroup.date)} - ${safe(groupedStatusLabel(dayGroup))}</small>
+                    <small>${safe(formatDate ? formatDate(dayGroup.date) : dayGroup.date)} - ${safe(displayedStatus)}</small>
                   </button>
                   ${canDeleteGroup ? `<button class="admin-report-delete-mini" type="button" onclick="actions.deleteAdministrativeReportGroup('${safe(deleteIds)}')" title="حذف التقرير" aria-label="حذف التقرير">${icons.trash || "حذف"}</button>` : ""}
                 </div>
@@ -1165,11 +1176,12 @@ export function createAdministrativeReportsModule(getContext) {
     const ids = String(idsText || "").split(",").map((id) => id.trim()).filter(Boolean);
     const selectedReports = reports().filter((report) => ids.includes(report.id));
     if (!selectedReports.length || !canViewAdministrativeReports()) return;
+    const existingMergedReport = mergedReportForSources(ids);
     state.modal = {
       type: "administrative_report",
-      id: "",
+      id: existingMergedReport?.id || "",
       mode: "merged",
-      report: mergeReportsForView(selectedReports),
+      report: existingMergedReport || mergeReportsForView(selectedReports),
       openSections: Object.fromEntries(sections.map((section) => [section.id, true])),
     };
     render();
@@ -1345,10 +1357,15 @@ export function createAdministrativeReportsModule(getContext) {
     const merged = selectedReports.length > 1;
     const confirmed = window.confirm(merged ? "سيتم حذف التقارير المدمجة لهذا اليوم. هل تريد المتابعة؟" : "هل تريد حذف تقرير الإشراف؟");
     if (!confirmed) return;
-    state.administrativeReports = reports().filter((report) => !ids.includes(report.id));
+    const relatedMergedIds = reports()
+      .filter((report) => report.reportKind === "administrative_supervision_merged")
+      .filter((report) => [...(report.sourceReportIds || [])].sort().join(",") === [...ids].sort().join(","))
+      .map((report) => report.id);
+    const deletedIds = [...new Set([...ids, ...relatedMergedIds])];
+    state.administrativeReports = reports().filter((report) => !deletedIds.includes(report.id));
     persist();
     if (supabase?.isCloudEnabled?.()) {
-      for (const id of ids) {
+      for (const id of deletedIds) {
         try {
           await supabase.deleteCloudDoc?.("administrativeReports", id);
         } catch (error) {
@@ -1479,9 +1496,9 @@ export function createAdministrativeReportsModule(getContext) {
     const sectionOpenAttribute = (sectionId) => (!isNewReport || openSections[sectionId] ? "open" : "");
     const fullControl = hasFullAdministrativeControl();
     const ownerControl = canChooseReportOwner();
-    const baseSupervisorEditable = !isMergedReport && (fullControl || ownerControl || (canCreateDailyReport() && report.supervisorId === state.currentUser?.id && !["deputy_approved", "principal_approved"].includes(report.status)));
+    const baseSupervisorEditable = fullControl || ownerControl || (canCreateDailyReport() && report.supervisorId === state.currentUser?.id && !["deputy_approved", "principal_approved"].includes(report.status));
     const supervisorEditable = baseSupervisorEditable && canEditPrincipalLockedReport(report);
-    const deputyEditable = !isMergedReport && (fullControl || canDeputyApprove()) && canEditPrincipalLockedReport(report);
+    const deputyEditable = (fullControl || canDeputyApprove()) && canEditPrincipalLockedReport(report);
     const schools = state.schools || [];
     const supervisors = supervisorUsers().filter((user) => fullControl || user.schoolId === state.currentUser?.schoolId);
 
@@ -1501,7 +1518,7 @@ export function createAdministrativeReportsModule(getContext) {
             <label class="field"><span>المشرف</span><select name="supervisorId">${supervisors.map((user) => `<option value="${safe(user.id)}" ${report.supervisorId === user.id ? "selected" : ""}>${safe(user.name)} - ${schoolName(user.schoolId)}</option>`).join("")}</select></label>
           </div>` : ""}
           <label class="field"><span>التاريخ</span><input type="date" name="date" value="${safe(report.date)}" ${supervisorEditable ? "" : "readonly"} /></label>
-          ${isMergedReport ? `<div class="admin-merged-report-note">تم دمج ${safe(report.sourceReportIds?.length || 0)} تقارير لهذا المشرف في نفس اليوم للعرض فقط.</div>` : ""}
+          ${isMergedReport ? `<div class="admin-merged-report-note">تم دمج ${safe(report.sourceReportIds?.length || 0)} تقارير لهذا المشرف في نفس اليوم. يُحفظ ويُرفع ويُعتمد هذا التقرير بصورة مستقلة مثل التقرير العادي.</div>` : ""}
           ${sections.map((section) => `
             <details class="admin-report-section" data-section-id="${safe(section.id)}" ${sectionOpenAttribute(section.id)}>
               <summary>${safe(section.title)} <span>${countSection(report, section.id)}</span></summary>
