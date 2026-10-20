@@ -60,6 +60,7 @@ import { createSecretaryReportModule } from "./services/secretaryReportService.j
 import { createVicePrincipalReportModule } from "./services/vicePrincipalReportSupervisionStyleService.js";
 import { createSocialSpecialistReportModule } from "./services/socialSpecialistReportService.js";
 import { createActivitySupervisorReportModule } from "./services/activitySupervisorReportService.js";
+import { createStageSupervisorLeavePermissionModule } from "./services/stageSupervisorLeavePermissionService.js";
 import { createNotebookRoleTemplateModule } from "./services/notebookRoleTemplateService.js";
 import { createExamScheduleModule } from "./services/examScheduleService.js";
 import { createCircularsModule } from "./services/circularService.js";
@@ -149,6 +150,7 @@ let state = {
   administrativeReports: [],
   stageSupervisorColors: {},
   administrativeReportFilters: { tab: "daily", date: today(), month: today().slice(0, 7), periodMode: "month", supervisorId: "all", schoolId: "all", printType: "daily", printMode: "both" },
+  stageSupervisorLeavePermissionFilters: { mode: "day", date: today(), startDate: today(), endDate: today() },
   examSchedulePeriods: [],
   examScheduleLogs: [],
   examScheduleSettings: null,
@@ -712,6 +714,7 @@ modules.secretaryReports = createSecretaryReportModule(getContext);
 modules.vicePrincipalReports = createVicePrincipalReportModule(getContext);
 modules.socialSpecialistReports = createSocialSpecialistReportModule(getContext);
 modules.activitySupervisorReports = createActivitySupervisorReportModule(getContext);
+modules.stageSupervisorLeavePermissions = createStageSupervisorLeavePermissionModule(getContext);
 modules.notebookRoleTemplates = createNotebookRoleTemplateModule(getContext);
 modules.examSchedules = createExamScheduleModule(getContext);
 modules.circulars = createCircularsModule(getContext);
@@ -1053,6 +1056,13 @@ window.actions = {
   addActivityReportRow: modules.activitySupervisorReports.addRow,
   removeActivityReportRow: modules.activitySupervisorReports.removeRow,
   printActivitySupervisorReport: modules.activitySupervisorReports.printReport,
+  openStageSupervisorLeavePermissionReport: modules.stageSupervisorLeavePermissions.openReport,
+  saveStageSupervisorLeavePermissionReport: modules.stageSupervisorLeavePermissions.saveReport,
+  addStageSupervisorLeavePermissionEntry: modules.stageSupervisorLeavePermissions.addEntry,
+  removeStageSupervisorLeavePermissionEntry: modules.stageSupervisorLeavePermissions.removeEntry,
+  updateStageSupervisorLeavePermissionDate: modules.stageSupervisorLeavePermissions.updateEntryDate,
+  setStageSupervisorLeavePermissionFilter: modules.stageSupervisorLeavePermissions.setFilter,
+  printStageSupervisorLeavePermissions: modules.stageSupervisorLeavePermissions.printStageSupervisorLeavePermissions,
   deleteAdministrativeReportGroup: modules.administrativeReports.deleteAdministrativeReportGroup,
   setAdministrativeReportFilter: modules.administrativeReports.setFilter,
   setAdministrativeReportTab: modules.administrativeReports.setTab,

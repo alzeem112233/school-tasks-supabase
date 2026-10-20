@@ -1,6 +1,6 @@
 export function createAdminModule(getContext) {
   function navItems() {
-    const { canViewUsers, canViewDashboard, canViewAuditLogs, canCreateBackups, canViewReports, canViewFinance, canViewGradeAdjustments, canViewStaffEvaluations, icons, notifications, administrativeReports, secretaryReports, vicePrincipalReports, socialSpecialistReports, activitySupervisorReports, notebookRoleTemplates, examSchedules, circulars, meetings, chat } = getContext();
+    const { canViewUsers, canViewDashboard, canViewAuditLogs, canCreateBackups, canViewReports, canViewFinance, canViewGradeAdjustments, canViewStaffEvaluations, icons, notifications, administrativeReports, secretaryReports, vicePrincipalReports, socialSpecialistReports, activitySupervisorReports, stageSupervisorLeavePermissions, notebookRoleTemplates, examSchedules, circulars, meetings, chat } = getContext();
     const unread = notifications.getUnreadCount();
     const items = [];
     items.push(["home", "الرئيسية", icons.dashboard, unread]);
@@ -13,6 +13,7 @@ export function createAdminModule(getContext) {
       ...(vicePrincipalReports?.canView() ? [["vicePrincipalReports", "تقارير الوكيل", icons.reports, 0]] : []),
       ...(socialSpecialistReports?.canView() ? [["socialSpecialistReports", "تقارير الأخصائي", icons.users || icons.reports, 0]] : []),
       ...(activitySupervisorReports?.canView() ? [["activitySupervisorReports", "تقارير الأنشطة", icons.calendar || icons.reports, 0]] : []),
+      ...(stageSupervisorLeavePermissions?.canView() ? [["stageSupervisorLeavePermissions", "أذونات خروج المتعلمين", icons.reports, 0]] : []),
       ...(examSchedules?.canViewExamSchedules() ? [["examSchedules", "جداول الاختبارات", icons.calendar || icons.reports, 0]] : []),
       ...(circulars?.canViewCirculars() ? [["circulars", "التعاميم الإدارية", icons.message || icons.reports, 0]] : []),
       ...(meetings?.canViewMeetings() ? [["meetings", "الاجتماعات", icons.users || icons.reports, 0]] : []),
@@ -38,7 +39,7 @@ export function createAdminModule(getContext) {
     const pick = (...ids) => ids.map((id) => items.find((item) => item[0] === id)).filter(Boolean);
     return [
       ["الأعمال اليومية", pick("home", "tasks", "dailyNotebook", "chat", "notifications")],
-      ["الاختبارات والتعاميم والاجتماعات", pick("administrativeReports", "secretaryReports", "vicePrincipalReports", "socialSpecialistReports", "activitySupervisorReports", "examSchedules", "circulars", "meetings")],
+      ["الاختبارات والتعاميم والاجتماعات", pick("administrativeReports", "secretaryReports", "vicePrincipalReports", "socialSpecialistReports", "activitySupervisorReports", "stageSupervisorLeavePermissions", "examSchedules", "circulars", "meetings")],
       ["الإدارة والمتابعة", pick("users", "finance", "gradeAdjustments", "teachers", "staffEvaluations", "notebookRoleTemplates")],
       ["التقارير والسجلات", pick("reports", "activity")],
       ["إعدادات النظام", pick("enterprise")],
@@ -401,7 +402,7 @@ export function createAdminModule(getContext) {
   }
 
   function renderView() {
-    const { state, canViewUsers, canViewAuditLogs, canCreateBackups, canViewReports, canViewFinance, canViewGradeAdjustments, canViewStaffEvaluations, users, dashboard, notifications, tasks, finance, gradeAdjustments, teacherDirectory, staffEvaluations, administrativeReports, secretaryReports, vicePrincipalReports, socialSpecialistReports, activitySupervisorReports, notebookRoleTemplates, examSchedules, circulars, meetings, chat } = getContext();
+    const { state, canViewUsers, canViewAuditLogs, canCreateBackups, canViewReports, canViewFinance, canViewGradeAdjustments, canViewStaffEvaluations, users, dashboard, notifications, tasks, finance, gradeAdjustments, teacherDirectory, staffEvaluations, administrativeReports, secretaryReports, vicePrincipalReports, socialSpecialistReports, activitySupervisorReports, stageSupervisorLeavePermissions, notebookRoleTemplates, examSchedules, circulars, meetings, chat } = getContext();
     if (state.view === "dashboard" && getContext().canViewDashboard()) return dashboard.renderDashboard();
     if (state.view === "home") return getContext().canViewDashboard() ? dashboard.renderDashboard() : renderHome();
     if (state.view === "users" && canViewUsers()) return users.renderUsers();
@@ -417,6 +418,7 @@ export function createAdminModule(getContext) {
     if (state.view === "vicePrincipalReports" && vicePrincipalReports?.canView()) return vicePrincipalReports.renderPage();
     if (state.view === "socialSpecialistReports" && socialSpecialistReports?.canView()) return socialSpecialistReports.renderPage();
     if (state.view === "activitySupervisorReports" && activitySupervisorReports?.canView()) return activitySupervisorReports.renderPage();
+    if (state.view === "stageSupervisorLeavePermissions" && stageSupervisorLeavePermissions?.canView()) return stageSupervisorLeavePermissions.renderPage();
     if (state.view === "notebookRoleTemplates" && notebookRoleTemplates?.canManage()) return notebookRoleTemplates.renderPage();
     if (state.view === "chat" && chat?.canUseChat()) return chat.renderChat();
     if (state.view === "administrativeReports" && administrativeReports?.canViewAdministrativeReports()) return administrativeReports.renderAdministrativeReports();
@@ -429,7 +431,7 @@ export function createAdminModule(getContext) {
   }
 
   function renderModal() {
-    const { state, users, tasks, notifications, finance, gradeAdjustments, teacherDirectory, staffEvaluations, administrativeReports, secretaryReports, vicePrincipalReports, socialSpecialistReports, activitySupervisorReports, notebookRoleTemplates, examSchedules, circulars, meetings } = getContext();
+    const { state, users, tasks, notifications, finance, gradeAdjustments, teacherDirectory, staffEvaluations, administrativeReports, secretaryReports, vicePrincipalReports, socialSpecialistReports, activitySupervisorReports, stageSupervisorLeavePermissions, notebookRoleTemplates, examSchedules, circulars, meetings } = getContext();
     if (state.modal.type === "profile") return users.renderProfileModal();
     if (state.modal.type === "user") return users.renderUserModal(state.modal.id);
     if (state.modal.type === "school") return users.renderSchoolModal(state.modal.id);
@@ -445,6 +447,7 @@ export function createAdminModule(getContext) {
     if (state.modal.type === "vice_principal_report") return vicePrincipalReports.renderModal();
     if (state.modal.type === "social_specialist_report") return socialSpecialistReports.renderModal();
     if (state.modal.type === "activity_supervisor_report") return activitySupervisorReports.renderModal();
+    if (state.modal.type === "stage_supervisor_leave_permissions") return stageSupervisorLeavePermissions.renderModal();
     if (state.modal.type === "notebook_role_template") return notebookRoleTemplates.renderModal();
     if (state.modal.type === "exam_settings") return examSchedules.renderSettingsModal();
     if (state.modal.type === "exam_period") return examSchedules.renderPeriodModal();

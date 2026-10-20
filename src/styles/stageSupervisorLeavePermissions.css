@@ -1,0 +1,439 @@
+.leave-permissions-page {
+  display: grid;
+  gap: 18px;
+  color: var(--text-primary, #172033);
+}
+
+.leave-permissions-hero,
+.leave-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px;
+  border: 1px solid #99f6e4;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ecfdf5, #f0fdfa 54%, #eff6ff);
+}
+
+.leave-permissions-hero span,
+.leave-modal-head span,
+.leave-section-head span {
+  display: block;
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.leave-permissions-hero h2,
+.leave-modal-head h2,
+.leave-section-head h3 {
+  margin: 4px 0 6px;
+  color: #134e4a;
+}
+
+.leave-permissions-hero p,
+.leave-modal-head p,
+.leave-history-card p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.7;
+}
+
+.leave-permissions-hero > b,
+.leave-modal-head > b {
+  display: grid;
+  place-items: center;
+  min-width: 100px;
+  min-height: 86px;
+  padding: 12px;
+  border-radius: 16px;
+  background: #0f766e;
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.leave-permissions-hero > b small,
+.leave-modal-head > b small {
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.leave-permissions-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 16px;
+  background: var(--bg-surface, #fff);
+}
+
+.leave-permissions-toolbar label {
+  display: grid;
+  min-width: 160px;
+  gap: 6px;
+}
+
+.leave-permissions-toolbar label span,
+.leave-entry-fields label span {
+  color: var(--text-muted, #475569);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.leave-permissions-toolbar .btn {
+  min-height: 42px;
+}
+
+.leave-permissions-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.leave-permissions-summary article {
+  display: grid;
+  gap: 5px;
+  min-height: 86px;
+  padding: 16px;
+  border: 1px solid #dbe4ea;
+  border-radius: 15px;
+  background: var(--bg-surface, #fff);
+}
+
+.leave-permissions-summary span {
+  color: var(--text-muted, #64748b);
+  font-size: 12px;
+}
+
+.leave-permissions-summary strong {
+  color: #0f766e;
+  font-size: 18px;
+}
+
+.leave-history-list {
+  display: grid;
+  gap: 10px;
+}
+
+.leave-section-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 4px;
+}
+
+.leave-section-head small {
+  color: #64748b;
+}
+
+.leave-history-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #dbe4ea;
+  border-radius: 16px;
+  background: var(--bg-surface, #fff);
+  box-shadow: 0 8px 20px rgb(15 23 42 / 0.04);
+}
+
+.leave-history-card > div {
+  display: grid;
+  gap: 3px;
+}
+
+.leave-history-card > div > span {
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.leave-history-card h3 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.leave-permissions-modal {
+  display: grid;
+  width: min(1120px, calc(100vw - 32px));
+  max-width: 1120px;
+  max-height: min(900px, calc(100vh - 32px));
+  overflow: hidden;
+}
+
+.leave-modal-head {
+  padding: 17px 20px;
+  border: 0;
+  border-bottom: 1px solid #ccfbf1;
+  border-radius: 0;
+}
+
+.leave-modal-head h2 {
+  font-size: 21px;
+}
+
+.leave-modal-head > b {
+  min-width: 72px;
+  min-height: 62px;
+  font-size: 22px;
+}
+
+.leave-permissions-modal-body {
+  display: grid;
+  gap: 12px;
+  max-height: min(640px, calc(100vh - 250px));
+  overflow: auto;
+  padding: 18px 20px;
+  background: #f8fafc;
+}
+
+.leave-manager-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #99f6e4;
+  border-radius: 14px;
+  background: #f0fdfa;
+}
+
+.leave-manager-controls label {
+  display: grid;
+  gap: 6px;
+}
+
+.leave-manager-controls label span {
+  color: #115e59;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.leave-manager-controls p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #475569;
+  font-size: 12px;
+}
+
+.leave-entry-card {
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  overflow: clip;
+  background: var(--bg-surface, #fff);
+}
+
+.leave-entry-card summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 64px;
+  padding: 12px 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.leave-entry-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.leave-entry-card summary > div {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.leave-entry-card summary b {
+  overflow: hidden;
+  color: #0f172a;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leave-entry-card summary small,
+.leave-entry-card summary em {
+  color: #64748b;
+  font-size: 12px;
+  font-style: normal;
+}
+
+.leave-entry-number {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: #ccfbf1;
+  color: #115e59;
+  font-weight: 800;
+}
+
+.leave-entry-card[open] summary {
+  border-bottom: 1px solid #dbe4ea;
+  background: #f0fdfa;
+}
+
+.leave-entry-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+
+.leave-entry-fields label {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+
+.leave-entry-fields input {
+  min-width: 0;
+}
+
+.leave-field-wide {
+  grid-column: span 2;
+}
+
+.leave-day-output output {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 8px 11px;
+  border: 1px solid #d7e2e7;
+  border-radius: 10px;
+  background: #f0fdfa;
+  color: #115e59;
+  font-weight: 800;
+}
+
+.leave-entry-card footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 16px 15px;
+}
+
+.leave-entry-card .btn.danger.subtle {
+  border-color: #fecaca;
+  background: #fff;
+  color: #b91c1c;
+}
+
+.leave-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 13px 20px;
+  border-top: 1px solid #dbe4ea;
+  background: var(--bg-surface, #fff);
+}
+
+:root[data-theme="dark"] .leave-permissions-hero,
+:root[data-theme="dark"] .leave-modal-head,
+:root[data-theme="dark"] .leave-entry-card[open] summary,
+:root[data-theme="dark"] .leave-day-output output {
+  border-color: #1f766e;
+  background: #102a32;
+}
+
+:root[data-theme="dark"] .leave-permissions-hero h2,
+:root[data-theme="dark"] .leave-modal-head h2,
+:root[data-theme="dark"] .leave-entry-card summary b {
+  color: #f1f5f9;
+}
+
+:root[data-theme="dark"] .leave-permissions-modal-body {
+  background: #0f192b;
+}
+
+:root[data-theme="dark"] .leave-manager-controls {
+  border-color: #1f766e;
+  background: #102a32;
+}
+
+:root[data-theme="dark"] .leave-history-card,
+:root[data-theme="dark"] .leave-permissions-toolbar,
+:root[data-theme="dark"] .leave-permissions-summary article,
+:root[data-theme="dark"] .leave-entry-card {
+  border-color: #2a3a54;
+  background: #111c30;
+}
+
+@media (max-width: 760px) {
+  .leave-permissions-hero,
+  .leave-modal-head,
+  .leave-history-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .leave-permissions-hero > b,
+  .leave-modal-head > b {
+    width: 100%;
+    min-height: auto;
+    grid-template-columns: auto auto;
+    justify-content: center;
+  }
+
+  .leave-permissions-toolbar {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .leave-permissions-toolbar label,
+  .leave-permissions-toolbar .btn {
+    width: 100%;
+  }
+
+  .leave-permissions-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .leave-history-card .btn {
+    width: 100%;
+  }
+
+  .leave-permissions-modal {
+    width: 100%;
+    max-height: 100%;
+  }
+
+  .leave-permissions-modal-body {
+    max-height: calc(100vh - 240px);
+    padding: 10px;
+  }
+
+  .leave-entry-card summary {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .leave-entry-card summary em {
+    grid-column: 2;
+  }
+
+  .leave-entry-fields {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .leave-manager-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .leave-field-wide {
+    grid-column: auto;
+  }
+
+  .leave-modal-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+}

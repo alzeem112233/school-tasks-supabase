@@ -1105,7 +1105,10 @@ export function createSupabaseModule(getContext) {
     }
     if (collectionName === "administrativeReports" && !merge) {
       try {
-        const { data: savedId, error } = await cloud.client.rpc("save_administrative_report", { p_report: { id, ...data } });
+        const rpcName = data.type === "stage_supervisor_leave_permissions"
+          ? "save_stage_supervisor_leave_permissions_report"
+          : "save_administrative_report";
+        const { data: savedId, error } = await cloud.client.rpc(rpcName, { p_report: { id, ...data } });
         if (error) throw error;
         return { id: savedId || id };
       } catch (error) {
@@ -1116,7 +1119,7 @@ export function createSupabaseModule(getContext) {
           return { queued: true };
         }
         const message = String(error?.message || "");
-        if (!message.includes("save_administrative_report") && !message.includes("schema cache")) throw error;
+        if (!message.includes("save_administrative_report") && !message.includes("save_stage_supervisor_leave_permissions_report") && !message.includes("schema cache")) throw error;
       }
     }
     const target = cloud.client.from(tableName(collectionName));
