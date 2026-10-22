@@ -13785,6 +13785,7 @@ body.offline-mode .floating-sync {
 
 /* Vice-principal reports: supervision-style mobile layout. */
 .vice-report-modal { overflow:hidden; background:var(--bg-surface,#fff); border:1px solid var(--border,#dbe5ef); box-shadow:0 18px 55px rgba(15,23,42,.16); }
+.admin-report-modal fieldset.admin-report-modal-body { min-inline-size:0; margin:0; border:0; }
 .vice-supervision-daily-modal { max-width:760px; }
 .vice-supervision-daily-modal .modal-head { padding:18px 20px; }
 .vice-supervision-daily-modal .admin-report-modal-body { padding:14px; }

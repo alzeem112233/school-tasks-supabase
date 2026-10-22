@@ -43,6 +43,9 @@ export function createVicePrincipalReportModule(getContext) {
   const reports = () => (ctx().state.administrativeReports || []).map(normalizeReport).filter((item) => Object.values(TYPES).some((type) => type.kind === item.reportKind));
   function canView(user = ctx().state.currentUser) { return canManage(user) || role(user) === "deputy_principal"; }
   function canCreate(user = ctx().state.currentUser) { return canView(user); }
+  function canEditReport(report, user = ctx().state.currentUser) {
+    return Boolean(report && canCreate(user) && report.status !== "principal_approved" && (report.authorId === user?.id || canManage(user)));
+  }
   function reportSchoolScope(user = ctx().state.currentUser) {
     const { state, scopedSchoolIds } = ctx();
     if (!user) return [];
@@ -88,7 +91,7 @@ export function createVicePrincipalReportModule(getContext) {
     render();
   }
   function saveReport(event, submit = false) {
-    event.preventDefault(); const { state } = ctx(); const form = new FormData(event.currentTarget); const old = state.modal.vicePrincipalReport; const key = old.viceType; const data = JSON.parse(form.get("payload") || "{}");
+    event.preventDefault(); const { state, showToast } = ctx(); const form = new FormData(event.currentTarget); const old = state.modal.vicePrincipalReport; if (!canEditReport(old)) { showToast?.("لا يمكن تعديل التقرير بعد اعتماد المدير، أو لغير الوكيل المسؤول عنه."); return; } const key = old.viceType; const data = JSON.parse(form.get("payload") || "{}");
     replaceAndSave({ ...old, date: filled(form.get("date")) || old.date, status: submit ? "submitted" : "draft", data, updatedAt: new Date().toISOString(), submittedAt: submit ? new Date().toISOString() : old.submittedAt || "" });
   }
   function approveReport(id) { const report = visibleReports().find((item) => item.id === id); if (!report || !canManage()) return; replaceAndSave({ ...report, status: "principal_approved", approvedAt: new Date().toISOString(), approvedBy: ctx().state.currentUser?.id || "" }); }
@@ -136,7 +139,7 @@ export function createVicePrincipalReportModule(getContext) {
   function renderModal() {
     const { state, safe, icons, schoolName } = ctx(); const report = state.modal?.vicePrincipalReport; if (!report) return "";
     if (report.viceType === "monthly") return `<div class="modal"><div class="modal-box admin-report-modal vice-report-modal vice-monthly-modal"><button type="button" class="icon-btn admin-modal-close" onclick="actions.closeModal()">${icons.close || "×"}</button><div class="modal-head"><div><span class="eyebrow">تقرير وكيل شهري</span><h3>التقرير الشهري للوكيل - ${safe(report.month)}</h3></div></div><div class="admin-report-modal-body">${monthlySummary(report.month)}</div><div class="admin-report-sticky-actions"><button type="button" class="btn secondary" onclick="actions.closeModal()">إغلاق</button><button type="button" class="btn" onclick="actions.printVicePrincipalReport('','monthly')">${icons.print || ""} طباعة التقرير الشهري</button></div></div></div>`;
-    const type = TYPES[report.viceType]; const editable = canCreate() && report.status !== "principal_approved" && (report.authorId === state.currentUser?.id || canManage());
+    const type = TYPES[report.viceType]; const editable = canEditReport(report);
     const body = report.viceType === "daily" ? renderDaily(report.data) : report.viceType === "grades" ? renderGrades(report.data) : report.viceType === "absence" ? renderAbsence(report.data) : report.viceType === "correction" ? renderCorrection(report.data) : renderDelayed(report.data);
     return `<div class="modal"><form class="modal-box admin-report-modal vice-report-modal" onsubmit="actions.saveVicePrincipalReport(event)"><button type="button" class="icon-btn admin-modal-close" onclick="actions.closeModal()">${icons.close || "×"}</button><div class="modal-head"><div><span class="eyebrow">${type.title}</span><h3>${safe(schoolName(report.schoolId))}</h3></div></div><div class="admin-report-modal-body">${field("التاريخ", "date", report.date, "date")}${body}<input type="hidden" name="payload" id="viceReportPayload" /></div><div class="admin-report-sticky-actions"><button type="button" class="btn secondary" onclick="actions.closeModal()">إغلاق</button><button type="button" class="btn secondary" onclick="actions.printVicePrincipalReport('${safe(report.id)}')">${icons.print || ""} طباعة التقرير</button>${editable ? `<button type="submit" class="btn">${icons.save || ""} حفظ مسودة</button><button type="button" class="btn" onclick="actions.saveVicePrincipalReport(event,true)">${icons.upload || ""} حفظ ورفع للمدير</button>` : ""}${canManage() && report.status !== "principal_approved" ? `<button type="button" class="btn" onclick="actions.approveVicePrincipalReport('${safe(report.id)}')">اعتماد التقرير</button>` : ""}</div></form></div>`;
   }
